@@ -1,0 +1,12 @@
+{
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix frontend\" \"npm run dev --prefix backend\""
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0",
+    "react-big-calendar": "^1.18.0"
+  }
+}

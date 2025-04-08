@@ -4,18 +4,10 @@ import { AppSidebar } from "@/components/app-sidebar"
 export default function DashboardLayout({ children }) {
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen w-full">
         <AppSidebar />
-        <div className="flex-1">
-          {/* TOP BAR */}
-          <div className="p-4 border-b bg-background flex items-center gap-4">
-            <SidebarTrigger />
-          </div>
-
-          {/* MAIN CONTENT */}
-          <main className="p-6">
+        <div className="flex-1 overflow-hidden">
             {children}
-          </main>
         </div>
       </div>
     </SidebarProvider>

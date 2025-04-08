@@ -74,6 +74,7 @@ import {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
+              <SidebarTrigger />
             </SidebarGroupContent>
           </SidebarGroup>
   

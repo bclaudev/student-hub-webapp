@@ -32,5 +32,5 @@ serve({
   fetch: app.fetch,
   port,
 }, () => {
-  console.log(`🚀 Hono server running at http://localhost:${port}`)
+  console.log(`Hono server running at http://localhost:${port}`)
 })
