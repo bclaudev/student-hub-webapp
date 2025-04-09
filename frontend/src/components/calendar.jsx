@@ -6,7 +6,7 @@ import getDay from 'date-fns/getDay'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { useMemo, useState } from 'react'
 import { enUS } from 'date-fns/locale'
-import CustomToolbar from './calendar-toolbar'
+import CalendarToolbar from './calendar-toolbar'
 
 const locales = {
     'en-US': enUS,
@@ -46,7 +46,7 @@ export default function Calendar() {
         style={{ height: "100%" }}
         className="rounded-md"
         components={{
-          toolbar: CustomToolbar,
+          toolbar: CalendarToolbar,
         }}
 
       />

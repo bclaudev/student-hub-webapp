@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
+import AddEventModal from "./add-event/add-event-dialog"
 
-export default function CustomToolbar({ label, onNavigate }) {
+export default function CalendarToolbar({ label, onNavigate }) {
   return (
     <div className="flex items-center justify-between px-4 py-2 border-b bg-background text-foreground h-20">
       {/* Left: Title */}
@@ -19,9 +20,13 @@ export default function CustomToolbar({ label, onNavigate }) {
       <span className="text-sm font-medium text-muted-foreground">{label}</span>
     </div>
 
-    <Button size="sm" className="ml-auto px-4 text-foreground">
+    <AddEventModal>
+      <Button size="sm" className="ml-auto px-4 text-foreground">
+        <Plus className="w-4 h-4 mr-2" />
         New event
-    </Button>
+      </Button>
+    </AddEventModal>
+
     </div>
   )
 }
