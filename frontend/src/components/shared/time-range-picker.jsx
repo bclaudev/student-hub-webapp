@@ -22,19 +22,15 @@ export default function TimeRangePicker({ defaultStart, defaultEnd, onChange }) 
   }
 
   return (
-    <div className="grid gap-2">
-      <Label>Start Time</Label>
-      <Input
-        type="time"
-        value={start}
-        onChange={handleStartChange}
-      />
-      <Label>End Time</Label>
-      <Input
-        type="time"
-        value={end}
-        onChange={handleEndChange}
-      />
+    <div className="flex flex-wrap gap-4">
+      <div className="flex-1 min-w-[150px] space-y-2">
+        <Label>Start Time *</Label>
+        <Input type="time" value={start} onChange={handleStartChange} />
+      </div>
+      <div className="flex-1 min-w-[150px] space-y-2">
+        <Label>End Time *</Label>
+        <Input type="time" value={end} onChange={handleEndChange} />
+      </div>
     </div>
   )
 }

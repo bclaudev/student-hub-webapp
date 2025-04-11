@@ -2,6 +2,7 @@
 
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { DateRangePicker } from "../shared/date-range-picker"
 import TimeRangePicker from "@/components/shared/time-range-picker"
 import {
@@ -18,46 +19,59 @@ export default function CommonFields() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <Label>Title *</Label>
-        <Input {...form.register("title", { required: true })} />
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+        <Label htmlFor="title" className="sm:w-24 text-sm font-medium">
+          Title *
+        </Label>
+        <Input id="title" className="flex-1 w-full" {...form.register("title", { required: true })} />
       </div>
 
-      <div>
-        <Label>Description</Label>
-        <Input {...form.register("description")} />
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+        <Label htmlFor="description" className="sm:w-24 pt-2 text-sm font-medium">
+          Description
+        </Label>
+        <Textarea id="description" className="flex-1 w-full min-h-[120px]" {...form.register("description")} />
       </div>
 
-      <div>
-        <Label>Date Range *</Label>
-        <DateRangePicker
-          value={form.watch("dateRange")}
-          onChange={(range) => form.setValue("dateRange", range)}
-        />
-      </div>
-
-      <div className="flex gap-4">
-        <div className="flex-1">
-          <TimeRangePicker
-            value={form.watch("startTime")}
-            onChange={(val) => form.setValue("startTime", val)}
+      <div className="flex flex-wrap gap-4">
+        {/* Date Range */}
+        <div className="flex-1 min-w-[200px] space-y-2">
+          <Label>Date Range *</Label>
+          <DateRangePicker
+            value={form.watch("dateRange")}
+            onChange={(range) => form.setValue("dateRange", range)}
           />
         </div>
-        
+
+        {/* Time Range */}
+        <div className="flex-1 min-w-[300px]">
+          <TimeRangePicker
+            defaultStart={form.watch("startTime")}
+            defaultEnd={form.watch("endTime")}
+            onChange={(start, end) => {
+              form.setValue("startTime", start)
+              form.setValue("endTime", end)
+            }}
+          />
+        </div>
       </div>
 
-      <div>
-        <Label>Color</Label>
-        <Input type="color" {...form.register("color")} />
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+        <Label htmlFor="color" className="sm:w-24 text-sm font-medium">
+          Color
+        </Label>
+        <Input id="color" type="color" className="flex-1 w-full" {...form.register("color")} />
       </div>
 
-      <div>
-        <Label>Notify</Label>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+        <Label htmlFor="notify" className="sm:w-24 text-sm font-medium">
+          Notify
+        </Label>
         <Select
           value={form.watch("notify")}
           onValueChange={(val) => form.setValue("notify", val)}
         >
-          <SelectTrigger>
+          <SelectTrigger className="flex-1 w-full">
             <SelectValue placeholder="Notification time" />
           </SelectTrigger>
           <SelectContent>

@@ -1,5 +1,11 @@
 import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import CommonFields from "@/components/add-event/fields-common"
 import AppointmentFields from "@/components/add-event/fields-appointment"
@@ -8,8 +14,12 @@ import ClassFields from "@/components/add-event/fields-class"
 import ExamFields from "@/components/add-event/fields-exam"
 import StudyFields from "@/components/add-event/fields-study"
 import { EventFormProvider } from "@/context/event-form-context"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select"
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/components/ui/toggle-group"
+import { Label } from "@/components/ui/label"
+
 
 const eventTypes = [
   { label: "Event", value: "event" },
@@ -25,11 +35,11 @@ export default function AddEventModal() {
   const [eventType, setEventType] = useState("event")
 
   const renderForm = () => {
-    console.log("eventType:", eventType)
     switch (eventType) {
       case "appointment":
         return <AppointmentFields />
       case "deadline":
+        //return <div>Test: Deadline Fields</div>
         return <DeadlineFields />
       case "class":
         return <ClassFields />
@@ -48,30 +58,39 @@ export default function AddEventModal() {
         <DialogTrigger asChild>
           <Button variant="default">New Event</Button>
         </DialogTrigger>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>New Event</DialogTitle>
+        <DialogContent className="w-full max-w-[100vw] sm:max-w-[800px] p-6 overflow-y-auto overflow-x-hidden">
+          <DialogHeader className="mb-2">
+            <DialogTitle className="text-xl">New Event</DialogTitle>
           </DialogHeader>
 
-          {/* Event Type Toggle Group */}
-          <ToggleGroup
-            type="single"
-            value={eventType}
-            onValueChange={(value) => value && setEventType(value)}
-            className="mb-4"
-          >
-            {eventTypes.map(({ label, value }) => (
-              <ToggleGroupItem key={value} value={value}>
-                {label}
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
+          <div className="space-y-6">
+            {/* Event Type Toggle Group */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Event Type *</Label>
+              <ToggleGroup
+                type="single"
+                value={eventType}
+                onValueChange={(value) => value && setEventType(value)}
+                className="flex flex-wrap"
+              >
+                {eventTypes.map(({ label, value }) => (
+                  <ToggleGroupItem
+                    key={value}
+                    value={value}
+                    className="min-w-[120px] px-4 py-2 text-sm font-medium text-center justify-center"
+                    >
+                    {label}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+            </div>
 
-          {/* Common Fields always visible */}
-          <CommonFields />
+            {/* Common Fields always visible */}
+            <CommonFields />
 
-          {/* Conditional Fields */}
-          {renderForm()}
+            {/* Conditional Fields */}
+            {renderForm()}
+          </div>
         </DialogContent>
       </Dialog>
     </EventFormProvider>
