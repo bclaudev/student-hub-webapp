@@ -39,8 +39,8 @@
 }
 
 .dark {
-  --primary: oklch(0.7 0.1744 293.46);            
-  --primary-foreground: oklch(0.145 0 0);          
+  --primary: oklch(0.7 0.1744 293.46);
+  --primary-foreground: oklch(0.145 0 0);
   --background: oklch(0.18 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -56,7 +56,7 @@
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.7 0.1744 293.46); 
+  --ring: oklch(0.7 0.1744 293.46);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
@@ -123,48 +123,48 @@
   body {
     @apply bg-background text-foreground;
   }
-    /* React Big Calendar Tailwind overrides */
+  /* React Big Calendar Tailwind overrides */
 
-    .rbc-calendar {
-      font-family: 'Inter', sans-serif;
-    }
-  
-    .rbc-toolbar {
-      @apply flex justify-between items-center mb-4 text-foreground;
-    }
-  
-    .rbc-toolbar-label {
-      @apply text-lg font-semibold;
-    }
-  
-    .rbc-btn-group button {
-      @apply bg-muted text-muted-foreground border border-border px-3 py-1 rounded-md hover:bg-accent;
-    }
-  
-    .rbc-event {
-      @apply bg-primary text-primary-foreground text-xs px-2 py-1 rounded-md;
-    }
-  
-    .rbc-month-view,
-    .rbc-time-view {
-      @apply border border-border rounded-lg overflow-hidden;
-    }
-  
-    .rbc-header {
-      @apply bg-muted text-muted-foreground font-medium text-sm;
-    }
-  
-    .rbc-date-cell {
-      @apply text-xs text-muted-foreground;
-    }
-  
-    .rbc-off-range-bg {
-      @apply bg-muted;
-    }
-  
-    .dark .rbc-event {
-      @apply bg-primary text-primary-foreground;
-    }
+  .rbc-calendar {
+    font-family: "Inter", sans-serif;
+  }
+
+  .rbc-toolbar {
+    @apply flex justify-between items-center mb-4 text-foreground;
+  }
+
+  .rbc-toolbar-label {
+    @apply text-lg font-semibold;
+  }
+
+  .rbc-btn-group button {
+    @apply bg-muted text-muted-foreground border border-border px-3 py-1 rounded-md hover:bg-accent;
+  }
+
+  .rbc-event {
+    @apply bg-primary text-primary-foreground text-xs px-2 py-1 rounded-md;
+  }
+
+  .rbc-month-view,
+  .rbc-time-view {
+    @apply border border-border rounded-lg overflow-hidden;
+  }
+
+  .rbc-header {
+    @apply bg-muted text-muted-foreground font-medium text-sm;
+  }
+
+  .rbc-date-cell {
+    @apply text-xs text-muted-foreground;
+  }
+
+  .rbc-off-range-bg {
+    @apply bg-muted;
+  }
+
+  .dark .rbc-event {
+    @apply bg-primary text-primary-foreground;
+  }
 }
 
 .rbc-header {
@@ -201,4 +201,8 @@
 .dark .rbc-month-view {
   border-color: rgb(34, 34, 34) !important;
   background-color: transparent;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1); /* makes it white-ish */
 }
