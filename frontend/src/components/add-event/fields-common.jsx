@@ -60,11 +60,19 @@ export default function CommonFields() {
           <div className="min-w-[300px] flex-1">
             <div onPointerDown={(e) => e.stopPropagation()}>
               <CustomTimePicker
-                start={form.watch("startTime")}
-                end={form.watch("endTime")}
-                onChange={(start, end) => {
-                  form.setValue("startTime", start);
-                  form.setValue("endTime", end);
+                label="Start Time"
+                value={form.watch("startTime")}
+                onChange={(val) => {
+                  console.log("Start time selected:", val); // ✅ add this
+                  form.setValue("startTime", val);
+                }}
+              />
+              <CustomTimePicker
+                label="End Time"
+                value={form.watch("endTime")}
+                onChange={(val) => {
+                  console.log("Start time selected:", val);
+                  form.setValue("endTime", val);
                 }}
               />
             </div>

@@ -15,8 +15,16 @@ import ExamFields from "@/components/add-event/fields-exam";
 import StudyFields from "@/components/add-event/fields-study";
 import { EventFormProvider, useEventForm } from "@/context/event-form-context";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Form } from "@/components/ui/form";
+import { toast } from "sonner";
 
 const eventTypes = [
   { label: "Event", value: "event" },
@@ -27,26 +35,16 @@ const eventTypes = [
   { label: "Study", value: "study" },
 ];
 
-function RenderEventFields({ type }) {
-  switch (type) {
-    case "appointment":
-      return <AppointmentFields />;
-    case "deadline":
-      return <DeadlineFields />;
-    case "class":
-      return <ClassFields />;
-    case "exam":
-      return <ExamFields />;
-    case "study":
-      return <StudyFields />;
-    default:
-      return null;
-  }
-}
-
-export default function AddEventModal() {
+export default function AddEventModal({ onSave }) {
   const [open, setOpen] = useState(false);
   const [eventType, setEventType] = useState("event");
+
+  const handleSave = async (data) => {
+    console.log("📦 Submitting event data:", data);
+    await onSave({ ...data, eventType });
+    toast.success("Event saved!");
+    setOpen(false);
+  };
 
   return (
     <EventFormProvider>
@@ -55,8 +53,8 @@ export default function AddEventModal() {
           <Button variant="default">New Event</Button>
         </DialogTrigger>
         <DialogContent className="w-full max-w-[100vw] sm:max-w-[800px] p-6 overflow-y-auto overflow-x-hidden">
-          <DialogHeader className="mb-2">
-            <DialogTitle className="text-xl">New Event</DialogTitle>
+          <DialogHeader>
+            <DialogTitle>New Event</DialogTitle>
           </DialogHeader>
 
           {/* Event Type Toggle Group */}
@@ -80,25 +78,49 @@ export default function AddEventModal() {
             </ToggleGroup>
           </div>
 
-          {/* Form content must be inside EventFormProvider */}
-          <FormWrapper eventType={eventType} />
+          <FormWrapper eventType={eventType} onSave={handleSave} />
         </DialogContent>
       </Dialog>
     </EventFormProvider>
   );
 }
 
-function FormWrapper({ eventType }) {
+function RenderEventFields({ type }) {
+  switch (type) {
+    case "appointment":
+      return <AppointmentFields />;
+    case "deadline":
+      return <DeadlineFields />;
+    case "class":
+      return <ClassFields />;
+    case "exam":
+      return <ExamFields />;
+    case "study":
+      return <StudyFields />;
+    default:
+      return null;
+  }
+}
+
+function FormWrapper({ eventType, onSave }) {
   const { form } = useEventForm();
 
   if (!form || !form.control) return null;
 
+  const onSubmit = async (data) => {
+    await onSave(data);
+    form.reset(); // ✅ clear form fields after submission
+  };
+
   return (
     <Form {...form}>
-      <div className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <CommonFields />
         <RenderEventFields type={eventType} />
-      </div>
+        <Button type="submit" className="w-full">
+          Save Event
+        </Button>
+      </form>
     </Form>
   );
 }
