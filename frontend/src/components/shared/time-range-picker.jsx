@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -16,14 +16,21 @@ const minutes = Array.from({ length: 60 }, (_, i) =>
 );
 
 export default function CustomTimePicker({ label = "Time", value, onChange }) {
-  const [hour, setHour] = useState("12");
+  const [hour, setHour] = useState("00");
   const [minute, setMinute] = useState("00");
 
   useEffect(() => {
-    if (value) {
-      const [h, m] = value.split(":");
-      setHour(h);
-      setMinute(m);
+    console.log("⏱️ CustomTimePicker got value:", value);
+
+    if (typeof value === "string" && value.includes(":")) {
+      const [h = "00", m = "00"] = value.split(":");
+
+      if (h !== hour || m !== minute) {
+        setHour(h);
+        setMinute(m);
+      }
+    } else {
+      console.warn("⚠️ Ignoring invalid time:", value);
     }
   }, [value]);
 

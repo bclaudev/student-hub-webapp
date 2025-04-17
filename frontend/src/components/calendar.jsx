@@ -12,6 +12,8 @@ import { enUS } from "date-fns/locale";
 import CalendarToolbar from "./calendar-toolbar";
 import { toast } from "sonner";
 import { useEffect } from "react";
+import AddEventModal from "./add-event/add-event-dialog";
+import { set } from "date-fns";
 
 const locales = {
   "en-US": enUS,
@@ -28,6 +30,8 @@ const localizer = dateFnsLocalizer({
 export default function Calendar() {
   const [events, setEvents] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleAddEvent = async (eventObj) => {
     try {
@@ -132,6 +136,13 @@ export default function Calendar() {
     );
   };
 
+  const handleOpenNewEventModal = () => {
+    console.log("📅 Opening New Event Modal");
+    setSelectedEvent(null);
+    setIsEditing(false);
+    setIsModalOpen(true);
+  };
+
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -171,12 +182,34 @@ export default function Calendar() {
         className="rounded-md"
         components={{
           toolbar: (props) => (
-            <CalendarToolbar {...props} onAddEvent={handleAddEvent} />
+            <CalendarToolbar
+              {...props}
+              onAddEvent={handleAddEvent}
+              onNewEvent={handleOpenNewEventModal}
+            />
           ),
           event: EventComponent,
         }}
         eventPropGetter={eventPropGetter}
+        onSelectEvent={(event) => {
+          setSelectedEvent(event);
+          setIsModalOpen(true);
+          setIsEditing(true);
+        }}
       />
+      {isModalOpen && (
+        <AddEventModal
+          onSave={handleAddEvent}
+          initialData={selectedEvent}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedEvent(null);
+            setIsEditing(false);
+          }}
+          open={isModalOpen}
+          isEditing={isEditing}
+        />
+      )}
     </div>
   );
 }

@@ -3,7 +3,12 @@ import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import AddEventModal from "./add-event/add-event-dialog";
 import { useState } from "react";
 
-export default function CalendarToolbar({ label, onNavigate, onAddEvent }) {
+export default function CalendarToolbar({
+  label,
+  onNavigate,
+  onAddEvent,
+  onNewEvent,
+}) {
   const [open, setOpen] = useState(false);
   return (
     <div className="flex items-center justify-between px-4 py-2 border-b bg-background text-foreground h-20">
@@ -24,19 +29,13 @@ export default function CalendarToolbar({ label, onNavigate, onAddEvent }) {
         </span>
       </div>
 
-      <AddEventModal
-        open={open}
-        onOpenChange={setOpen}
-        onSave={(eventDate) => {
-          onAddEvent(eventDate);
-          setOpen(false);
-        }}
+      <Button
+        onClick={onNewEvent}
+        size="sm"
+        className="ml-auto px-4 text-foreground"
       >
-        <Button size="sm" className="ml-auto px-4 text-foreground">
-          <Plus className="w-4 h-4 mr-2" />
-          New event
-        </Button>
-      </AddEventModal>
+        New event
+      </Button>
     </div>
   );
 }

@@ -14,16 +14,22 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { useEventForm } from "@/context/event-form-context";
+import { useEffect, useState } from "react";
+import { Controller } from "react-hook-form";
 
 export default function CommonFields() {
   const { form } = useEventForm();
-  const color = form.watch("color");
-  const fallbackColor = "#A585FF";
-  const swatchColor = color && color.length === 7 ? color : fallbackColor;
 
+  /* ---------- helpers ---------- */
+  const swatchColor = form.watch("color")?.match(/^#[0-9a-f]{6}$/i)
+    ? form.watch("color")
+    : "#A585FF";
+
+  /* ---------- UI ---------- */
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+        {/* title -------------------------------------------------------- */}
         <Label htmlFor="title" className="sm:w-24 text-sm font-medium">
           Title *
         </Label>
@@ -34,6 +40,7 @@ export default function CommonFields() {
         />
       </div>
 
+      {/* description -------------------------------------------------- */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
         <Label
           htmlFor="description"
@@ -48,6 +55,8 @@ export default function CommonFields() {
         />
       </div>
 
+      {/* date & time -------------------------------------------------- */}
+
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
         <Label className="sm:w-24 text-sm font-medium">Date & Time *</Label>
         <div className="flex flex-1 flex-wrap gap-4 w-full">
@@ -59,21 +68,35 @@ export default function CommonFields() {
           </div>
           <div className="min-w-[300px] flex-1">
             <div onPointerDown={(e) => e.stopPropagation()}>
-              <CustomTimePicker
-                label="Start Time"
-                value={form.watch("startTime")}
-                onChange={(val) => {
-                  console.log("Start time selected:", val); // ✅ add this
-                  form.setValue("startTime", val);
-                }}
+              <Controller
+                name="startTime"
+                control={form.control}
+                render={({ field }) => (
+                  <CustomTimePicker
+                    label="Start Time"
+                    value={field.value || ""}
+                    onChange={(val) => {
+                      if (val && val.includes(":")) {
+                        field.onChange(val);
+                      }
+                    }}
+                  />
+                )}
               />
-              <CustomTimePicker
-                label="End Time"
-                value={form.watch("endTime")}
-                onChange={(val) => {
-                  console.log("Start time selected:", val);
-                  form.setValue("endTime", val);
-                }}
+              <Controller
+                name="endTime"
+                control={form.control}
+                render={({ field }) => (
+                  <CustomTimePicker
+                    label="End Time"
+                    value={field.value || ""}
+                    onChange={(val) => {
+                      if (val && val.includes(":")) {
+                        field.onChange(val);
+                      }
+                    }}
+                  />
+                )}
               />
             </div>
           </div>
