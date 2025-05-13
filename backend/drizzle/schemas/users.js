@@ -9,4 +9,5 @@ export const usersTable = pgTable("users", {
   uploadSize: integer("upload_size").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   dateOfBirth: timestamp("date_of_birth").notNull(),
+  role: text('role').default('user').notNull(),
 });

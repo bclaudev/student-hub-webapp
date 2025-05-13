@@ -23,12 +23,13 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 
-import { Calendar, Clipboard, Book, Notebook } from "lucide-react";
+import { Calendar, Clipboard, Book, Notebook, ShieldCheck } from "lucide-react";
 
 import { useUser } from "@/hooks/use-user";
 
 export function AppSidebar() {
   const user = useUser();
+  console.log("USER INFO:", user);
   return (
     <Sidebar collapsible="icon">
       <SidebarContent>
@@ -70,6 +71,16 @@ export function AppSidebar() {
                   </a>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              {user?.role === 'admin' && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <a href="/admin" className="flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4" />
+                      Admin
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
             <SidebarTrigger />
           </SidebarGroupContent>

@@ -31,6 +31,7 @@ export const login = async (c) => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        role: user.role,
       },
       process.env.JWT_SECRET,
       { expiresIn: '12h' } // Token expires in 12 hours
