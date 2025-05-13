@@ -1,13 +1,14 @@
-import 'dotenv/config'
+// backend/drizzle.config.js
+import "dotenv/config";
+import { defineConfig } from "drizzle-kit";
 
-export default {
-    schema: './drizzle/schema.js',
-    out: './drizzle/migrations',
-    dialect: 'postgresql',
-    dbCredentials: {
-        host: 'localhost',
-        user: 'postgres',
-        password: 'admin',
-        database: 'student_hub',
-      },
-}
+console.log("DATABASE_URL from .env:", process.env.DATABASE_URL);
+
+export default defineConfig({
+  schema: "./drizzle/schema.js",
+  out: "./drizzle/migrations",
+  dialect: "postgresql", // ✅ this is correct
+  dbCredentials: {
+    url: process.env.DATABASE_URL,
+  },
+});
