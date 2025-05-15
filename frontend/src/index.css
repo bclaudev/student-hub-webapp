@@ -206,3 +206,10 @@
 input[type="time"]::-webkit-calendar-picker-indicator {
   filter: invert(1); /* makes it white-ish */
 }
+
+.tiptap {
+  min-height: 200px;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+}

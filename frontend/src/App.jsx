@@ -7,6 +7,7 @@ import RegisterPage from "@/pages/register"
 import CalendarPage from "@/pages/calendar"
 import AdminDashboard from "@/pages/admin"
 import { useUser } from "@/hooks/use-user"
+import NotesPage from "@/pages/notebooks"
 
 function App() {
   const user = useUser();
@@ -15,21 +16,18 @@ function App() {
     <BrowserRouter>
     <ThemeProvider defaultTheme="dark" enableSystem={false}>
       <Routes>
-        {/* Login Page (no layout) */}
+        {/* Pagini fără layout */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/calendar" element={<CalendarPage />} />
-        
 
-        {/* All other pages wrapped in DashboardLayout */}
-        <Route element={<DashboardLayout />}>
-          
-          <Route path="/calendar" element={<CalendarPage />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          {/* more protected routes here */}
+        {/* Pagini cu layout */}
+        <Route path="/" element={<DashboardLayout />}>
+          <Route path="calendar" element={<CalendarPage />} />
+          <Route path="notebooks" element={<NotesPage />} />
+          <Route path="admin" element={<AdminDashboard />} />
         </Route>
 
-        {/* Catch-all fallback to redirect to login */}
+        {/* Catch-all */}
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
       </ThemeProvider>

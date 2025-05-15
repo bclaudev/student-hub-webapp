@@ -8,6 +8,7 @@ import registerRoute from "./routes/register.js";
 import loginRoute from "./routes/login.js";
 import userRoute from "./routes/user.js";
 import eventsRoutes from "./routes/events.js";
+import notebookPagesRoute from './routes/notebookPages.js';
 
 const app = new Hono();
 
@@ -32,6 +33,7 @@ app.route("/register", registerRoute);
 app.route("/login", loginRoute);
 app.route("/api/user", userRoute);
 app.route("/api/events", eventsRoutes);
+app.route('/', notebookPagesRoute);
 
 const port = 8787;
 

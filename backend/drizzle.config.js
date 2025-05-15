@@ -7,7 +7,7 @@ console.log("DATABASE_URL from .env:", process.env.DATABASE_URL);
 export default defineConfig({
   schema: "./drizzle/schema.js",
   out: "./drizzle/migrations",
-  dialect: "postgresql", // ✅ this is correct
+  dialect: "postgresql",
   dbCredentials: {
     url: process.env.DATABASE_URL,
   },
