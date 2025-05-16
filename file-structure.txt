@@ -1,0 +1,84 @@
+frontend/src
+├── App.css
+├── App.jsx
+├── assets
+│   └── react.svg
+├── components
+│   ├── add-event
+│   │   ├── add-event-dialog.jsx
+│   │   ├── fields-appointment.jsx
+│   │   ├── fields-class.jsx
+│   │   ├── fields-common.jsx
+│   │   ├── fields-deadline.jsx
+│   │   ├── fields-exam.jsx
+│   │   ├── fields-study.jsx
+│   │   └── form-section.jsx
+│   ├── app-sidebar.jsx
+│   ├── calendar-toolbar.jsx
+│   ├── calendar.jsx
+│   ├── login-form.jsx
+│   ├── notes
+│   │   └── notebook-editor.jsx
+│   ├── register-form.jsx
+│   ├── shared
+│   │   ├── date-range-picker.jsx
+│   │   └── time-range-picker.jsx
+│   └── ui
+│       ├── avatar.jsx
+│       ├── button.jsx
+│       ├── calendar-date-picker.jsx
+│       ├── calendar.jsx
+│       ├── card.jsx
+│       ├── color-picker.jsx
+│       ├── dialog.jsx
+│       ├── dropdown-menu.jsx
+│       ├── form.jsx
+│       ├── input.jsx
+│       ├── label.jsx
+│       ├── notebook-toolbar.jsx
+│       ├── popover.jsx
+│       ├── radio-group.jsx
+│       ├── select.jsx
+│       ├── separator.jsx
+│       ├── sheet.jsx
+│       ├── sidebar.jsx
+│       ├── skeleton.jsx
+│       ├── sonner.jsx
+│       ├── switch.jsx
+│       ├── textarea.jsx
+│       ├── theme-provider.jsx
+│       ├── theme-toggle.jsx
+│       ├── tiptap
+│       │   ├── HeadingButton.jsx
+│       │   ├── HighlightPopover.jsx
+│       │   ├── ImageUpload.jsx
+│       │   ├── LinkPopover.jsx
+│       │   ├── ListButton.jsx
+│       │   ├── MarkButton.jsx
+│       │   ├── NodeButton.jsx
+│       │   ├── TextAlignButton.jsx
+│       │   └── UndoRedoButton.jsx
+│       ├── toggle-group-single.jsx
+│       ├── toggle-group.jsx
+│       ├── toggle.jsx
+│       └── tooltip.jsx
+├── context
+│   └── event-form-context.jsx
+├── hooks
+│   ├── use-mobile.js
+│   └── use-user.js
+├── index.css
+├── layouts
+│   └── dashboard-layout.jsx
+├── lib
+│   └── utils.js
+├── main.jsx
+└── pages
+    ├── admin.jsx
+    ├── calendar.jsx
+    ├── login.jsx
+    ├── notebook-editor.jsx
+    ├── notebooks.jsx
+    └── register.jsx
+
+13 directories, 69 files

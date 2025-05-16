@@ -13,7 +13,7 @@ export const notebookPages = pgTable('notebook_pages', {
     id: uuid('id').defaultRandom().primaryKey(),
     notebookId: uuid('notebook_id').references(() => notebooks.id).notNull(),
     title: text('title').notNull(),
-    content: text('content').notNull(), // JSON from Tiptap as string
+    content: text('content').notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   });

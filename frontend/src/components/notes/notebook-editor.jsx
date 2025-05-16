@@ -1,7 +1,9 @@
+// frontend/src/components/notes/notebook-editor.jsx
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Button } from "@/components/ui/button";
+import { NotebookToolbar } from "@/components/ui/notebook-toolbar";
 
 export function NotebookEditor({ notebookId }) {
   const editor = useEditor({
@@ -40,58 +42,8 @@ export function NotebookEditor({ notebookId }) {
     <div className="border p-4 rounded-xl bg-white shadow">
       <h2 className="text-xl font-semibold mb-4">Editor Notebook</h2>
 
-      {/* Toolbar */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => editor.chain().focus().toggleBold().run()}
-          className={editor.isActive("bold") ? "bg-muted text-foreground" : ""}
-        >
-          Bold
-        </Button>
+      <NotebookToolbar />
 
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={editor.isActive("italic") ? "bg-muted text-foreground" : ""}
-        >
-          Italic
-        </Button>
-
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={editor.isActive("bulletList") ? "bg-muted text-foreground" : ""}
-        >
-          Listă
-        </Button>
-
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => editor.chain().focus().undo().run()}
-        >
-          Undo
-        </Button>
-
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => editor.chain().focus().redo().run()}
-        >
-          Redo
-        </Button>
-      </div>
-
-      {/* Editor content */}
       <EditorContent
         editor={editor}
         className="min-h-[200px] p-4 border rounded-md text-black bg-white"

@@ -8,9 +8,11 @@ import CalendarPage from "@/pages/calendar"
 import AdminDashboard from "@/pages/admin"
 import { useUser } from "@/hooks/use-user"
 import NotesPage from "@/pages/notebooks"
-
+import NotebookEditorPage from "@/pages/notebook-editor"
+  
 function App() {
   const user = useUser();
+  if (user === null) return null; // sau un loading spinner
 
   return (
     <BrowserRouter>
@@ -25,6 +27,7 @@ function App() {
           <Route path="calendar" element={<CalendarPage />} />
           <Route path="notebooks" element={<NotesPage />} />
           <Route path="admin" element={<AdminDashboard />} />
+          <Route path="notebooks/:id" element={<NotebookEditorPage />} />
         </Route>
 
         {/* Catch-all */}

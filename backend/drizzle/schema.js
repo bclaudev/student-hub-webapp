@@ -1,3 +1,4 @@
+//backend/drizzle/schema.js
 export * from "./schemas/users.js";
 export * from "./schemas/resources.js";
 export * from "./schemas/classes.js";
