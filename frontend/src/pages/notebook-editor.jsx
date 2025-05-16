@@ -6,7 +6,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
-import { NotebookToolbar } from "@/components/ui/notebook-toolbar";
+import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor";
 
 export default function NotebookEditorPage() {
   const { id } = useParams();
@@ -79,23 +79,9 @@ export default function NotebookEditorPage() {
 
   return (
     <div className="p-6 space-y-6 max-w-4xl mx-auto">
-      <Input
-        className="text-2xl font-semibold"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Title"
-      />
+      <SimpleEditor editor={editor} />
 
-      <NotebookToolbar />
-
-      <EditorContent
-        editor={editor}
-        className="min-h-[300px] p-4 border rounded-md bg-white text-black"
-      />
-
-      <Button onClick={handleSave} disabled={saving}>
-        {saving ? "Save" : "Save and exit"}
-      </Button>
+      <Button onClick={handleSave}>Save and exit</Button>
     </div>
   );
 }
