@@ -71,7 +71,7 @@ export function AppSidebar() {
               <motion.img
                 key="full"
                 src={isDark ? studenthub_logo_dark : studenthub_logo_default}
-                alt="Full Logo"
+                alt="Logo"
                 initial={{ opacity: 1, scale: 1 }}
                 animate={{
                   opacity: isCollapsed ? 0 : 1,
@@ -88,7 +88,7 @@ export function AppSidebar() {
                     ? studenthub_logo_collapsed_dark
                     : studenthub_logo_collapsed
                 }
-                alt="Collapsed Logo"
+                alt="Logo"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{
                   opacity: isCollapsed ? 1 : 0,

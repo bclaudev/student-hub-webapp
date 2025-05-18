@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
+import { Upload } from "lucide-react";
 import { useState } from "react";
+import UploadModal from "../file-upload/upload-modal";
 
 export default function ResourcesHeader() {
   const [activeTag, setActiveTag] = useState(null);
@@ -15,9 +17,7 @@ export default function ResourcesHeader() {
       {/* Primul rând: titlu + buton + border bottom */}
       <div className="px-4 py-2 flex items-center justify-between h-20 border-b border-border">
         <h2 className="text-lg font-semibold">Resources</h2>
-        <Button size="sm" className="px-4 text-foreground">
-          Upload
-        </Button>
+        <UploadModal />
       </div>
 
       {/* Al doilea rând: tag-uri */}
