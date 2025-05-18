@@ -27,6 +27,8 @@ import { Calendar, Clipboard, Book, Notebook, ShieldCheck } from "lucide-react";
 
 import { useUser } from "@/hooks/use-user";
 
+import ThemeToggle from "@/components/ui/theme-toggle";
+
 export function AppSidebar() {
   const user = useUser();
   console.log("USER INFO:", user);
@@ -71,7 +73,7 @@ export function AppSidebar() {
                   </a>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              {user?.role === 'admin' && (
+              {user?.role === "admin" && (
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
                     <a href="/admin" className="flex items-center gap-2">
@@ -115,6 +117,8 @@ export function AppSidebar() {
               <DropdownMenuItem onClick={() => alert("Go to settings")}>
                 Settings
               </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <ThemeToggle />
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => alert("Logging out...")}>
                 Log out

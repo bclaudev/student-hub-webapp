@@ -9,7 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 
-
 export default function NotesPage() {
   const navigate = useNavigate();
   const [notebooks, setNotebooks] = useState([]);
@@ -19,7 +18,6 @@ export default function NotesPage() {
       .then((res) => res.json())
       .then((data) => setNotebooks(data));
   }, []);
-
 
   const handleCreateNotebook = async () => {
     const res = await fetch("/api/notebooks", {
@@ -33,9 +31,9 @@ export default function NotesPage() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 bg-background min-h-screen">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Your notes</h1>
+        <h1 className="text-2xl font-bold text-foreground">Your notes</h1>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button>Create</Button>
@@ -53,9 +51,11 @@ export default function NotesPage() {
           <Link
             to={`/notebooks/${notebook.id}`}
             key={notebook.id}
-            className="p-4 border rounded-lg bg-white shadow hover:bg-gray-100"
+            className="p-4 border border-border rounded-lg bg-card shadow hover:bg-muted transition-colors"
           >
-            <h2 className="text-lg font-medium">{notebook.title}</h2>
+            <h2 className="text-lg font-medium text-foreground">
+              {notebook.title}
+            </h2>
             <p className="text-sm text-muted-foreground">
               {new Date(notebook.createdAt).toLocaleDateString()}
             </p>

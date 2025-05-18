@@ -1,3 +1,4 @@
+//frontend/src/components/calendar.jsx
 import {
   Calendar as ReactBigCalendar,
   dateFnsLocalizer,
@@ -13,6 +14,7 @@ import CalendarToolbar from "./calendar-toolbar";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import AddEventModal from "./add-event/add-event-dialog";
+import "../styles/calendar-overrides.css";
 import { set } from "date-fns";
 
 const locales = {

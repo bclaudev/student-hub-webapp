@@ -78,10 +78,8 @@ export default function NotebookEditorPage() {
   if (!id || !editor) return null;
 
   return (
-    <div className="p-6 space-y-6 max-w-4xl mx-auto">
-      <SimpleEditor editor={editor} />
-
-      <Button onClick={handleSave}>Save and exit</Button>
+    <div className="p-6 space-y-6 w-full max-w-screen-xl mx-auto">
+      <SimpleEditor editor={editor} onSave={handleSave} />
     </div>
   );
 }
