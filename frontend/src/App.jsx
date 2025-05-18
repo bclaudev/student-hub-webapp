@@ -9,6 +9,7 @@ import { useUser } from "@/hooks/use-user";
 import NotesPage from "@/pages/notebooks";
 import NotebookEditorPage from "@/pages/notebook-editor";
 import ResourcesPage from "@/pages/resources";
+import PDFViewer from "@/pages/PDFViewer";
 
 function App() {
   //const user = useUser();
@@ -29,6 +30,7 @@ function App() {
             <Route path="resources" element={<ResourcesPage />} />
             <Route path="admin" element={<AdminDashboard />} />
             <Route path="notebooks/:id" element={<NotebookEditorPage />} />
+            <Route path="/pdf-viewer" element={<PDFViewer />} />
           </Route>
 
           {/* Catch-all */}

@@ -2,6 +2,7 @@ import FileHeader from "./file-header";
 import FileCover from "./file-cover";
 import FileInfo from "./file-info";
 import FileFooter from "./file-footer";
+import { useNavigate } from "react-router-dom";
 
 import { motion } from "framer-motion";
 
@@ -15,8 +16,19 @@ export default function FileCard({
   dateAdded,
   subject,
 }) {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (fileType === "application/pdf") {
+      navigate(`/pdf-viewer?file=${encodeURIComponent(thumbnailUrl)}`);
+    }
+  };
+
   return (
-    <article className="relative group w-[187px] h-[210px] overflow-hidden flex flex-col items-start px-5 py-6 rounded-3xl bg-slate-50 dark:bg-stone-900 max-w-[187px]">
+    <article
+      onClick={handleClick}
+      className="relative group w-[187px] h-[210px] overflow-hidden flex flex-col items-start px-5 py-6 rounded-3xl bg-slate-50 dark:bg-stone-900 max-w-[187px]"
+    >
       <FileHeader isPinned={isPinned} />
       <FileCover thumbnailUrl={thumbnailUrl} fileType={fileType} />
       <FileInfo fileName={fileName} author={author} />
