@@ -1,5 +1,6 @@
 import FileCard from "@/components/file-card/file-card";
 import bookCover from "@/assets/book-of-secrets.jpg";
+import ResourcesHeader from "@/components/ui/resources-header";
 
 export default function ResourcesPage() {
   const files = [
@@ -96,12 +97,12 @@ export default function ResourcesPage() {
   ];
 
   return (
-    <div className="p-6 space-y-6 bg-background min-h-screen">
-      <h1 className="text-2xl font-semibold mb-4 text-stone-950 dark:text-white">
-        Resources
-      </h1>
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Header */}
+      <ResourcesHeader />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-1 gap-y-2 justify-center max-w-screen-xl mx-auto">
+      {/* Content grid */}
+      <div className="px-4 py-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 max-w-screen-xl mx-auto">
         {files.map((file, index) => (
           <FileCard
             key={index}

@@ -25,13 +25,14 @@
   --ring: #a585ff;
 
   --sidebar: #fff;
-  --sidebar-foreground: #0d0d0d;
+  --sidebar-foreground: #667288;
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: var(--primary);
-  --sidebar-accent-foreground: #0d0d0d;
-  --sidebar-border: #0d0d0d1a;
-  --sidebar-ring: #a585ff;
+  --sidebar-accent: #f7f8fa;
+  --sidebar-accent-foreground: #111827;
+  --sidebar-background: #ffffff;
+  --sidebar-border: #e5e7eb;
+  --sidebar-ring: #cbd5e1;
 }
 
 /* === Dark Mode Variables === */
@@ -59,10 +60,13 @@
   --sidebar-foreground: #f3f3f3;
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: var(--primary);
-  --sidebar-accent-foreground: var(--primary-foreground);
-  --sidebar-border: #ffffff26;
-  --sidebar-ring: #fff3;
+  --sidebar-accent: #222222; /* slate-900 */
+  --sidebar-accent-foreground: #f1f5f9; /* slate-100 */
+  --sidebar-background: #0f172a;
+  --sidebar-foreground: #f8fafc;
+  --sidebar-border: #1e293b;
+  --sidebar-ring: #334155;
+  --sidebar-muted-foreground: #f3f3f3a1;
 }
 
 /* === Theme Mapping === */
@@ -201,4 +205,8 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   padding: 1rem;
   border: 1px solid #ccc;
   border-radius: 0.5rem;
+}
+
+a[data-active="true"] > svg {
+  color: #a585ff;
 }
