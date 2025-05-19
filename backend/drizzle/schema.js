@@ -10,3 +10,4 @@ export * from "./schemas/resource_groups.js";
 export * from "./schemas/notebooks.js";
 export * from "./schemas/flashcards.js";
 export * from "./schemas/todos.js";
+export * from "./schemas/resource_to_groups.js";

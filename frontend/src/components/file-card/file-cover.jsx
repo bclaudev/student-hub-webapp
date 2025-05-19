@@ -7,6 +7,9 @@ pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 export default function FileCover({ thumbnailUrl, fileType }) {
   const [loaded, setLoaded] = useState(false);
 
+  console.log("📦 fileType:", fileType);
+  console.log("🖼️ thumbnailUrl:", thumbnailUrl);
+
   if (fileType?.startsWith("image")) {
     return (
       <section className="flex justify-center items-center mt-2 w-full h-[80px]">

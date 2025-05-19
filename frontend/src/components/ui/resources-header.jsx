@@ -1,17 +1,8 @@
-import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
-import { useState } from "react";
 import UploadModal from "../file-upload/upload-modal";
+import { useEffect, useState } from "react";
 
-export default function ResourcesHeader() {
-  const [activeTag, setActiveTag] = useState(null);
-
-  const dummyTags = [
-    { label: "Notes", count: 12 },
-    { label: "Homework", count: 5 },
-    { label: "Exam", count: 3 },
-  ];
-
+export default function ResourcesHeader({ tags, activeTag, setActiveTag }) {
   return (
     <div className="bg-background text-foreground">
       {/* Primul rând: titlu + buton + border bottom */}
@@ -22,7 +13,7 @@ export default function ResourcesHeader() {
 
       {/* Al doilea rând: tag-uri */}
       <div className="px-4 py-2 flex gap-2 border-b border-border">
-        {dummyTags.map((tag) => {
+        {tags.map((tag) => {
           const isActive = activeTag === tag.label;
           return (
             <button
@@ -37,7 +28,9 @@ export default function ResourcesHeader() {
               }`}
             >
               {tag.label}
-              {!isActive && <span className="ml-1 text-xs">({tag.count})</span>}
+              {!isActive && (
+                <span className="ml-1 text-xs">({tag.count ?? 0})</span>
+              )}
             </button>
           );
         })}

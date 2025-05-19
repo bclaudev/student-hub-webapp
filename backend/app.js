@@ -13,6 +13,7 @@ import notebookPagesRoute from "./routes/notebook-pages.js";
 import uploadRoute from "./routes/upload.js";
 import resourcesRoute from "./routes/resources.js";
 import { serveStatic } from "@hono/node-server/serve-static";
+import tagsRoute from "./routes/tags.js";
 
 const app = new Hono();
 
@@ -43,6 +44,7 @@ app.route("/api", notebooksRoute);
 app.route("/api", notebookPagesRoute);
 app.route("/api", uploadRoute);
 app.route("/api/resources", resourcesRoute);
+app.route("/api", tagsRoute);
 
 const port = 8787;
 
