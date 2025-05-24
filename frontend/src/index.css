@@ -166,9 +166,12 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  font-size: 2rem !important;
+  font-size: 40px !important;
   text-transform: uppercase;
   color: #f5f5f5;
+  background-color: transparent !important;
+  @apply text-foreground;
+  border-bottom: 1px solid var(--color-border) !important;
 }
 
 .rbc-header + .rbc-header {
@@ -209,4 +212,42 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 a[data-active="true"] > svg {
   color: #a585ff;
+}
+
+.rbc-allday-cell {
+  display: none !important;
+}
+
+.rbc-time-header-gutter,
+.rbc-time-gutter {
+  width: 100px !important;
+  min-width: 100px !important;
+  max-width: 100px !important;
+}
+
+.rbc-calendar * {
+  border-top: none !important;
+  border-bottom: none !important;
+  border-color: var(--color-border) !important;
+}
+
+.rbc-day-slot.rbc-time-column .rbc-timeslot-group {
+  border-bottom: 1px solid var(--color-border) !important;
+}
+
+.rbc-time-header {
+  border-bottom: 1px solid var(--color-border) !important;
+  @apply py-4;
+}
+
+.rbc-time-header-content {
+  border-left: none !important;
+}
+
+.rbc-header {
+  color: #1a1a1a !important; /* almost black for light mode */
+}
+
+.dark .rbc-header {
+  color: #f9f9f9 !important; /* almost white for dark mode */
 }

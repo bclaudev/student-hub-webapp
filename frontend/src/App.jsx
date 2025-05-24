@@ -10,6 +10,7 @@ import NotesPage from "@/pages/notebooks";
 import NotebookEditorPage from "@/pages/notebook-editor";
 import ResourcesPage from "@/pages/resources";
 import PDFViewer from "@/pages/PDFViewer";
+import TimetablePage from "@/pages/timetable";
 
 function App() {
   //const user = useUser();
@@ -31,6 +32,7 @@ function App() {
             <Route path="admin" element={<AdminDashboard />} />
             <Route path="notebooks/:id" element={<NotebookEditorPage />} />
             <Route path="/pdf-viewer" element={<PDFViewer />} />
+            <Route path="timetable" element={<TimetablePage />} />
           </Route>
 
           {/* Catch-all */}

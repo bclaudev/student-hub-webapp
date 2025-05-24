@@ -111,7 +111,7 @@ export function AppSidebar() {
                     className="!h-12 !p-4 group-data-[collapsible=icon]:!h-12 group-data-[collapsible=icon]:!p-2 rounded-3xl pl-4"
                   >
                     <a
-                      href="/"
+                      href="/timetable"
                       className="flex items-center gap-2 group-data-[state=collapsed]:justify-center"
                     >
                       <Clipboard className="w-4 h-4" />
