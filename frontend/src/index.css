@@ -251,3 +251,11 @@ a[data-active="true"] > svg {
 .dark .rbc-header {
   color: #f9f9f9 !important; /* almost white for dark mode */
 }
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

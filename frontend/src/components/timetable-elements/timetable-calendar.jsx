@@ -53,7 +53,7 @@ const TimetableCalendar = ({ events }) => {
           event: TimetableItem,
           timeGutterHeader: () => (
             <div className="flex items-center justify-center h-full">
-              <div className="bg-[#A585FF] text-white text-2xl px-7 py-2 rounded-lg w-fit font-semibold shadow-sm">
+              <div className="bg-[#A585FF] text-white text-2xl px-6 py-2 rounded-lg w-fit font-semibold shadow-sm">
                 1
               </div>
             </div>
