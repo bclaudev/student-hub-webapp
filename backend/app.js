@@ -12,6 +12,7 @@ import notebooksRoute from "./routes/notebooks.js";
 import notebookPagesRoute from "./routes/notebook-pages.js";
 import uploadRoute from "./routes/upload.js";
 import resourcesRoute from "./routes/resources.js";
+import { classesRoute } from "./routes/classes.js";
 import { serveStatic } from "@hono/node-server/serve-static";
 import tagsRoute from "./routes/tags.js";
 
@@ -45,6 +46,7 @@ app.route("/api", notebookPagesRoute);
 app.route("/api", uploadRoute);
 app.route("/api/resources", resourcesRoute);
 app.route("/api", tagsRoute);
+app.route("/api/classes", classesRoute);
 
 const port = 8787;
 

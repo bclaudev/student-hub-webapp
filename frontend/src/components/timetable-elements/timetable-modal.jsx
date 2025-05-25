@@ -35,6 +35,16 @@ export default function TimetableModal({ open, onOpenChange }) {
   const [seminarTime, setSeminarTime] = useState("");
   const [seminarDeliveryMode, setSeminarDeliveryMode] = useState("");
   const [seminarFrequency, setSeminarFrequency] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [seminarEndTime, setSeminarEndTime] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [examDate, setExamDate] = useState("");
+  const [seminarDate, setSeminarDate] = useState("");
+  const [roomNumber, setRoomNumber] = useState("");
+  const [meetingLink, setMeetingLink] = useState("");
+  const [seminarRoom, setSeminarRoom] = useState("");
+  const [seminarLink, setSeminarLink] = useState("");
+  const [file, setFile] = useState("");
 
   const isCourseComplete = name && instructor;
   const isSeminarComplete = seminarInstructor && seminarDay && seminarTime;
@@ -51,6 +61,60 @@ export default function TimetableModal({ open, onOpenChange }) {
     setName(value);
     if (!abbreviation) {
       setAbbreviation(generateAbbreviation(value));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const payload = {
+      name,
+      abbreviation,
+      teacherName: instructor,
+      deliveryMode,
+      day,
+      startTime,
+      endTime,
+      recurrence: frequency,
+      examDate: examDate || null, // dacă ai și useState pt asta
+      curriculum: "", // înlocuiește cu logica pentru upload curriculum dacă o implementezi
+      startDate: new Date().toISOString(), // sau folosește un câmp real
+
+      // doar dacă există valori:
+      ...(deliveryMode === "campus" && { roomNumber }),
+      ...(deliveryMode === "online" && { meetingLink }),
+
+      ...(seminarInstructor && {
+        seminarInstructor,
+        seminarDeliveryMode,
+        seminarDay,
+        seminarTime,
+        seminarEndTime,
+        seminarFrequency,
+        testDate: testDate || null,
+        ...(seminarDeliveryMode === "campus" && { seminarRoom }),
+        ...(seminarDeliveryMode === "online" && { seminarLink }),
+      }),
+    };
+
+    try {
+      const res = await fetch("/api/classes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        throw new Error("Server error");
+      }
+
+      // Opțional: feedback vizual, închide modal, reîncarcă lista
+      console.log("Class saved successfully");
+      onOpenChange(false);
+    } catch (err) {
+      console.error("Error saving class:", err);
     }
   };
 
@@ -90,9 +154,7 @@ export default function TimetableModal({ open, onOpenChange }) {
                     <Input value={name} onChange={handleNameChange} required />
                   </div>
                   <div>
-                    <Label className="mb-1 block">
-                      Abbreviation (optional)
-                    </Label>
+                    <Label className="mb-1 block">Abbreviation</Label>
                     <Input
                       value={abbreviation}
                       onChange={(e) => setAbbreviation(e.target.value)}
@@ -116,48 +178,70 @@ export default function TimetableModal({ open, onOpenChange }) {
                         {deliveryMode || "Select location"}
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="campus">On Campus</SelectItem>
-                        <SelectItem value="online">Online</SelectItem>
+                        <SelectItem value="Campus">On Campus</SelectItem>
+                        <SelectItem value="Online">Online</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   {deliveryMode === "campus" && (
                     <div>
                       <Label className="mb-1 block">Room Number</Label>
-                      <Input />
+                      <Input
+                        value={roomNumber}
+                        onChange={(e) => setRoomNumber(e.target.value)}
+                      />
                     </div>
                   )}
                   {deliveryMode === "online" && (
                     <div>
                       <Label className="mb-1 block">Meeting Link</Label>
-                      <Input />
+                      <Input
+                        value={meetingLink}
+                        onChange={(e) => setMeetingLink(e.target.value)}
+                      />
                     </div>
                   )}
-                  <div>
-                    <Label className="mb-1 block">Day</Label>
-                    <Select value={day} onValueChange={setDay}>
-                      <SelectTrigger>{day || "Select day"}</SelectTrigger>
-                      <SelectContent>
-                        {[
-                          "Monday",
-                          "Tuesday",
-                          "Wednesday",
-                          "Thursday",
-                          "Friday",
-                          "Saturday",
-                          "Sunday",
-                        ].map((day) => (
-                          <SelectItem key={day} value={day}>
-                            {day}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="mb-1 block">Day</Label>
+                      <Select value={day} onValueChange={setDay}>
+                        <SelectTrigger>{day || "Select day"}</SelectTrigger>
+                        <SelectContent>
+                          {[
+                            "Monday",
+                            "Tuesday",
+                            "Wednesday",
+                            "Thursday",
+                            "Friday",
+                            "Saturday",
+                            "Sunday",
+                          ].map((d) => (
+                            <SelectItem key={d} value={d}>
+                              {d}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="mb-1 block">Start Time</Label>
+                      <Input
+                        type="time"
+                        value={startTime}
+                        onChange={(e) => setStartTime(e.target.value)}
+                      />
+                    </div>
                   </div>
                   <div>
-                    <Label className="mb-1 block">Time</Label>
-                    <Input type="time" />
+                    <Label className="mb-1 block">End Time</Label>
+                    <Input
+                      type="time"
+                      value={endTime}
+                      onChange={(e) => setEndTime(e.target.value)}
+                    />
                   </div>
+
+                  {/* Următorul rând: Frequency și ce urmează */}
                   <div>
                     <Label className="mb-1 block">Frequency</Label>
                     <Select value={frequency} onValueChange={setFrequency}>
@@ -172,13 +256,21 @@ export default function TimetableModal({ open, onOpenChange }) {
                   </div>
                   <div>
                     <Label className="mb-1 block">Exam Date</Label>
-                    <Input type="date" />
+                    <Input
+                      type="date"
+                      value={examDate}
+                      onChange={(e) => setExamDate(e.target.value)}
+                    />
                   </div>
                   <div>
                     <Label className="mb-1 block">
                       Curriculum File (optional)
                     </Label>
-                    <Input type="file" />
+                    <Input
+                      type="file"
+                      value={file}
+                      onChange={(e) => setFile(e.target.value)}
+                    />
                   </div>
                 </div>
               </AccordionContent>
@@ -199,6 +291,7 @@ export default function TimetableModal({ open, onOpenChange }) {
               </AccordionTrigger>
               <AccordionContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
+                  {/* Rând 1 */}
                   <div>
                     <Label className="mb-1 block">Seminar Instructor</Label>
                     <Input
@@ -216,56 +309,78 @@ export default function TimetableModal({ open, onOpenChange }) {
                         {seminarDeliveryMode || "Select location"}
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="campus">On Campus</SelectItem>
-                        <SelectItem value="online">Online</SelectItem>
+                        <SelectItem value="Campus">On Campus</SelectItem>
+                        <SelectItem value="Online">Online</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
+
+                  {/* Room/Link - doar dacă se aplică */}
                   {seminarDeliveryMode === "campus" && (
                     <div>
                       <Label className="mb-1 block">Seminar Room</Label>
-                      <Input />
+                      <Input
+                        value={seminarRoom}
+                        onChange={(e) => setSeminarRoom(e.target.value)}
+                      />
                     </div>
                   )}
                   {seminarDeliveryMode === "online" && (
                     <div>
                       <Label className="mb-1 block">Seminar Meeting Link</Label>
-                      <Input />
+                      <Input
+                        value={seminarLink}
+                        onChange={(e) => setSeminarLink(e.target.value)}
+                      />
                     </div>
                   )}
-                  <div>
-                    <Label className="mb-1 block">Seminar Day</Label>
-                    <Select value={seminarDay} onValueChange={setSeminarDay}>
-                      <SelectTrigger>
-                        {seminarDay || "Select day"}
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[
-                          "Monday",
-                          "Tuesday",
-                          "Wednesday",
-                          "Thursday",
-                          "Friday",
-                          "Saturday",
-                          "Sunday",
-                        ].map((day) => (
-                          <SelectItem key={day} value={day}>
-                            {day}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+
+                  {/* Rând 2 */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="mb-1 block">Seminar Day</Label>
+                      <Select value={seminarDay} onValueChange={setSeminarDay}>
+                        <SelectTrigger>
+                          {seminarDay || "Select day"}
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[
+                            "Monday",
+                            "Tuesday",
+                            "Wednesday",
+                            "Thursday",
+                            "Friday",
+                            "Saturday",
+                            "Sunday",
+                          ].map((d) => (
+                            <SelectItem key={d} value={d}>
+                              {d}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="mb-1 block">Start Time</Label>
+                      <Input
+                        type="time"
+                        value={seminarTime}
+                        onChange={(e) => setSeminarTime(e.target.value)}
+                      />
+                    </div>
                   </div>
                   <div>
-                    <Label className="mb-1 block">Seminar Time</Label>
+                    <Label className="mb-1 block">End Time</Label>
                     <Input
                       type="time"
-                      value={seminarTime}
-                      onChange={(e) => setSeminarTime(e.target.value)}
+                      value={seminarEndTime}
+                      onChange={(e) => setSeminarEndTime(e.target.value)}
                     />
                   </div>
+
+                  {/* Rând 3 */}
                   <div>
-                    <Label className="mb-1.5 block">Seminar Frequency</Label>
+                    <Label className="mb-1 block">Seminar Frequency</Label>
                     <Select
                       value={seminarFrequency}
                       onValueChange={setSeminarFrequency}
@@ -274,14 +389,20 @@ export default function TimetableModal({ open, onOpenChange }) {
                         {seminarFrequency || "Select frequency"}
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="weekly">Weekly</SelectItem>
-                        <SelectItem value="biweekly">Biweekly</SelectItem>
+                        <SelectItem value="weekly">Once a week</SelectItem>
+                        <SelectItem value="biweekly">
+                          Once every two weeks
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div>
                     <Label className="mb-1 block">Test Date</Label>
-                    <Input type="date" />
+                    <Input
+                      type="date"
+                      value={seminarDate}
+                      onChange={(e) => setSeminarDate(e.target.value)}
+                    />
                   </div>
                 </div>
               </AccordionContent>
