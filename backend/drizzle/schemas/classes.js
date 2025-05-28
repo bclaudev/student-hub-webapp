@@ -4,15 +4,21 @@ import {
   text,
   integer,
   timestamp,
-  time, // import the "time" type
+  time,
+  customType,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 import { usersTable } from "./users.js";
 
 export const classesTable = pgTable("classes", {
   id: serial("id").primaryKey(),
-  name: text("name").notNull(),
+
+  // tipul clasei
+  class_type: text("class_type").notNull(),
+
+  name: text("name").notNull().default("Class Name"),
   abbreviation: text("abbreviation"),
-  teacherName: text("teacher_name"),
+  teacherName: text("teacher_name").notNull(),
   deliveryMode: text("delivery_mode").notNull(),
   roomNumber: text("room_number"),
   meetingLink: text("meeting_link"),
@@ -23,16 +29,6 @@ export const classesTable = pgTable("classes", {
   examDate: timestamp("exam_date"),
   curriculum: text("curriculum"),
   startDate: timestamp("start_date").notNull(),
-
-  // Seminar fields (toate opționale)
-  seminarInstructor: text("seminar_instructor"),
-  seminarDeliveryMode: text("seminar_delivery_mode"),
-  seminarRoom: text("seminar_room"),
-  seminarLink: text("seminar_link"),
-  seminarDay: text("seminar_day"),
-  seminarTime: time("seminar_time"),
-  seminarFrequency: text("seminar_frequency"),
-  testDate: timestamp("test_date"),
 
   createdBy: integer("created_by").references(() => usersTable.id, {
     onDelete: "cascade",

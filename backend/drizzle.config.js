@@ -5,7 +5,7 @@ import { defineConfig } from "drizzle-kit";
 console.log("DATABASE_URL from .env:", process.env.DATABASE_URL);
 
 export default defineConfig({
-  schema: "./drizzle/schema.js",
+  schema: ["./drizzle/schema.js", "./drizzle/schemas/*.js"],
   out: "./drizzle/migrations",
   dialect: "postgresql",
   dbCredentials: {

@@ -14,60 +14,47 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { CheckCircle } from "lucide-react";
 import { useState } from "react";
+import ClassDetails from "./class-details";
 
 export default function TimetableModal({ open, onOpenChange }) {
+  // General state
+  const [classType, setClassType] = useState("course");
   const [name, setName] = useState("");
   const [abbreviation, setAbbreviation] = useState("");
   const [instructor, setInstructor] = useState("");
   const [deliveryMode, setDeliveryMode] = useState("");
   const [day, setDay] = useState("");
-  const [frequency, setFrequency] = useState("");
-  const [seminarInstructor, setSeminarInstructor] = useState("");
-  const [seminarDay, setSeminarDay] = useState("");
-  const [seminarTime, setSeminarTime] = useState("");
-  const [seminarDeliveryMode, setSeminarDeliveryMode] = useState("");
-  const [seminarFrequency, setSeminarFrequency] = useState("");
-  const [endTime, setEndTime] = useState("");
-  const [seminarEndTime, setSeminarEndTime] = useState("");
   const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [frequency, setFrequency] = useState("");
   const [examDate, setExamDate] = useState("");
-  const [seminarDate, setSeminarDate] = useState("");
+  const [file, setFile] = useState("");
   const [roomNumber, setRoomNumber] = useState("");
   const [meetingLink, setMeetingLink] = useState("");
+
+  // Seminar state
+  const [seminarInstructor, setSeminarInstructor] = useState("");
+  const [seminarDeliveryMode, setSeminarDeliveryMode] = useState("");
+  const [seminarDay, setSeminarDay] = useState("");
+  const [seminarTime, setSeminarTime] = useState("");
+  const [seminarEndTime, setSeminarEndTime] = useState("");
+  const [seminarFrequency, setSeminarFrequency] = useState("");
+  const [seminarDate, setSeminarDate] = useState("");
   const [seminarRoom, setSeminarRoom] = useState("");
   const [seminarLink, setSeminarLink] = useState("");
-  const [file, setFile] = useState("");
 
-  const isCourseComplete = name && instructor;
-  const isSeminarComplete = seminarInstructor && seminarDay && seminarTime;
-
-  const generateAbbreviation = (text) => {
-    return text
-      .split(" ")
-      .map((word) => word[0]?.toUpperCase())
-      .join("");
-  };
-
-  const handleNameChange = (e) => {
-    const value = e.target.value;
-    setName(value);
-    if (!abbreviation) {
-      setAbbreviation(generateAbbreviation(value));
-    }
-  };
+  // Colloquy state
+  const [colloquyInstructor, setColloquyInstructor] = useState("");
+  const [colloquyDay, setColloquyDay] = useState("");
+  const [colloquyTime, setColloquyTime] = useState("");
+  const [colloquyRoom, setColloquyRoom] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const payload = {
+      classType,
       name,
       abbreviation,
       teacherName: instructor,
@@ -76,14 +63,15 @@ export default function TimetableModal({ open, onOpenChange }) {
       startTime,
       endTime,
       recurrence: frequency,
-      examDate: examDate || null, // dacă ai și useState pt asta
-      curriculum: "", // înlocuiește cu logica pentru upload curriculum dacă o implementezi
-      startDate: new Date().toISOString(), // sau folosește un câmp real
+      examDate: examDate ? new Date(examDate) : null,
+      curriculum: "", // if you implement file upload handling, replace this
+      startDate: new Date(),
 
-      // doar dacă există valori:
-      ...(deliveryMode === "campus" && { roomNumber }),
-      ...(deliveryMode === "online" && { meetingLink }),
+      // Course-specific extras
+      ...(deliveryMode === "Campus" && { roomNumber }),
+      ...(deliveryMode === "Online" && { meetingLink }),
 
+      // Seminar-specific extras
       ...(seminarInstructor && {
         seminarInstructor,
         seminarDeliveryMode,
@@ -91,26 +79,35 @@ export default function TimetableModal({ open, onOpenChange }) {
         seminarTime,
         seminarEndTime,
         seminarFrequency,
-        testDate: testDate || null,
-        ...(seminarDeliveryMode === "campus" && { seminarRoom }),
-        ...(seminarDeliveryMode === "online" && { seminarLink }),
+        testDate: seminarDate ? new Date(seminarDate) : null,
+        ...(seminarDeliveryMode === "Campus" && { seminarRoom }),
+        ...(seminarDeliveryMode === "Online" && { seminarLink }),
+      }),
+
+      // Colloquy-specific extras
+      ...(classType === "colloquy" && {
+        colloquyInstructor,
+        colloquyDay,
+        colloquyTime,
+        colloquyRoom,
       }),
     };
+
+    console.log("Payload:", payload);
 
     try {
       const res = await fetch("/api/classes", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Server responded with error:", res.status, errorText);
         throw new Error("Server error");
       }
 
-      // Opțional: feedback vizual, închide modal, reîncarcă lista
       console.log("Class saved successfully");
       onOpenChange(false);
     } catch (err) {
@@ -127,288 +124,135 @@ export default function TimetableModal({ open, onOpenChange }) {
           </DialogHeader>
         </div>
 
-        <form className="space-y-6 py-4 px-1 md:px-10">
-          <Accordion
-            type="single"
-            collapsible
-            defaultValue="course"
-            className="w-full"
-          >
-            <AccordionItem value="course">
-              <AccordionTrigger className="-ml-10">
-                <div className="flex items-center gap-2">
-                  {isCourseComplete ? (
-                    <CheckCircle className="w-5 h-5 text-[#A585FF]" />
-                  ) : (
-                    <div className="w-5 h-5 rounded-full border border-border flex items-center justify-center text-xs font-medium">
-                      1
-                    </div>
-                  )}
-                  <span>Course Details</span>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
-                  <div>
-                    <Label className="mb-1 block">Course Name</Label>
-                    <Input value={name} onChange={handleNameChange} required />
-                  </div>
-                  <div>
-                    <Label className="mb-1 block">Abbreviation</Label>
-                    <Input
-                      value={abbreviation}
-                      onChange={(e) => setAbbreviation(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <Label className="mb-1 block">Instructor Name</Label>
-                    <Input
-                      value={instructor}
-                      onChange={(e) => setInstructor(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label className="mb-1 block">Delivery Mode</Label>
-                    <Select
-                      value={deliveryMode}
-                      onValueChange={setDeliveryMode}
-                    >
-                      <SelectTrigger>
-                        {deliveryMode || "Select location"}
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Campus">On Campus</SelectItem>
-                        <SelectItem value="Online">Online</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  {deliveryMode === "campus" && (
-                    <div>
-                      <Label className="mb-1 block">Room Number</Label>
-                      <Input
-                        value={roomNumber}
-                        onChange={(e) => setRoomNumber(e.target.value)}
-                      />
-                    </div>
-                  )}
-                  {deliveryMode === "online" && (
-                    <div>
-                      <Label className="mb-1 block">Meeting Link</Label>
-                      <Input
-                        value={meetingLink}
-                        onChange={(e) => setMeetingLink(e.target.value)}
-                      />
-                    </div>
-                  )}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label className="mb-1 block">Day</Label>
-                      <Select value={day} onValueChange={setDay}>
-                        <SelectTrigger>{day || "Select day"}</SelectTrigger>
-                        <SelectContent>
-                          {[
-                            "Monday",
-                            "Tuesday",
-                            "Wednesday",
-                            "Thursday",
-                            "Friday",
-                            "Saturday",
-                            "Sunday",
-                          ].map((d) => (
-                            <SelectItem key={d} value={d}>
-                              {d}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label className="mb-1 block">Start Time</Label>
-                      <Input
-                        type="time"
-                        value={startTime}
-                        onChange={(e) => setStartTime(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label className="mb-1 block">End Time</Label>
-                    <Input
-                      type="time"
-                      value={endTime}
-                      onChange={(e) => setEndTime(e.target.value)}
-                    />
-                  </div>
+        <form className="space-y-6 py-4 px-1 md:px-10" onSubmit={handleSubmit}>
+          {/* Class Type Selector */}
+          <div className="flex items-center gap-6">
+            {["course", "seminar", "colloquy"].map((type) => (
+              <label key={type} className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  name="classType"
+                  value={type}
+                  checked={classType === type}
+                  onChange={() => setClassType(type)}
+                  className="radio"
+                />
+                <span className="capitalize">{type}</span>
+              </label>
+            ))}
+          </div>
 
-                  {/* Următorul rând: Frequency și ce urmează */}
-                  <div>
-                    <Label className="mb-1 block">Frequency</Label>
-                    <Select value={frequency} onValueChange={setFrequency}>
-                      <SelectTrigger>
-                        {frequency || "Select frequency"}
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="weekly">Weekly</SelectItem>
-                        <SelectItem value="biweekly">Biweekly</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label className="mb-1 block">Exam Date</Label>
-                    <Input
-                      type="date"
-                      value={examDate}
-                      onChange={(e) => setExamDate(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <Label className="mb-1 block">
-                      Curriculum File (optional)
-                    </Label>
-                    <Input
-                      type="file"
-                      value={file}
-                      onChange={(e) => setFile(e.target.value)}
-                    />
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="seminar">
-              <AccordionTrigger className="-ml-10">
-                <div className="flex items-center gap-2">
-                  {isSeminarComplete ? (
-                    <CheckCircle className="w-5 h-5 text-[#A585FF]" />
-                  ) : (
-                    <div className="w-5 h-5 rounded-full border border-border flex items-center justify-center text-xs font-medium">
-                      2
-                    </div>
-                  )}
-                  <span>Seminar Details</span>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
-                  {/* Rând 1 */}
-                  <div>
-                    <Label className="mb-1 block">Seminar Instructor</Label>
-                    <Input
-                      value={seminarInstructor}
-                      onChange={(e) => setSeminarInstructor(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <Label className="mb-1 block">Seminar Delivery Mode</Label>
-                    <Select
-                      value={seminarDeliveryMode}
-                      onValueChange={setSeminarDeliveryMode}
-                    >
-                      <SelectTrigger>
-                        {seminarDeliveryMode || "Select location"}
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Campus">On Campus</SelectItem>
-                        <SelectItem value="Online">Online</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Room/Link - doar dacă se aplică */}
-                  {seminarDeliveryMode === "campus" && (
-                    <div>
-                      <Label className="mb-1 block">Seminar Room</Label>
-                      <Input
-                        value={seminarRoom}
-                        onChange={(e) => setSeminarRoom(e.target.value)}
-                      />
-                    </div>
-                  )}
-                  {seminarDeliveryMode === "online" && (
-                    <div>
-                      <Label className="mb-1 block">Seminar Meeting Link</Label>
-                      <Input
-                        value={seminarLink}
-                        onChange={(e) => setSeminarLink(e.target.value)}
-                      />
-                    </div>
-                  )}
-
-                  {/* Rând 2 */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label className="mb-1 block">Seminar Day</Label>
-                      <Select value={seminarDay} onValueChange={setSeminarDay}>
-                        <SelectTrigger>
-                          {seminarDay || "Select day"}
-                        </SelectTrigger>
-                        <SelectContent>
-                          {[
-                            "Monday",
-                            "Tuesday",
-                            "Wednesday",
-                            "Thursday",
-                            "Friday",
-                            "Saturday",
-                            "Sunday",
-                          ].map((d) => (
-                            <SelectItem key={d} value={d}>
-                              {d}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label className="mb-1 block">Start Time</Label>
-                      <Input
-                        type="time"
-                        value={seminarTime}
-                        onChange={(e) => setSeminarTime(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label className="mb-1 block">End Time</Label>
-                    <Input
-                      type="time"
-                      value={seminarEndTime}
-                      onChange={(e) => setSeminarEndTime(e.target.value)}
-                    />
-                  </div>
-
-                  {/* Rând 3 */}
-                  <div>
-                    <Label className="mb-1 block">Seminar Frequency</Label>
-                    <Select
-                      value={seminarFrequency}
-                      onValueChange={setSeminarFrequency}
-                    >
-                      <SelectTrigger>
-                        {seminarFrequency || "Select frequency"}
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="weekly">Once a week</SelectItem>
-                        <SelectItem value="biweekly">
-                          Once every two weeks
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label className="mb-1 block">Test Date</Label>
-                    <Input
-                      type="date"
-                      value={seminarDate}
-                      onChange={(e) => setSeminarDate(e.target.value)}
-                    />
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-
+          {/* Course Details */}
+          {["course", "seminar", "colloquy"].includes(classType) && (
+            <ClassDetails
+              prefix={classType.charAt(0).toUpperCase() + classType.slice(1)}
+              name={
+                classType === "course"
+                  ? name
+                  : classType === "seminar"
+                  ? seminarInstructor
+                  : colloquyInstructor
+              }
+              setName={
+                classType === "course"
+                  ? setName
+                  : classType === "seminar"
+                  ? setSeminarInstructor
+                  : setColloquyInstructor
+              }
+              abbreviation={abbreviation}
+              setAbbreviation={setAbbreviation}
+              instructor={
+                classType === "course"
+                  ? instructor
+                  : classType === "seminar"
+                  ? seminarInstructor
+                  : colloquyInstructor
+              }
+              setInstructor={
+                classType === "course"
+                  ? setInstructor
+                  : classType === "seminar"
+                  ? setSeminarInstructor
+                  : setColloquyInstructor
+              }
+              deliveryMode={
+                classType === "course" ? deliveryMode : seminarDeliveryMode
+              }
+              setDeliveryMode={
+                classType === "course"
+                  ? setDeliveryMode
+                  : setSeminarDeliveryMode
+              }
+              roomNumber={classType === "course" ? roomNumber : seminarRoom}
+              setRoomNumber={
+                classType === "course" ? setRoomNumber : setSeminarRoom
+              }
+              meetingLink={classType === "course" ? meetingLink : seminarLink}
+              setMeetingLink={
+                classType === "course" ? setMeetingLink : setSeminarLink
+              }
+              day={
+                classType === "course"
+                  ? day
+                  : classType === "seminar"
+                  ? seminarDay
+                  : colloquyDay
+              }
+              setDay={
+                classType === "course"
+                  ? setDay
+                  : classType === "seminar"
+                  ? setSeminarDay
+                  : setColloquyDay
+              }
+              startTime={
+                classType === "course"
+                  ? startTime
+                  : classType === "seminar"
+                  ? seminarTime
+                  : colloquyTime
+              }
+              setStartTime={
+                classType === "course"
+                  ? setStartTime
+                  : classType === "seminar"
+                  ? setSeminarTime
+                  : setColloquyTime
+              }
+              endTime={
+                classType === "course"
+                  ? endTime
+                  : classType === "seminar"
+                  ? seminarEndTime
+                  : ""
+              }
+              setEndTime={
+                classType === "course"
+                  ? setEndTime
+                  : classType === "seminar"
+                  ? setSeminarEndTime
+                  : () => {}
+              }
+              frequency={classType === "course" ? frequency : seminarFrequency}
+              setFrequency={
+                classType === "course" ? setFrequency : setSeminarFrequency
+              }
+              dateLabel={
+                classType === "seminar"
+                  ? "Test Date"
+                  : classType === "colloquy"
+                  ? "Date"
+                  : "Exam Date"
+              }
+              dateValue={classType === "course" ? examDate : seminarDate}
+              setDateValue={
+                classType === "course" ? setExamDate : setSeminarDate
+              }
+              file={file}
+              setFile={setFile}
+            />
+          )}
           <div className="pt-4 flex justify-end">
             <Button type="submit">Save</Button>
           </div>
