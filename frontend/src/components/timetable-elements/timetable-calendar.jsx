@@ -72,7 +72,7 @@ const TimetableCalendar = ({ events }) => {
             localizer.format(date, "H 'PM'", culture), // ex: 13 PM, 14 PM
         }}
         style={{ height: "90vh" }}
-        defaultDate={new Date(2025, 4, 26)} // sau orice dată în săptămâna ta
+        defaultDate={new Date()}
       />
     </div>
   );

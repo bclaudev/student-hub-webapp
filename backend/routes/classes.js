@@ -8,12 +8,11 @@ import { verifyToken } from "../middleware/authMiddleware.js";
 
 const classesRoute = new Hono();
 
-classesRoute.use("*", verifyToken);
-
 const classSchema = z.object({
-  name: z.string(),
+  class_type: z.enum(["course", "seminar", "colloquy"]),
+  name: z.string().min(1),
   abbreviation: z.string().optional(),
-  teacherName: z.string().optional(),
+  teacherName: z.string().min(1),
   deliveryMode: z.enum(["Campus", "Online"]),
   roomNumber: z.string().optional(),
   meetingLink: z.string().optional(),
@@ -24,20 +23,12 @@ const classSchema = z.object({
   examDate: z.string().optional(),
   curriculum: z.string().optional(),
   startDate: z.string(),
-
-  seminarInstructor: z.string().optional(),
-  seminarDeliveryMode: z.string().optional(),
-  seminarRoom: z.string().optional(),
-  seminarLink: z.string().optional(),
-  seminarDay: z.string().optional(),
-  seminarTime: z.string().optional(),
-  seminarFrequency: z.string().optional(),
-  testDate: z.string().optional(),
 });
 
+classesRoute.use("*", verifyToken);
+// CREATE class
 classesRoute.post("/", async (ctx) => {
   const userId = ctx.get("user").id;
-
   const body = await ctx.req.json();
   const parsed = classSchema.safeParse(body);
 
@@ -47,66 +38,18 @@ classesRoute.post("/", async (ctx) => {
 
   const payload = {
     ...parsed.data,
+    class_type: parsed.data.class_type || "course",
     examDate: parsed.data.examDate ? new Date(parsed.data.examDate) : null,
-    testDate: parsed.data.testDate ? new Date(parsed.data.testDate) : null,
     startDate: new Date(parsed.data.startDate),
     createdBy: userId,
   };
 
-  const {
-    seminarTime,
-    seminarEndTime,
-    seminarDay,
-    seminarInstructor,
-    seminarDeliveryMode,
-    seminarRoom,
-    seminarLink,
-    seminarFrequency,
-    testDate,
-    ...courseFields
-  } = payload;
-
-  // curs
-  await db.insert(classesTable).values({
-    ...courseFields,
-    createdBy: userId,
-  });
-
-  // seminar (doar dacă există date)
-  if (seminarTime && seminarEndTime && seminarDay) {
-    await db.insert(classesTable).values({
-      ...courseFields,
-      name: courseFields.name, // același nume
-      startTime: seminarTime,
-      endTime: seminarEndTime,
-      day: seminarDay,
-      teacherName: seminarInstructor,
-      deliveryMode: seminarDeliveryMode,
-      roomNumber: seminarRoom,
-      meetingLink: seminarLink,
-      recurrence: seminarFrequency,
-      examDate: testDate,
-      createdBy: userId,
-    });
-  }
-
-  return ctx.json({ success: true });
+  const result = await db.insert(classesTable).values(payload).returning();
+  return ctx.json(result[0]);
 });
 
-classesRoute.delete(":id", async (ctx) => {
-  const userId = ctx.get("user").id;
-  const classId = Number(ctx.req.param("id"));
-
-  await db
-    .delete(classesTable)
-    .where(
-      and(eq(classesTable.id, classId), eq(classesTable.createdBy, userId))
-    );
-
-  return ctx.json({ success: true });
-});
-
-classesRoute.put(":id", async (ctx) => {
+// UPDATE class
+classesRoute.put("/:id", async (ctx) => {
   const userId = ctx.get("user").id;
   const classId = Number(ctx.req.param("id"));
   const body = await ctx.req.json();
@@ -119,7 +62,6 @@ classesRoute.put(":id", async (ctx) => {
   const updatedPayload = {
     ...parsed.data,
     examDate: parsed.data.examDate ? new Date(parsed.data.examDate) : null,
-    testDate: parsed.data.testDate ? new Date(parsed.data.testDate) : null,
     startDate: new Date(parsed.data.startDate),
   };
 
@@ -133,9 +75,23 @@ classesRoute.put(":id", async (ctx) => {
   return ctx.json({ success: true });
 });
 
+// DELETE class
+classesRoute.delete("/:id", async (ctx) => {
+  const userId = ctx.get("user").id;
+  const classId = Number(ctx.req.param("id"));
+
+  await db
+    .delete(classesTable)
+    .where(
+      and(eq(classesTable.id, classId), eq(classesTable.createdBy, userId))
+    );
+
+  return ctx.json({ success: true });
+});
+
+// GET all classes
 classesRoute.get("/", async (ctx) => {
   const userId = ctx.get("user").id;
-
   const classes = await db
     .select()
     .from(classesTable)

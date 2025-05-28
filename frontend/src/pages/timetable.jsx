@@ -1,11 +1,12 @@
-// pages/TimetablePage.jsx
-
-import TimetableCalendar from "@/components/timetable-elements/timetable-calendar";
-import TimetableHeader from "@/components/timetable-elements/timetable-header";
+// src/pages/timetable.jsx
 
 import { useEffect, useState } from "react";
+import TimetableHeader from "@/components/timetable-elements/timetable-header";
+import TimetableCalendar from "@/components/timetable-elements/timetable-calendar";
+import { RRule } from "rrule";
 
-const TimetablePage = () => {
+export default function TimetablePage() {
+  const [classes, setClasses] = useState([]);
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
@@ -14,65 +15,13 @@ const TimetablePage = () => {
         const res = await fetch("/api/classes");
         const data = await res.json();
 
-        if (Array.isArray(data.classes)) {
-          const parsed = data.classes.flatMap((cls) => {
-            const events = [];
-
-            // Helper: convert HH:MM string and day to Date
-            const parseTime = (day, timeStr) => {
-              const days = [
-                "Sunday",
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday",
-              ];
-              const baseDate = new Date();
-              const currentDay = baseDate.getDay();
-              const targetDay = days.indexOf(day);
-              const diff = (targetDay - currentDay + 7) % 7;
-              const date = new Date(baseDate);
-              date.setDate(baseDate.getDate() + diff);
-              const [hours, minutes] = timeStr.split(":").map(Number);
-              date.setHours(hours);
-              date.setMinutes(minutes);
-              date.setSeconds(0);
-              return date;
-            };
-
-            if (cls.startTime && cls.endTime) {
-              events.push({
-                title: `Curs ${cls.name}`,
-                start: parseTime(cls.day, cls.startTime),
-                end: parseTime(cls.day, cls.endTime),
-                location:
-                  cls.deliveryMode === "campus"
-                    ? cls.roomNumber
-                    : cls.meetingLink || "Online",
-              });
-            }
-
-            if (cls.seminarTime && cls.seminarEndTime) {
-              events.push({
-                title: `Seminar ${cls.name}`,
-                start: parseTime(cls.seminarDay, cls.seminarTime),
-                end: parseTime(cls.seminarDay, cls.seminarEndTime),
-                location:
-                  cls.seminarDeliveryMode === "campus"
-                    ? cls.seminarRoom
-                    : cls.seminarLink || "Online",
-              });
-            }
-
-            return events;
-          });
-
-          setEvents(parsed);
-        }
-      } catch (err) {
-        console.error("Failed to fetch classes:", err);
+        const allEvents = data.classes.flatMap((cls) =>
+          generateRecurringEvents(cls)
+        );
+        setClasses(data.classes);
+        setEvents(allEvents);
+      } catch (error) {
+        console.error("Error fetching classes:", error);
       }
     };
 
@@ -80,14 +29,52 @@ const TimetablePage = () => {
   }, []);
 
   return (
-    <div className="flex flex-col h-full">
+    <div>
       <TimetableHeader />
-
-      <div className="flex-1">
-        <TimetableCalendar events={events} />
-      </div>
+      <TimetableCalendar events={events} />
     </div>
   );
-};
+}
 
-export default TimetablePage;
+function generateRecurringEvents(cls) {
+  if (!cls.startDate || !cls.startTime || !cls.endTime || !cls.day) {
+    console.warn("Invalid class data skipped:", cls);
+    return [];
+  }
+
+  const dayMap = {
+    monday: RRule.MO,
+    tuesday: RRule.TU,
+    wednesday: RRule.WE,
+    thursday: RRule.TH,
+    friday: RRule.FR,
+  };
+
+  const weekday = dayMap[cls.day.toLowerCase()];
+  if (!weekday) return [];
+
+  const startDate = new Date(cls.startDate);
+  startDate.setHours(...cls.startTime.split(":").map(Number));
+
+  const rule = new RRule({
+    freq: RRule.WEEKLY,
+    byweekday: weekday,
+    dtstart: startDate,
+    count: 10,
+  });
+
+  return rule.all().map((date, index) => {
+    const [endHour, endMinute] = cls.endTime.split(":").map(Number);
+    const endDate = new Date(date);
+    endDate.setHours(endHour, endMinute);
+
+    return {
+      id: `${cls.id}-${index}`,
+      title: cls.name,
+      start: date,
+      end: endDate,
+      location:
+        cls.deliveryMode === "Campus" ? cls.roomNumber : cls.meetingLink,
+    };
+  });
+}
