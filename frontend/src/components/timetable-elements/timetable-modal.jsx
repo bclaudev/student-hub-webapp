@@ -22,24 +22,43 @@ import { useState } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { set } from "date-fns";
 
-export default function TimetableModal({ open, onOpenChange }) {
-  const [classType, setClassType] = useState("course");
-  const [name, setName] = useState("");
-  const [abbreviation, setAbbreviation] = useState("");
-  const [teacherName, setTeacherName] = useState("");
-  const [deliveryMode, setDeliveryMode] = useState("");
-  const [roomNumber, setRoomNumber] = useState("");
-  const [meetingLink, setMeetingLink] = useState("");
-  const [day, setDay] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
-  const [recurrence, setRecurrence] = useState("");
-  const [examDate, setExamDate] = useState("");
-  const [curriculum, setCurriculum] = useState("");
-  const [startDate, setStartDate] = useState("");
-
+export default function TimetableModal({
+  open,
+  onOpenChange,
+  initialData = {},
+  onSave,
+}) {
+  console.log("Initial data received:", initialData);
+  const [classType, setClassType] = useState(
+    initialData.class_type || "course"
+  );
+  const [name, setName] = useState(initialData.name || "");
+  const [abbreviation, setAbbreviation] = useState(
+    initialData.abbreviation || ""
+  );
+  const [teacherName, setTeacherName] = useState(initialData.teacherName || "");
+  const [deliveryMode, setDeliveryMode] = useState(
+    initialData.deliveryMode || "Campus"
+  );
+  const [roomNumber, setRoomNumber] = useState(initialData.roomNumber || "");
+  const [meetingLink, setMeetingLink] = useState(initialData.meetingLink || "");
+  const [day, setDay] = useState(initialData.day || "monday");
+  const [startTime, setStartTime] = useState(initialData.startTime || "");
+  const [endTime, setEndTime] = useState(initialData.endTime || "");
+  const [recurrence, setRecurrence] = useState(
+    initialData.recurrence || "once-a-week"
+  );
+  const [examDate, setExamDate] = useState(
+    initialData.examDate ? initialData.examDate.slice(0, 10) : ""
+  );
+  const [curriculum, setCurriculum] = useState(initialData.curriculum || null);
+  const [startDate, setStartDate] = useState(
+    initialData.startDate ? initialData.startDate.slice(0, 10) : ""
+  );
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const isEditMode = !!initialData.id;
 
     const payload = {
       class_type: classType,
@@ -54,18 +73,21 @@ export default function TimetableModal({ open, onOpenChange }) {
       endTime,
       recurrence,
       examDate: examDate || null,
-      curriculum: "",
-      startDate: new Date().toISOString(),
+      ...(typeof curriculum === "string" ? { curriculum } : {}),
+      startDate: startDate || new Date().toISOString(),
     };
 
     console.log("Payload:", payload);
 
     try {
-      const res = await fetch("/api/classes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const res = await fetch(
+        isEditMode ? `/api/classes/${initialData.id}` : "/api/classes",
+        {
+          method: isEditMode ? "PUT" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (!res.ok) {
         const errorText = await res.text();
@@ -73,7 +95,8 @@ export default function TimetableModal({ open, onOpenChange }) {
         throw new Error("Server error");
       }
 
-      console.log("Class saved successfully");
+      console.log(`Class ${isEditMode ? "updated" : "saved"} successfully`);
+      if (onSave) await onSave();
       onOpenChange(false);
     } catch (err) {
       console.error("Error saving class:", err);

@@ -6,13 +6,16 @@ import parse from "date-fns/parse";
 import startOfWeek from "date-fns/startOfWeek";
 import getDay from "date-fns/getDay";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+
+import { useEffect, useState } from "react";
 import TimetableItem from "./timetable-item.jsx";
+import TimetableModal from "./timetable-modal.jsx";
+
+import { generateRecurringEvents } from "@/pages/timetable";
 
 import enUS from "date-fns/locale/en-US";
 
-const locales = {
-  "en-US": enUS,
-};
+const locales = { "en-US": enUS };
 
 const localizer = dateFnsLocalizer({
   format,
@@ -27,7 +30,6 @@ const getDynamicTimeBounds = (events) => {
     ...events.map((e) => new Date(e.start).getHours()),
     9
   );
-
   const maxHour = Math.max(
     ...events.map((e) => new Date(e.end).getHours()),
     21
@@ -39,12 +41,37 @@ const getDynamicTimeBounds = (events) => {
   };
 };
 
-const TimetableCalendar = ({ events, onColorChange }) => {
-  console.log("events:", events);
+const TimetableCalendar = ({ onColorChange, events, classes, onSave }) => {
+  const [editingEvent, setEditingEvent] = useState(null);
+
   const { min, max } = getDynamicTimeBounds(events);
+
   const CustomEvent = ({ event }) => (
-    <TimetableItem event={event} onColorChange={onColorChange} />
+    <TimetableItem
+      event={event}
+      onColorChange={onColorChange}
+      onEdit={() => {
+        const fullClass = classes.find((c) => c.id === event.classId);
+        if (fullClass) setEditingEvent(fullClass);
+      }}
+      onDelete={async (id) => {
+        try {
+          const res = await fetch(`/api/classes/${id}`, {
+            method: "DELETE",
+          });
+
+          if (!res.ok) throw new Error("Failed to delete");
+
+          setClasses((prev) => prev.filter((cls) => cls.id !== id));
+          setEvents((prev) => prev.filter((ev) => ev.classId !== id));
+        } catch (err) {
+          console.error("Delete failed:", err);
+          alert("Failed to delete class.");
+        }
+      }}
+    />
   );
+
   return (
     <div className="h-full">
       <Calendar
@@ -70,13 +97,23 @@ const TimetableCalendar = ({ events, onColorChange }) => {
         formats={{
           dayFormat: (date, culture, localizer) =>
             localizer.format(date, "EEE", culture).toUpperCase(),
-
           timeGutterFormat: (date, culture, localizer) =>
             localizer.format(date, "H 'PM'", culture),
         }}
         style={{ height: "100%" }}
         defaultDate={new Date("2025-05-29")}
       />
+
+      {editingEvent && (
+        <TimetableModal
+          open={true}
+          onOpenChange={(open) => {
+            if (!open) setEditingEvent(null);
+          }}
+          initialData={editingEvent}
+          onSave={onSave}
+        />
+      )}
     </div>
   );
 };

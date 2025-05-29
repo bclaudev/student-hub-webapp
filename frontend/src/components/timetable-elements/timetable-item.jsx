@@ -23,7 +23,7 @@ function darkenHexColor(hex, amount = 20) {
     .join("")}`;
 }
 
-const TimetableItem = ({ event, onColorChange }) => {
+const TimetableItem = ({ event, onColorChange, onEdit, onDelete }) => {
   const color = event.color || "#a585ff";
   const iconColor = darkenHexColor(color, 80);
   const [showMenu, setShowMenu] = useState(false);
@@ -99,9 +99,9 @@ const TimetableItem = ({ event, onColorChange }) => {
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
-        <div className="h-full w-full !rounded-none">
+        <div className="h-full w-full">
           <div
-            className="h-full w-full p-5 text-sm text-[#0d0d0d] dark:text-[#eaeaea] cursor-pointer !rounded-none flex flex-col gap-1 hover:brightness-105 transition"
+            className="h-full w-full px-3 text-sm text-[#0d0d0d] dark:text-[#eaeaea] cursor-pointer !rounded-none flex flex-col justify-center gap-1 hover:brightness-105 transition"
             style={{ backgroundColor: color }}
           >
             <div className="flex items-center gap-2 font-semibold">
@@ -122,6 +122,16 @@ const TimetableItem = ({ event, onColorChange }) => {
       </ContextMenuTrigger>
 
       <ContextMenuContent className="w-48">
+        <ContextMenuItem onClick={() => onEdit()}>Edit</ContextMenuItem>
+        <ContextMenuItem
+          onClick={() => {
+            if (confirm("Are you sure you want to delete this class?")) {
+              onDelete(event.classId);
+            }
+          }}
+        >
+          Delete
+        </ContextMenuItem>
         <ContextMenuSub>
           <ContextMenuSubTrigger>Change Color</ContextMenuSubTrigger>
           <ContextMenuSubContent>

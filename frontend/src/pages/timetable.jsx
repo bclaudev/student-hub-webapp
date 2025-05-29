@@ -9,6 +9,17 @@ export default function TimetablePage() {
   const [classes, setClasses] = useState([]);
   const [events, setEvents] = useState([]);
 
+  const refetchClasses = async () => {
+    const res = await fetch("/api/classes");
+    const data = await res.json();
+
+    setClasses(data.classes);
+    const allEvents = data.classes.flatMap((cls) =>
+      generateRecurringEvents(cls)
+    );
+    setEvents(allEvents);
+  };
+
   const handleColorChange = async (id, color) => {
     await fetch(`http://localhost:8787/api/classes/${id}`, {
       method: "PATCH",
@@ -45,13 +56,18 @@ export default function TimetablePage() {
     <div className="flex flex-col h-screen">
       <TimetableHeader />
       <div className="flex-1 overflow-auto">
-        <TimetableCalendar events={events} onColorChange={handleColorChange} />
+        <TimetableCalendar
+          events={events}
+          onColorChange={handleColorChange}
+          classes={classes}
+          onSave={refetchClasses}
+        />
       </div>
     </div>
   );
 }
 
-function generateRecurringEvents(cls) {
+export function generateRecurringEvents(cls) {
   if (!cls.startDate || !cls.startTime || !cls.endTime || !cls.day) {
     console.warn("Invalid class data skipped:", cls);
     return [];
