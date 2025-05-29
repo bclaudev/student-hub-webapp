@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import TimetableModal from "@/components/timetable-elements/timetable-modal";
 
-export default function TimetableHeader() {
+export default function TimetableHeader({ onSave }) {
   const [activeSemester, setActiveSemester] = useState("1st Semester");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -44,7 +44,11 @@ export default function TimetableHeader() {
         </div>
         <Button onClick={() => setIsModalOpen(true)}>Add new class</Button>
       </div>
-      <TimetableModal open={isModalOpen} onOpenChange={setIsModalOpen} />
+      <TimetableModal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        onSave={onSave}
+      />
     </div>
   );
 }

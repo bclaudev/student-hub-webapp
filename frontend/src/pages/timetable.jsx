@@ -54,7 +54,7 @@ export default function TimetablePage() {
 
   return (
     <div className="flex flex-col h-screen">
-      <TimetableHeader />
+      <TimetableHeader onSave={refetchClasses} />
       <div className="flex-1 overflow-auto">
         <TimetableCalendar
           events={events}

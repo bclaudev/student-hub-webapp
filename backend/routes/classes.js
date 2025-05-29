@@ -5,6 +5,7 @@ import { classesTable } from "../drizzle/schema.js";
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
 import { verifyToken } from "../middleware/authMiddleware.js";
+import { calendarEventsTable } from "../drizzle/schema.js";
 
 const classesRoute = new Hono();
 
@@ -72,7 +73,38 @@ classesRoute.put("/:id", async (ctx) => {
       and(eq(classesTable.id, classId), eq(classesTable.createdBy, userId))
     );
 
-  return ctx.json({ success: true });
+  const result = await db.insert(classesTable).values(payload).returning();
+  const insertedClass = result[0];
+
+  console.log("📅 Creating exam calendar event...");
+
+  if (parsed.data.examDate) {
+    console.log("parsed.data.examDate = ", parsed.data.examDate);
+    const [startHour, startMin] = parsed.data.startTime.split(":").map(Number);
+    const [endHour, endMin] = parsed.data.endTime.split(":").map(Number);
+
+    const start = new Date(parsed.data.examDate);
+    start.setHours(startHour, startMin);
+
+    const end = new Date(parsed.data.examDate);
+    end.setHours(endHour, endMin);
+
+    await db.insert(calendarEventsTable).values({
+      title: `Exam: ${parsed.data.name}`,
+      description: `Exam for ${parsed.data.name}`,
+      startDateTime: start,
+      endDateTime: end,
+      eventType: "exam",
+      color: parsed.data.color || "#a585ff",
+      createdBy: userId,
+      additionalInfo: {
+        classId: result[0].id,
+      },
+    });
+  }
+  console.log("✅ Exam event inserted into calendar_events.");
+
+  return ctx.json(insertedClass);
 });
 
 // DELETE class

@@ -10,6 +10,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useEffect, useState } from "react";
 import TimetableItem from "./timetable-item.jsx";
 import TimetableModal from "./timetable-modal.jsx";
+import TimetablePreviewModal from "./timetable-preview-modal.jsx";
 
 import { generateRecurringEvents } from "@/pages/timetable";
 
@@ -43,6 +44,7 @@ const getDynamicTimeBounds = (events) => {
 
 const TimetableCalendar = ({ onColorChange, events, classes, onSave }) => {
   const [editingEvent, setEditingEvent] = useState(null);
+  const [previewClass, setPreviewClass] = useState(null);
 
   const { min, max } = getDynamicTimeBounds(events);
 
@@ -68,6 +70,10 @@ const TimetableCalendar = ({ onColorChange, events, classes, onSave }) => {
           console.error("Delete failed:", err);
           alert("Failed to delete class.");
         }
+      }}
+      onPreview={() => {
+        const fullClass = classes.find((c) => c.id === event.classId);
+        if (fullClass) setPreviewClass(fullClass);
       }}
     />
   );
@@ -112,6 +118,15 @@ const TimetableCalendar = ({ onColorChange, events, classes, onSave }) => {
           }}
           initialData={editingEvent}
           onSave={onSave}
+        />
+      )}
+      {previewClass && (
+        <TimetablePreviewModal
+          open={true}
+          onOpenChange={(open) => {
+            if (!open) setPreviewClass(null);
+          }}
+          data={previewClass}
         />
       )}
     </div>

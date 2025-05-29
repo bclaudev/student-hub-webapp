@@ -23,7 +23,13 @@ function darkenHexColor(hex, amount = 20) {
     .join("")}`;
 }
 
-const TimetableItem = ({ event, onColorChange, onEdit, onDelete }) => {
+const TimetableItem = ({
+  event,
+  onColorChange,
+  onEdit,
+  onDelete,
+  onPreview,
+}) => {
   const color = event.color || "#a585ff";
   const iconColor = darkenHexColor(color, 80);
   const [showMenu, setShowMenu] = useState(false);
@@ -101,6 +107,7 @@ const TimetableItem = ({ event, onColorChange, onEdit, onDelete }) => {
       <ContextMenuTrigger asChild>
         <div className="h-full w-full">
           <div
+            onClick={() => onPreview()}
             className="h-full w-full px-3 text-sm text-[#0d0d0d] dark:text-[#eaeaea] cursor-pointer !rounded-none flex flex-col justify-center gap-1 hover:brightness-105 transition"
             style={{ backgroundColor: color }}
           >
