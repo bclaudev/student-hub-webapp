@@ -9,6 +9,19 @@ export default function TimetablePage() {
   const [classes, setClasses] = useState([]);
   const [events, setEvents] = useState([]);
 
+  const handleColorChange = async (id, color) => {
+    await fetch(`http://localhost:8787/api/classes/${id}`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ color }),
+    });
+
+    setEvents((prev) =>
+      prev.map((ev) => (ev.classId === id ? { ...ev, color } : ev))
+    );
+  };
+
   useEffect(() => {
     const fetchClasses = async () => {
       try {
@@ -29,9 +42,11 @@ export default function TimetablePage() {
   }, []);
 
   return (
-    <div>
+    <div className="flex flex-col h-screen">
       <TimetableHeader />
-      <TimetableCalendar events={events} />
+      <div className="flex-1 overflow-auto">
+        <TimetableCalendar events={events} onColorChange={handleColorChange} />
+      </div>
     </div>
   );
 }
@@ -70,11 +85,15 @@ function generateRecurringEvents(cls) {
 
     return {
       id: `${cls.id}-${index}`,
+      classId: cls.id,
       title: cls.name,
+      abbreviation: cls.abbreviation,
       start: date,
       end: endDate,
       location:
         cls.deliveryMode === "Campus" ? cls.roomNumber : cls.meetingLink,
+      class_type: cls.class_type,
+      color: cls.color,
     };
   });
 }

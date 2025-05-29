@@ -259,3 +259,18 @@ a[data-active="true"] > svg {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+.rbc-event-label {
+  display: none !important;
+}
+
+.rbc-event {
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+.rbc-day-slot .rbc-events-container {
+  margin-right: none !important;
+}

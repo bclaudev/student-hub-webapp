@@ -36,6 +36,7 @@ export default function TimetableModal({ open, onOpenChange }) {
   const [recurrence, setRecurrence] = useState("");
   const [examDate, setExamDate] = useState("");
   const [curriculum, setCurriculum] = useState("");
+  const [startDate, setStartDate] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -271,6 +272,19 @@ export default function TimetableModal({ open, onOpenChange }) {
                   required
                 />
               </div>
+            </div>
+
+            {/* Start Date */}
+            <div className="space-y-2">
+              <Label htmlFor="start-date">Start Date</Label>
+              <Input
+                id="start-date"
+                name="startDate"
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                required
+              />
             </div>
 
             {/* Curriculum File Upload */}

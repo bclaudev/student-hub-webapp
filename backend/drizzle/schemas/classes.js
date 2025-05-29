@@ -7,6 +7,7 @@ import {
   time,
   customType,
   pgEnum,
+  varchar,
 } from "drizzle-orm/pg-core";
 import { usersTable } from "./users.js";
 
@@ -29,6 +30,7 @@ export const classesTable = pgTable("classes", {
   examDate: timestamp("exam_date"),
   curriculum: text("curriculum"),
   startDate: timestamp("start_date").notNull(),
+  color: varchar("color", { length: 16 }).default("#a585ff"),
 
   createdBy: integer("created_by").references(() => usersTable.id, {
     onDelete: "cascade",

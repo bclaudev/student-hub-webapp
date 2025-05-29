@@ -100,4 +100,20 @@ classesRoute.get("/", async (ctx) => {
   return ctx.json({ classes });
 });
 
+classesRoute.patch("/:id", async (c) => {
+  const id = c.req.param("id");
+  const { color } = await c.req.json();
+
+  console.log("Received PATCH for class ID:", id, "with color:", color);
+
+  try {
+    await db.update(classesTable).set({ color }).where(eq(classesTable.id, id)); // <- aici probabil dă eroare
+
+    return c.json({ success: true });
+  } catch (error) {
+    console.error("PATCH /api/classes/:id failed", error);
+    return c.text("Internal server error", 500);
+  }
+});
+
 export { classesRoute };

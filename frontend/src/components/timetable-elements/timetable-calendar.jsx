@@ -39,21 +39,24 @@ const getDynamicTimeBounds = (events) => {
   };
 };
 
-const TimetableCalendar = ({ events }) => {
+const TimetableCalendar = ({ events, onColorChange }) => {
   console.log("events:", events);
-  const { min, max } = getDynamicTimeBounds(events); // 👈 AICI era lipsă
+  const { min, max } = getDynamicTimeBounds(events);
+  const CustomEvent = ({ event }) => (
+    <TimetableItem event={event} onColorChange={onColorChange} />
+  );
   return (
-    <div className="h-[90vh]">
+    <div className="h-full">
       <Calendar
         localizer={localizer}
         events={events}
         defaultView={Views.WEEK}
         views={{ week: true }}
         components={{
-          event: TimetableItem,
+          event: CustomEvent,
           timeGutterHeader: () => (
             <div className="flex items-center justify-center h-full">
-              <div className="bg-[#A585FF] text-white text-2xl px-6 py-2 rounded-lg w-fit font-semibold shadow-sm">
+              <div className="bg-[#A585FF] text-white text-xl px-6 py-2 rounded-2xl w-fit font-semibold shadow-sm">
                 1
               </div>
             </div>
@@ -69,10 +72,10 @@ const TimetableCalendar = ({ events }) => {
             localizer.format(date, "EEE", culture).toUpperCase(),
 
           timeGutterFormat: (date, culture, localizer) =>
-            localizer.format(date, "H 'PM'", culture), // ex: 13 PM, 14 PM
+            localizer.format(date, "H 'PM'", culture),
         }}
-        style={{ height: "90vh" }}
-        defaultDate={new Date()}
+        style={{ height: "100%" }}
+        defaultDate={new Date("2025-05-29")}
       />
     </div>
   );
