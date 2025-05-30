@@ -1,14 +1,13 @@
-// routes/classes.ts
 import { Hono } from "hono";
 import { db } from "../db.js";
-import { classesTable } from "../drizzle/schema.js";
+import { classesTable, calendarEventsTable } from "../drizzle/schema.js";
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
 import { verifyToken } from "../middleware/authMiddleware.js";
-import { calendarEventsTable } from "../drizzle/schema.js";
 
 const classesRoute = new Hono();
 
+// 🔧 Schema cu preprocess pentru examDate
 const classSchema = z.object({
   class_type: z.enum(["course", "seminar", "colloquy"]),
   name: z.string().min(1),
@@ -21,13 +20,17 @@ const classSchema = z.object({
   startTime: z.string(),
   endTime: z.string(),
   recurrence: z.string(),
-  examDate: z.string().optional(),
+  examDate: z.preprocess((val) => {
+    if (typeof val === "string") return new Date(val);
+    if (val instanceof Date) return val;
+  }, z.date().optional()),
   curriculum: z.string().optional(),
-  startDate: z.string(),
+  startDate: z.preprocess((val) => new Date(val), z.date()),
 });
 
 classesRoute.use("*", verifyToken);
-// CREATE class
+
+// ✅ CREATE class + calendar exam event if applicable
 classesRoute.post("/", async (ctx) => {
   const userId = ctx.get("user").id;
   const body = await ctx.req.json();
@@ -39,47 +42,13 @@ classesRoute.post("/", async (ctx) => {
 
   const payload = {
     ...parsed.data,
-    class_type: parsed.data.class_type || "course",
-    examDate: parsed.data.examDate ? new Date(parsed.data.examDate) : null,
-    startDate: new Date(parsed.data.startDate),
     createdBy: userId,
   };
 
   const result = await db.insert(classesTable).values(payload).returning();
-  return ctx.json(result[0]);
-});
-
-// UPDATE class
-classesRoute.put("/:id", async (ctx) => {
-  const userId = ctx.get("user").id;
-  const classId = Number(ctx.req.param("id"));
-  const body = await ctx.req.json();
-  const parsed = classSchema.safeParse(body);
-
-  if (!parsed.success) {
-    return ctx.json({ error: parsed.error.flatten() }, 400);
-  }
-
-  const updatedPayload = {
-    ...parsed.data,
-    examDate: parsed.data.examDate ? new Date(parsed.data.examDate) : null,
-    startDate: new Date(parsed.data.startDate),
-  };
-
-  await db
-    .update(classesTable)
-    .set(updatedPayload)
-    .where(
-      and(eq(classesTable.id, classId), eq(classesTable.createdBy, userId))
-    );
-
-  const result = await db.insert(classesTable).values(payload).returning();
   const insertedClass = result[0];
 
-  console.log("📅 Creating exam calendar event...");
-
   if (parsed.data.examDate) {
-    console.log("parsed.data.examDate = ", parsed.data.examDate);
     const [startHour, startMin] = parsed.data.startTime.split(":").map(Number);
     const [endHour, endMin] = parsed.data.endTime.split(":").map(Number);
 
@@ -98,16 +67,42 @@ classesRoute.put("/:id", async (ctx) => {
       color: parsed.data.color || "#a585ff",
       createdBy: userId,
       additionalInfo: {
-        classId: result[0].id,
+        classId: insertedClass.id,
       },
     });
+
+    console.log("✅ Exam calendar event created (POST)");
   }
-  console.log("✅ Exam event inserted into calendar_events.");
 
   return ctx.json(insertedClass);
 });
 
-// DELETE class
+// ✅ UPDATE class (rămâne cu logică de update exam dacă vrei)
+classesRoute.put("/:id", async (ctx) => {
+  const userId = ctx.get("user").id;
+  const classId = Number(ctx.req.param("id"));
+  const body = await ctx.req.json();
+  const parsed = classSchema.safeParse(body);
+
+  if (!parsed.success) {
+    return ctx.json({ error: parsed.error.flatten() }, 400);
+  }
+
+  const updatedPayload = {
+    ...parsed.data,
+  };
+
+  await db
+    .update(classesTable)
+    .set(updatedPayload)
+    .where(
+      and(eq(classesTable.id, classId), eq(classesTable.createdBy, userId))
+    );
+
+  return ctx.json({ success: true });
+});
+
+// ✅ DELETE class
 classesRoute.delete("/:id", async (ctx) => {
   const userId = ctx.get("user").id;
   const classId = Number(ctx.req.param("id"));
@@ -121,7 +116,7 @@ classesRoute.delete("/:id", async (ctx) => {
   return ctx.json({ success: true });
 });
 
-// GET all classes
+// ✅ GET all classes
 classesRoute.get("/", async (ctx) => {
   const userId = ctx.get("user").id;
   const classes = await db
@@ -132,6 +127,7 @@ classesRoute.get("/", async (ctx) => {
   return ctx.json({ classes });
 });
 
+// ✅ PATCH color only
 classesRoute.patch("/:id", async (c) => {
   const id = c.req.param("id");
   const { color } = await c.req.json();
@@ -139,8 +135,7 @@ classesRoute.patch("/:id", async (c) => {
   console.log("Received PATCH for class ID:", id, "with color:", color);
 
   try {
-    await db.update(classesTable).set({ color }).where(eq(classesTable.id, id)); // <- aici probabil dă eroare
-
+    await db.update(classesTable).set({ color }).where(eq(classesTable.id, id));
     return c.json({ success: true });
   } catch (error) {
     console.error("PATCH /api/classes/:id failed", error);
