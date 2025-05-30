@@ -11,6 +11,7 @@ import NotebookEditorPage from "@/pages/notebook-editor";
 import ResourcesPage from "@/pages/resources";
 import PDFViewer from "@/pages/PDFViewer";
 import TimetablePage from "@/pages/timetable";
+import OnboardingPage from "@/pages/onboarding";
 
 function App() {
   //const user = useUser();
@@ -23,6 +24,7 @@ function App() {
           {/* Pagini fără layout */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/onboarding" element={<OnboardingPage />} />
 
           {/* Pagini cu layout */}
           <Route path="/" element={<DashboardLayout />}>

@@ -3,6 +3,7 @@ import ThemeToggle from "@/components/ui/theme-toggle";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import AuthRedirector from "@/components/onboarding/AuthRedirector";
 
 export default function LoginPage() {
   const [user, setUser] = useState(null);
@@ -29,6 +30,7 @@ export default function LoginPage() {
     <div className="flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm md:max-w-3xl">
         <LoginForm fetchUser={fetchUser} />
+        {user && <AuthRedirector />}
       </div>
       <ThemeToggle />
     </div>

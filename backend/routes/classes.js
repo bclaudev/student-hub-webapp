@@ -4,6 +4,8 @@ import { classesTable, calendarEventsTable } from "../drizzle/schema.js";
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
 import { verifyToken } from "../middleware/authMiddleware.js";
+import { generateRecurringClassEvents } from "../lib/recurrence/generate-recurring-class-events.js";
+import { semestersTable } from "../drizzle/schema.js";
 
 const classesRoute = new Hono();
 
@@ -70,10 +72,64 @@ classesRoute.post("/", async (ctx) => {
         classId: insertedClass.id,
       },
     });
-
     console.log("✅ Exam calendar event created (POST)");
   }
 
+  // 🔁 Generate recurring class events
+  const semester = await db.query.semestersTable.findFirst({
+    where: eq(semestersTable.createdBy, userId),
+  });
+
+  if (!semester) {
+    console.warn(
+      "⚠️ User has no semester configured, skipping class event generation."
+    );
+    return ctx.json(
+      {
+        error: "Semester not found for user. Please complete onboarding first.",
+      },
+      400
+    ); // sau 200, dar cu warning
+  }
+  console.log("📦 Generating recurring events with:", {
+    weekday: parsed.data.day,
+    startTime: parsed.data.startTime,
+    endTime: parsed.data.endTime,
+    recurrence: parsed.data.recurrence,
+    semesterStart: semester.startDate,
+    semesterEnd: semester.endDate,
+  });
+  if (semester) {
+    const recurringEvents = generateRecurringClassEvents({
+      weekday:
+        parsed.data.day.charAt(0).toUpperCase() + parsed.data.day.slice(1),
+      startTime: parsed.data.startTime,
+      endTime: parsed.data.endTime,
+      recurrence: parsed.data.recurrence, // "weekly" | "biweekly"
+      semesterStart: semester.startDate,
+      semesterEnd: semester.endDate,
+    });
+
+    const calendarEvents = recurringEvents.map(({ start, end }) => ({
+      title: parsed.data.name,
+      description: `Class: ${parsed.data.name}`,
+      startDateTime: start,
+      endDateTime: end,
+      eventType: "class",
+      color: parsed.data.color || "#a585ff",
+      createdBy: userId,
+      additionalInfo: {
+        classId: insertedClass.id,
+      },
+    }));
+
+    if (calendarEvents.length > 0) {
+      await db.insert(calendarEventsTable).values(calendarEvents);
+      console.log(`✅ ${calendarEvents.length} class events created`);
+    } else {
+      console.warn("⚠️ No recurring events generated, skipping insert.");
+    }
+  }
   return ctx.json(insertedClass);
 });
 
