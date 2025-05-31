@@ -42,7 +42,13 @@ const getDynamicTimeBounds = (events) => {
   };
 };
 
-const TimetableCalendar = ({ onColorChange, events, classes, onSave }) => {
+const TimetableCalendar = ({
+  onColorChange,
+  events,
+  classes,
+  onSave,
+  onDeleteClass,
+}) => {
   const [editingEvent, setEditingEvent] = useState(null);
   const [previewClass, setPreviewClass] = useState(null);
 
@@ -56,20 +62,9 @@ const TimetableCalendar = ({ onColorChange, events, classes, onSave }) => {
         const fullClass = classes.find((c) => c.id === event.classId);
         if (fullClass) setEditingEvent(fullClass);
       }}
-      onDelete={async (id) => {
-        try {
-          const res = await fetch(`/api/classes/${id}`, {
-            method: "DELETE",
-          });
-
-          if (!res.ok) throw new Error("Failed to delete");
-
-          setClasses((prev) => prev.filter((cls) => cls.id !== id));
-          setEvents((prev) => prev.filter((ev) => ev.classId !== id));
-        } catch (err) {
-          console.error("Delete failed:", err);
-          alert("Failed to delete class.");
-        }
+      onDelete={() => {
+        // Când se apasă butonul "Șterge", apelez callback-ul primit:
+        onDeleteClass(event.classId);
       }}
       onPreview={() => {
         const fullClass = classes.find((c) => c.id === event.classId);

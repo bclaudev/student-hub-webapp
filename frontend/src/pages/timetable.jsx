@@ -9,6 +9,7 @@ export default function TimetablePage() {
   const [classes, setClasses] = useState([]);
   const [events, setEvents] = useState([]);
 
+  // 1) Funcția care refetch-uiște clasele și reconstruiește evenimentele recurent
   const refetchClasses = async () => {
     const res = await fetch("/api/classes");
     const data = await res.json();
@@ -18,6 +19,29 @@ export default function TimetablePage() {
       generateRecurringEvents(cls)
     );
     setEvents(allEvents);
+  };
+
+  // 2) Funcția de ștergere a unei clase: face DELETE + refetch
+  const handleDeleteClass = async (classId) => {
+    try {
+      const res = await fetch(`/api/classes/${classId}`, {
+        method: "DELETE",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) {
+        // Dacă serverul răspunde cu 4xx/5xx, citește eventualul JSON de eroare
+        const errBody = await res.json().catch(() => null);
+        const msg = errBody?.error || `Server returned ${res.status}`;
+        throw new Error(msg);
+      }
+
+      // Re-fetch complet, ca să reconstruiești atât classes, cât și events
+      await refetchClasses();
+    } catch (err) {
+      console.error("Failed to delete class:", err);
+      alert("Failed to delete class: " + err.message);
+    }
   };
 
   const handleColorChange = async (id, color) => {
@@ -61,6 +85,7 @@ export default function TimetablePage() {
           onColorChange={handleColorChange}
           classes={classes}
           onSave={refetchClasses}
+          onDeleteClass={handleDeleteClass}
         />
       </div>
     </div>
