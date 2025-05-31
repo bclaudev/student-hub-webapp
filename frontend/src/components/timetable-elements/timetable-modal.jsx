@@ -27,8 +27,11 @@ export default function TimetableModal({
   onOpenChange,
   initialData = {},
   onSave,
+  semesterId,
+  semesterStartDate,
 }) {
   console.log("Initial data received:", initialData);
+  console.log("semesterId in modal:", semesterId);
   const [classType, setClassType] = useState(
     initialData.class_type || "course"
   );
@@ -53,7 +56,9 @@ export default function TimetableModal({
   );
   const [curriculum, setCurriculum] = useState(initialData.curriculum || null);
   const [startDate, setStartDate] = useState(
-    initialData.startDate ? initialData.startDate.slice(0, 10) : ""
+    initialData.startDate
+      ? initialData.startDate.slice(0, 10)
+      : semesterStartDate?.slice(0, 10) || ""
   );
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -74,7 +79,7 @@ export default function TimetableModal({
       recurrence,
       examDate: examDate || null,
       ...(typeof curriculum === "string" ? { curriculum } : {}),
-      startDate: startDate || new Date().toISOString(),
+      startDate: new Date(semesterStartDate),
     };
 
     console.log("Payload:", payload);
@@ -85,7 +90,10 @@ export default function TimetableModal({
         {
           method: isEditMode ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({
+            ...payload,
+            semesterId,
+          }),
         }
       );
 
@@ -295,19 +303,6 @@ export default function TimetableModal({
                   required
                 />
               </div>
-            </div>
-
-            {/* Start Date */}
-            <div className="space-y-2">
-              <Label htmlFor="start-date">Start Date</Label>
-              <Input
-                id="start-date"
-                name="startDate"
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                required
-              />
             </div>
 
             {/* Curriculum File Upload */}

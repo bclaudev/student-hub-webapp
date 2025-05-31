@@ -28,6 +28,7 @@ const classSchema = z.object({
   }, z.date().optional()),
   curriculum: z.string().optional(),
   startDate: z.preprocess((val) => new Date(val), z.date()),
+  semesterId: z.number(),
 });
 
 classesRoute.use("*", verifyToken);
@@ -45,6 +46,7 @@ classesRoute.post("/", async (ctx) => {
   const payload = {
     ...parsed.data,
     createdBy: userId,
+    semesterId: parsed.data.semesterId,
   };
 
   const result = await db.insert(classesTable).values(payload).returning();
@@ -175,10 +177,24 @@ classesRoute.delete("/:id", async (ctx) => {
 // ✅ GET all classes
 classesRoute.get("/", async (ctx) => {
   const userId = ctx.get("user").id;
+
+  const semesterIdParam = ctx.req.query("semesterId");
+
+  if (!semesterIdParam) {
+    return ctx.json({ error: "Missing semesterId query parameter" }, 400);
+  }
+
+  const semesterId = Number(semesterIdParam);
+
   const classes = await db
     .select()
     .from(classesTable)
-    .where(eq(classesTable.createdBy, userId));
+    .where(
+      and(
+        eq(classesTable.createdBy, userId),
+        eq(classesTable.semesterId, semesterId)
+      )
+    );
 
   return ctx.json({ classes });
 });

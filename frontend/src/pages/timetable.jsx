@@ -8,16 +8,21 @@ import { RRule } from "rrule";
 export default function TimetablePage() {
   const [classes, setClasses] = useState([]);
   const [events, setEvents] = useState([]);
+  const [activeSemesterId, setActiveSemesterId] = useState(null);
+  const [activeSemester, setActiveSemester] = useState(null);
 
   // 1) Funcția care refetch-uiște clasele și reconstruiește evenimentele recurent
   const refetchClasses = async () => {
-    const res = await fetch("/api/classes");
+    if (!activeSemesterId) return;
+
+    const res = await fetch(`/api/classes?semesterId=${activeSemesterId}`);
     const data = await res.json();
 
     setClasses(data.classes);
     const allEvents = data.classes.flatMap((cls) =>
       generateRecurringEvents(cls)
     );
+    console.log("All generated events:", allEvents);
     setEvents(allEvents);
   };
 
@@ -58,15 +63,19 @@ export default function TimetablePage() {
   };
 
   useEffect(() => {
+    console.log("activeSemesterId:", activeSemesterId); // 👈 adaugă asta
+
+    if (!activeSemesterId) return;
+
     const fetchClasses = async () => {
       try {
-        const res = await fetch("/api/classes");
+        const res = await fetch(`/api/classes?semesterId=${activeSemesterId}`);
         const data = await res.json();
 
+        setClasses(data.classes);
         const allEvents = data.classes.flatMap((cls) =>
           generateRecurringEvents(cls)
         );
-        setClasses(data.classes);
         setEvents(allEvents);
       } catch (error) {
         console.error("Error fetching classes:", error);
@@ -74,11 +83,19 @@ export default function TimetablePage() {
     };
 
     fetchClasses();
-  }, []);
+  }, [activeSemesterId]);
 
   return (
     <div className="flex flex-col h-screen">
-      <TimetableHeader onSave={refetchClasses} />
+      <TimetableHeader
+        onSave={refetchClasses}
+        activeSemesterId={activeSemesterId}
+        activeSemester={activeSemester}
+        onSemesterChange={(semester) => {
+          setActiveSemester(semester);
+          setActiveSemesterId(semester.id);
+        }}
+      />
       <div className="flex-1 overflow-auto">
         <TimetableCalendar
           events={events}
@@ -86,15 +103,65 @@ export default function TimetablePage() {
           classes={classes}
           onSave={refetchClasses}
           onDeleteClass={handleDeleteClass}
+          semesterStartDate={activeSemester?.startDate}
+          semesterId={activeSemesterId}
         />
       </div>
     </div>
   );
 }
 
+// export function generateRecurringEvents(cls) {
+//   if (!cls.startDate || !cls.startTime || !cls.endTime || !cls.day) {
+//     console.warn("Invalid class data skipped:", cls);
+//     return [];
+//   }
+
+//   const dayMap = {
+//     monday: RRule.MO,
+//     tuesday: RRule.TU,
+//     wednesday: RRule.WE,
+//     thursday: RRule.TH,
+//     friday: RRule.FR,
+//   };
+
+//   const weekday = dayMap[cls.day.toLowerCase()];
+//   if (!weekday) return [];
+
+//   const startDate = new Date(cls.startDate);
+//   const [sh, sm] = cls.startTime.slice(0, 5).split(":").map(Number);
+//   startDate.setHours(sh, sm);
+
+//   const rule = new RRule({
+//     freq: RRule.WEEKLY,
+//     byweekday: weekday,
+//     dtstart: startDate,
+//     count: 10,
+//   });
+
+//   return rule.all().map((date, index) => {
+//     const [eh, em] = cls.endTime.slice(0, 5).split(":").map(Number);
+//     const endDate = new Date(date);
+//     endDate.setHours(eh, em);
+
+//     return {
+//       id: `${cls.id}-${index}`,
+//       classId: cls.id,
+//       title: cls.name,
+//       abbreviation: cls.abbreviation,
+//       start: date,
+//       end: endDate,
+//       location:
+//         cls.deliveryMode === "Campus" ? cls.roomNumber : cls.meetingLink,
+//       class_type: cls.class_type,
+//       color: cls.color,
+//     };
+//   });
+// }
+
 export function generateRecurringEvents(cls) {
   if (!cls.startDate || !cls.startTime || !cls.endTime || !cls.day) {
-    console.warn("Invalid class data skipped:", cls);
+    console.warn("⛔ Invalid class skipped:", cls);
     return [];
   }
 
@@ -107,10 +174,27 @@ export function generateRecurringEvents(cls) {
   };
 
   const weekday = dayMap[cls.day.toLowerCase()];
-  if (!weekday) return [];
+  if (!weekday) {
+    console.warn("⛔ Invalid weekday in class:", cls.day);
+    return [];
+  }
+
+  // 🧠 Protect split format
+  const [sh, sm] = cls.startTime?.slice(0, 5).split(":").map(Number);
+  const [eh, em] = cls.endTime?.slice(0, 5).split(":").map(Number);
+
+  if ([sh, sm, eh, em].some((n) => isNaN(n))) {
+    console.warn("⛔ Invalid time values in class:", cls);
+    return [];
+  }
 
   const startDate = new Date(cls.startDate);
-  startDate.setHours(...cls.startTime.split(":").map(Number));
+  startDate.setHours(sh, sm);
+
+  if (isNaN(startDate.getTime())) {
+    console.warn("⛔ Invalid startDate in class:", cls);
+    return [];
+  }
 
   const rule = new RRule({
     freq: RRule.WEEKLY,
@@ -119,10 +203,9 @@ export function generateRecurringEvents(cls) {
     count: 10,
   });
 
-  return rule.all().map((date, index) => {
-    const [endHour, endMinute] = cls.endTime.split(":").map(Number);
+  const events = rule.all().map((date, index) => {
     const endDate = new Date(date);
-    endDate.setHours(endHour, endMinute);
+    endDate.setHours(eh, em);
 
     return {
       id: `${cls.id}-${index}`,
@@ -137,4 +220,7 @@ export function generateRecurringEvents(cls) {
       color: cls.color,
     };
   });
+
+  console.log("✅ Generated events:", events);
+  return events;
 }

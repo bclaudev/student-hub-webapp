@@ -10,6 +10,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { usersTable } from "./users.js";
+import { semestersTable } from "./semesters.js";
 
 export const classesTable = pgTable("classes", {
   id: serial("id").primaryKey(),
@@ -31,6 +32,9 @@ export const classesTable = pgTable("classes", {
   curriculum: text("curriculum"),
   startDate: timestamp("start_date").notNull(),
   color: varchar("color", { length: 16 }).default("#a585ff"),
+  semesterId: integer("semester_id")
+    .references(() => semestersTable.id)
+    .notNull(),
 
   createdBy: integer("created_by").references(() => usersTable.id, {
     onDelete: "cascade",

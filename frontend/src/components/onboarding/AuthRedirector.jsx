@@ -7,12 +7,16 @@ export default function AuthRedirector() {
   useEffect(() => {
     const checkSemester = async () => {
       try {
-        const res = await fetch("http://localhost:8787/api/semesters/get", {
+        const res = await fetch("http://localhost:8787/api/semesters", {
           credentials: "include",
         });
         const data = await res.json();
 
-        if (!data || !data.startDate || !data.endDate) {
+        if (
+          !data ||
+          !Array.isArray(data.semesters) ||
+          data.semesters.length === 0
+        ) {
           navigate("/onboarding");
         } else {
           navigate("/calendar");

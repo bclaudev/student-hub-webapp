@@ -48,6 +48,8 @@ const TimetableCalendar = ({
   classes,
   onSave,
   onDeleteClass,
+  semesterStartDate,
+  semesterId,
 }) => {
   const [editingEvent, setEditingEvent] = useState(null);
   const [previewClass, setPreviewClass] = useState(null);
@@ -63,7 +65,6 @@ const TimetableCalendar = ({
         if (fullClass) setEditingEvent(fullClass);
       }}
       onDelete={() => {
-        // Când se apasă butonul "Șterge", apelez callback-ul primit:
         onDeleteClass(event.classId);
       }}
       onPreview={() => {
@@ -77,7 +78,11 @@ const TimetableCalendar = ({
     <div className="h-full">
       <Calendar
         localizer={localizer}
-        events={events}
+        events={events.map((event) => ({
+          ...event,
+          start: new Date(event.start),
+          end: new Date(event.end),
+        }))}
         defaultView={Views.WEEK}
         views={{ week: true }}
         components={{
@@ -102,7 +107,13 @@ const TimetableCalendar = ({
             localizer.format(date, "H 'PM'", culture),
         }}
         style={{ height: "100%" }}
-        defaultDate={new Date("2025-05-29")}
+        date={
+          events[0]?.start && !isNaN(new Date(events[0].start))
+            ? new Date(events[0].start)
+            : semesterStartDate && !isNaN(new Date(semesterStartDate))
+            ? new Date(semesterStartDate)
+            : new Date()
+        }
       />
 
       {editingEvent && (
@@ -113,6 +124,7 @@ const TimetableCalendar = ({
           }}
           initialData={editingEvent}
           onSave={onSave}
+          semesterId={semesterId}
         />
       )}
       {previewClass && (

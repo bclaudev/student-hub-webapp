@@ -42,7 +42,7 @@ semestersRoute.post("/set", async (c) => {
   return c.json({ success: true });
 });
 
-semestersRoute.get("/get", async (c) => {
+semestersRoute.get("/", async (c) => {
   try {
     const user = c.get("user");
     console.log("USER in GET:", user);
@@ -56,7 +56,7 @@ semestersRoute.get("/get", async (c) => {
       .from(semestersTable)
       .where(eq(semestersTable.createdBy, user.id));
 
-    return c.json(result[0] ?? {});
+    return c.json({ semesters: result });
   } catch (err) {
     console.error("Eroare internă în GET /semesters/get:", err);
     return c.json({ error: "Internal Server Error" }, 500);
