@@ -12,6 +12,7 @@ import ResourcesPage from "@/pages/resources";
 import PDFViewer from "@/pages/PDFViewer";
 import TimetablePage from "@/pages/timetable";
 import OnboardingPage from "@/pages/onboarding";
+import { Toaster } from "@/components/ui/sonner";
 
 function App() {
   //const user = useUser();
@@ -20,6 +21,7 @@ function App() {
   return (
     <BrowserRouter>
       <ThemeProvider defaultTheme="dark" enableSystem={false}>
+        <Toaster />
         <Routes>
           {/* Pagini fără layout */}
           <Route path="/login" element={<LoginPage />} />

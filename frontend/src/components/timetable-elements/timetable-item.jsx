@@ -53,11 +53,12 @@ const TimetableItem = ({
   const startTime = new Date(event.start).toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
+    hour12: false,
   });
-
   const endTime = new Date(event.end).toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
+    hour12: false,
   });
 
   const COLORS = [

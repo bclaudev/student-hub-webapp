@@ -6,11 +6,24 @@ import parse from "date-fns/parse";
 import startOfWeek from "date-fns/startOfWeek";
 import getDay from "date-fns/getDay";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import differenceInCalendarWeeks from "date-fns/differenceInCalendarWeeks";
 
 import { useEffect, useState } from "react";
 import TimetableItem from "./timetable-item.jsx";
 import TimetableModal from "./timetable-modal.jsx";
 import TimetablePreviewModal from "./timetable-preview-modal.jsx";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 import { generateRecurringEvents } from "@/pages/timetable";
 
@@ -87,13 +100,28 @@ const TimetableCalendar = ({
         views={{ week: true }}
         components={{
           event: CustomEvent,
-          timeGutterHeader: () => (
-            <div className="flex items-center justify-center h-full">
-              <div className="bg-[#A585FF] text-white text-xl px-6 py-2 rounded-2xl w-fit font-semibold shadow-sm">
-                1
+          timeGutterHeader: () => {
+            const now = new Date();
+            const start = semesterStartDate
+              ? new Date(semesterStartDate)
+              : null;
+
+            let weekNumber = 1;
+            if (start && !isNaN(start)) {
+              weekNumber = Math.max(
+                1,
+                differenceInCalendarWeeks(now, start, { weekStartsOn: 1 }) + 1
+              );
+            }
+
+            return (
+              <div className="flex items-center justify-center h-full">
+                <div className="bg-[#A585FF] text-white text-xl px-4 py-2 rounded-2xl w-fit font-semibold shadow-sm">
+                  {weekNumber}
+                </div>
               </div>
-            </div>
-          ),
+            );
+          },
         }}
         step={30}
         timeslots={2}
@@ -104,7 +132,7 @@ const TimetableCalendar = ({
           dayFormat: (date, culture, localizer) =>
             localizer.format(date, "EEE", culture).toUpperCase(),
           timeGutterFormat: (date, culture, localizer) =>
-            localizer.format(date, "H 'PM'", culture),
+            localizer.format(date, "HH:mm", culture),
         }}
         style={{ height: "100%" }}
         date={

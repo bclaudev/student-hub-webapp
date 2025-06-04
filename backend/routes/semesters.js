@@ -3,7 +3,8 @@ import { z } from "zod";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import { db } from "../db.js";
 import { semestersTable } from "../drizzle/schema.js";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
+import { classesTable } from "../drizzle/schema.js";
 
 const semesterSchema = z.object({
   name: z.string().optional(),
@@ -30,7 +31,7 @@ semestersRoute.post("/set", async (c) => {
 
   const { name, startDate, endDate } = parsed.data;
 
-  await db.delete(semestersTable).where(eq(semestersTable.createdBy, user.id));
+  // await db.delete(semestersTable).where(eq(semestersTable.createdBy, user.id));
 
   await db.insert(semestersTable).values({
     createdBy: user.id,
@@ -40,6 +41,67 @@ semestersRoute.post("/set", async (c) => {
   });
 
   return c.json({ success: true });
+});
+
+semestersRoute.delete("/:id", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+
+  try {
+    await db
+      .delete(classesTable)
+      .where(eq(classesTable.semesterId, Number(id)));
+
+    // Apoi șterge semestrul
+    await db
+      .delete(semestersTable)
+      .where(
+        and(
+          eq(semestersTable.id, Number(id)),
+          eq(semestersTable.createdBy, user.id)
+        )
+      );
+
+    return c.json({ success: true });
+  } catch (err) {
+    console.error("Delete semester error:", err);
+    return c.json({ error: "Internal Server Error" }, 500);
+  }
+});
+
+semestersRoute.patch("/:id", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  const body = await c.req.json();
+
+  const parsed = semesterSchema.safeParse(body);
+  if (!parsed.success) {
+    return c.json({ error: parsed.error.format() }, 400);
+  }
+
+  try {
+    const { name, startDate, endDate } = parsed.data;
+
+    const result = await db
+      .update(semestersTable)
+      .set({ name, startDate, endDate })
+      .where(
+        and(
+          eq(semestersTable.id, Number(id)),
+          eq(semestersTable.createdBy, user.id)
+        )
+      )
+      .returning();
+
+    if (result.length === 0) {
+      return c.json({ error: "Semester not found or not yours" }, 404);
+    }
+
+    return c.json(result[0]); // trimite înapoi semestrul actualizat
+  } catch (err) {
+    console.error("PATCH /semesters/:id error:", err);
+    return c.json({ error: "Internal Server Error" }, 500);
+  }
 });
 
 semestersRoute.get("/", async (c) => {
