@@ -23,12 +23,15 @@ export default function ResourcesPage() {
 
       const data = await res.json();
       setFiles(
-        data.map((file) => ({
-          ...file,
-          fileType: file.file_type,
-          filePath: file.file_path,
-          uploadedAt: file.uploaded_at,
-        }))
+        data
+          .map((file) => ({
+            ...file,
+            fileType: file.file_type,
+            filePath: file.file_path,
+            uploadedAt: file.uploaded_at,
+            isPinned: file.is_pinned, // ← adăugat
+          }))
+          .sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0)) // pinned first
       );
     };
 
@@ -101,13 +104,14 @@ export default function ResourcesPage() {
             fileName={file.name}
             author="You" // opțional: adaugă și user info mai târziu
             thumbnailUrl={`http://localhost:8787${file.filePath}`}
-            isPinned={false} // opțional: vei adăuga pin logic mai încolo
+            isPinned={file.isPinned} // opțional: vei adăuga pin logic mai încolo
             fileType={file.fileType}
             subject="Unknown" // adaugă în schema ta dacă vrei categorii
             dateAdded={new Date(file.uploadedAt).toLocaleDateString()}
             tags={file.tags?.map((t) => t.name) ?? []}
             allTags={tags}
             setTags={setTags}
+            setFiles={setFiles}
           />
         ))}
       </div>

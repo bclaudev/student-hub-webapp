@@ -38,7 +38,8 @@ tagsRoute.get("/tags", async (c) => {
 tagsRoute.post("/tags", async (c) => {
   try {
     const user = c.get("user");
-    const { name, fileId } = await c.req.json();
+    const { name, fileId: rawFileId } = await c.req.json();
+    const fileId = parseInt(rawFileId, 10);
 
     if (!name || !fileId) {
       return c.json({ error: "Missing name or fileId" }, 400);

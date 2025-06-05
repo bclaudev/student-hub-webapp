@@ -31,6 +31,7 @@ export default function FileCard({
   subject,
   allTags = [],
   setTags = () => {},
+  setFiles = () => {},
 }) {
   const navigate = useNavigate();
 
@@ -44,6 +45,34 @@ export default function FileCard({
     }
   };
 
+  const handleTogglePin = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:8787/api/resources/${fileId}/pin`,
+        {
+          method: "PATCH",
+          credentials: "include",
+        }
+      );
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("❌ Eroare la pin/unpin:", errorText);
+        return;
+      }
+
+      const data = await res.json();
+
+      setFiles((prev) =>
+        prev
+          .map((f) => (f.id === fileId ? { ...f, isPinned: data.isPinned } : f))
+          .sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0))
+      );
+    } catch (err) {
+      console.error("❌ Eroare fetch:", err);
+    }
+  };
+
   return (
     <>
       <ContextMenu>
@@ -52,7 +81,7 @@ export default function FileCard({
             onClick={handleClick}
             className="relative group w-[187px] h-[210px] overflow-hidden flex flex-col items-start px-5 py-6 rounded-3xl bg-slate-50 dark:bg-stone-900 max-w-[187px]"
           >
-            <FileHeader isPinned={isPinned} />
+            <FileHeader isPinned={isPinned} onTogglePin={handleTogglePin} />
             <FileCover thumbnailUrl={thumbnailUrl} fileType={fileType} />
             <FileInfo fileName={fileName} author={author} />
             <FileFooter />
@@ -80,11 +109,48 @@ export default function FileCard({
               {predefinedTags.map((tag) => (
                 <ContextMenuItem
                   key={tag}
-                  onClick={() => console.log("Tag:", tag)}
+                  onClick={async () => {
+                    try {
+                      const res = await fetch(
+                        "http://localhost:8787/api/tags",
+                        {
+                          method: "POST",
+                          credentials: "include",
+                          headers: {
+                            "Content-Type": "application/json",
+                          },
+                          body: JSON.stringify({
+                            name: tag,
+                            fileId,
+                          }),
+                        }
+                      );
+
+                      if (res.ok) {
+                        const data = await res.json();
+                        console.log("✅ Tag adăugat:", data);
+
+                        // Opțional: actualizezi contorul local
+                        setTags((prev) =>
+                          prev.map((t) =>
+                            t.label === tag
+                              ? { ...t, count: (t.count || 0) + 1 }
+                              : t
+                          )
+                        );
+                      } else {
+                        const errText = await res.text();
+                        console.error("❌ Eroare la adăugare tag:", errText);
+                      }
+                    } catch (err) {
+                      console.error("❌ Eroare fetch:", err);
+                    }
+                  }}
                 >
                   {tag}
                 </ContextMenuItem>
               ))}
+
               <ContextMenuItem onClick={() => setOpenCreateTag(true)}>
                 Create new tag
               </ContextMenuItem>
