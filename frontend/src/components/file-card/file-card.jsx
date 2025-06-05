@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { CreateTagModal } from "./create-tag-modal";
 import { useState } from "react";
 import Tag from "@/components/ui/tag";
+import { RenameModal } from "./rename-modal";
 
 import { motion } from "framer-motion";
 
@@ -18,6 +19,18 @@ import {
   ContextMenuSubTrigger,
   ContextMenuSubContent,
 } from "@/components/ui/context-menu";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function FileCard({
   fileId,
@@ -36,6 +49,8 @@ export default function FileCard({
   const navigate = useNavigate();
 
   const [openCreateTag, setOpenCreateTag] = useState(false);
+  const [openRename, setOpenRename] = useState(false);
+  const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
 
   const predefinedTags = allTags?.map((tag) => tag.label) ?? [];
 
@@ -81,7 +96,13 @@ export default function FileCard({
             onClick={handleClick}
             className="relative group w-[187px] h-[210px] overflow-hidden flex flex-col items-start px-5 py-6 rounded-3xl bg-slate-50 dark:bg-stone-900 max-w-[187px]"
           >
-            <FileHeader isPinned={isPinned} onTogglePin={handleTogglePin} />
+            <FileHeader
+              isPinned={isPinned}
+              onTogglePin={handleTogglePin}
+              fileId={fileId}
+              onRename={() => setOpenRename(true)}
+              onDelete={() => setOpenDeleteConfirm(true)}
+            />
             <FileCover thumbnailUrl={thumbnailUrl} fileType={fileType} />
             <FileInfo fileName={fileName} author={author} />
             <FileFooter />
@@ -173,6 +194,64 @@ export default function FileCard({
           setOpenCreateTag(false);
         }}
       />
+      <RenameModal
+        open={openRename}
+        onOpenChange={setOpenRename}
+        currentName={fileName}
+        onRename={async (newName) => {
+          try {
+            const res = await fetch(
+              `http://localhost:8787/api/resources/${fileId}/rename`,
+              {
+                method: "PATCH",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: newName }),
+              }
+            );
+            if (res.ok) {
+              setFiles((prev) =>
+                prev.map((f) => (f.id === fileId ? { ...f, name: newName } : f))
+              );
+            }
+          } catch (err) {
+            console.error("❌ Eroare redenumire:", err);
+          }
+        }}
+      />
+      <AlertDialog open={openDeleteConfirm} onOpenChange={setOpenDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Are you sure you want to delete this file?
+            </AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700"
+              onClick={async () => {
+                try {
+                  const res = await fetch(
+                    `http://localhost:8787/api/resources/${fileId}`,
+                    {
+                      method: "DELETE",
+                      credentials: "include",
+                    }
+                  );
+                  if (res.ok) {
+                    setFiles((prev) => prev.filter((f) => f.id !== fileId));
+                  }
+                } catch (err) {
+                  console.error("❌ Eroare la ștergere:", err);
+                }
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

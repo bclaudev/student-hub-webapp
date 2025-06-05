@@ -61,5 +61,31 @@ resourcesRoute.patch("/:id/pin", async (c) => {
 
   return c.json({ success: true, isPinned: newValue });
 });
+resourcesRoute.patch("/:id/rename", async (c) => {
+  const user = c.get("user");
+  const id = parseInt(c.req.param("id"), 10);
+  const { name } = await c.req.json();
+
+  await db
+    .update(resourcesTable)
+    .set({ name })
+    .where(
+      and(eq(resourcesTable.id, id), eq(resourcesTable.uploadedBy, user.id))
+    );
+
+  return c.json({ success: true });
+});
+resourcesRoute.delete("/:id", async (c) => {
+  const user = c.get("user");
+  const id = parseInt(c.req.param("id"), 10);
+
+  await db
+    .delete(resourcesTable)
+    .where(
+      and(eq(resourcesTable.id, id), eq(resourcesTable.uploadedBy, user.id))
+    );
+
+  return c.json({ success: true });
+});
 
 export default resourcesRoute;

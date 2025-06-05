@@ -1,6 +1,19 @@
 import { Heart, Ellipsis } from "lucide-react";
 
-export default function FileHeader({ isPinned, onTogglePin }) {
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu"; // din shadcn
+
+export default function FileHeader({
+  isPinned,
+  onTogglePin,
+  fileId,
+  onRename,
+  onDelete,
+}) {
   return (
     <header className="flex justify-between items-start w-full">
       {/* Heart button */}
@@ -21,12 +34,37 @@ export default function FileHeader({ isPinned, onTogglePin }) {
       </button>
 
       {/* Ellipsis button */}
-      <button
-        className="p-1 text-muted-foreground cursor-pointer transition-colors"
-        aria-label="More options"
-      >
-        <Ellipsis className="w-3 h-3" />
-      </button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            className="p-1 text-muted-foreground cursor-pointer transition-colors"
+            aria-label="More options"
+            onClick={(e) => e.stopPropagation()} // important ca să nu deschidă PDF-ul
+          >
+            <Ellipsis className="w-3 h-3" />
+          </button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            onClick={(e) => {
+              e.stopPropagation();
+              onRename();
+            }}
+          >
+            Rename
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="text-red-500"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+          >
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </header>
   );
 }
