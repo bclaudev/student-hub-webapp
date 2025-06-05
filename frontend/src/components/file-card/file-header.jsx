@@ -5,7 +5,10 @@ export default function FileHeader({ isPinned, onTogglePin }) {
     <header className="flex justify-between items-start w-full">
       {/* Heart button */}
       <button
-        onClick={onTogglePin}
+        onClick={(e) => {
+          e.stopPropagation(); // ⛔️ oprește clickul să ajungă la card
+          onTogglePin();
+        }}
         className="p-1 text-muted-foreground transition-colors cursor-pointer"
         aria-label="Toggle favorite"
       >
