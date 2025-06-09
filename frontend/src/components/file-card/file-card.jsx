@@ -55,8 +55,19 @@ export default function FileCard({
   const predefinedTags = allTags?.map((tag) => tag.label) ?? [];
 
   const handleClick = () => {
-    if (fileType === "application/pdf") {
-      navigate(`/pdf-viewer?file=${encodeURIComponent(thumbnailUrl)}`);
+    const supportedTypes = [
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation", // .pptx
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+    ];
+
+    if (supportedTypes.includes(fileType)) {
+      navigate(`/document-viewer?file=${encodeURIComponent(thumbnailUrl)}`, {
+        state: { fileUrl: thumbnailUrl },
+      });
+    } else {
+      alert("⚠️ Tip de fișier momentan nesuportat de viewer.");
     }
   };
 

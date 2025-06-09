@@ -13,6 +13,7 @@ import PDFViewer from "@/pages/PDFViewer";
 import TimetablePage from "@/pages/timetable";
 import OnboardingPage from "@/pages/onboarding";
 import { Toaster } from "@/components/ui/sonner";
+import DocumentViewer from "@/pages/document-viewer";
 
 function App() {
   //const user = useUser();
@@ -37,6 +38,7 @@ function App() {
             <Route path="notebooks/:id" element={<NotebookEditorPage />} />
             <Route path="/pdf-viewer" element={<PDFViewer />} />
             <Route path="timetable" element={<TimetablePage />} />
+            <Route path="/document-viewer" element={<DocumentViewer />} />
           </Route>
 
           {/* Catch-all */}
