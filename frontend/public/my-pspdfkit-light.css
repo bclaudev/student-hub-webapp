@@ -1,0 +1,19 @@
+.PSPDFKit-Root {
+  background-color: #fff !important;
+}
+.PSPDFKit-Toolbar {
+  background-color: #f3f4f6 !important;
+  border-bottom: none !important;
+}
+.PSPDFKit-Button,
+.PSPDFKit-Icon {
+  color: #a585ff !important;
+  fill: #a585ff !important;
+}
+.PSPDFKit-Button:hover {
+  background-color: rgba(165, 133, 255, 0.1) !important;
+}
+.PSPDFKit-Sidebar,
+.PSPDFKit-Document {
+  background-color: #ffffff !important;
+}

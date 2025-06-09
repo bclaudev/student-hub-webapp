@@ -1,57 +1,64 @@
-// src/pages/document-viewer.jsx
+// frontend/src/pages/document-viewer.jsx
 import { useLocation, useSearchParams } from "react-router-dom";
 import { useEffect, useRef } from "react";
 import PSPDFKit from "@nutrient-sdk/viewer";
+import { useTheme } from "@/components/ui/theme-provider";
+import { vi } from "date-fns/locale";
 
 export default function DocumentViewer() {
   const location = useLocation();
-  const fileUrl = location.state?.fileUrl || searchParams.get("file");
-
   const [searchParams] = useSearchParams();
+  const { theme } = useTheme();
 
+  const fileUrl = location.state?.fileUrl || searchParams.get("file");
   const viewerRef = useRef();
 
   useEffect(() => {
-    if (!fileUrl) {
-      console.warn("⚠️ fileUrl este undefined sau null:", fileUrl);
-      return;
-    }
+    if (!fileUrl) return;
 
-    if (!viewerRef.current) {
-      console.warn("⚠️ viewerRef.current este null");
-      return;
-    }
+    const isDark = theme === "dark";
 
     const loadViewer = async () => {
+      if (!viewerRef.current) return;
+
+      // ✅ Descarcă viewerul existent dacă este montat deja
       try {
-        console.log("🔍 Începem load viewer cu fileUrl:", fileUrl);
-        console.log("📎 fileUrl typeof:", typeof fileUrl);
-        console.log("📎 fileUrl:", fileUrl);
+        PSPDFKit.unload(viewerRef.current);
+      } catch (e) {
+        console.warn("⚠️ Eroare la unload (ignorată):", e);
+      }
+
+      viewerRef.current.innerHTML = "";
+
+      try {
         await PSPDFKit.load({
           container: viewerRef.current,
           document: fileUrl,
-          baseUrl: `${window.location.origin}/nutrient-viewer/`, // ⭐️ important!
+          baseUrl: `${window.location.origin}/nutrient-viewer/`,
           toolbarItems: PSPDFKit.defaultToolbarItems,
+          theme: isDark ? PSPDFKit.Theme.DARK : PSPDFKit.Theme.LIGHT,
+          styleSheets: [
+            isDark ? "/my-pspdfkit-dark.css" : "/my-pspdfkit-light.css",
+          ],
         });
 
-        console.log("✅ Viewer loaded cu succes:", instance);
+        console.log("✅ Viewer reloaded cu tema:", theme);
       } catch (err) {
-        console.error("❌ Eroare CATCH în loadViewer:", err);
+        console.error("❌ Eroare în loadViewer:", err);
       }
     };
 
-    // delay 0 ca să ne asigurăm că ref-ul e montat
     const timeout = setTimeout(() => loadViewer(), 0);
 
     return () => {
       clearTimeout(timeout);
-      if (viewerRef.current) {
-        PSPDFKit.unload(viewerRef.current).catch(() =>
-          console.warn("⚠️ Eroare la unload (ignorat)")
-        );
+      try {
+        if (viewerRef.current) PSPDFKit.unload(viewerRef.current);
+      } catch (e) {
+        console.warn("⚠️ Eroare la unload în cleanup:", e);
       }
     };
-  }, [fileUrl]);
+  }, [fileUrl, theme]);
 
   if (!fileUrl) {
     return (
@@ -62,11 +69,9 @@ export default function DocumentViewer() {
     );
   }
 
-  console.log("fileUrl primit:", fileUrl);
-
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div ref={viewerRef} style={{ height: "100vh" }} />
+      <div ref={viewerRef} className="w-full h-screen" />
     </div>
   );
 }

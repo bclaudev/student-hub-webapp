@@ -1,0 +1,33 @@
+.PSPDFKit-Root {
+  background-color: #ff0000 !important;
+}
+.PSPDFKit-Toolbar {
+  background-color: #303030 !important;
+  border-bottom: none !important;
+}
+.PSPDFKit-Button,
+.PSPDFKit-Icon {
+  color: #a585ff !important;
+  fill: #a585ff !important;
+}
+.PSPDFKit-Button:hover {
+  background-color: rgba(165, 133, 255, 0.1) !important;
+}
+.PSPDFKit-Sidebar,
+.PSPDFKit-Document,
+._1yep5z6g3 {
+  background-color: #212121 !important;
+}
+
+.PSPDFKit-8jp8nm1hj7szh4vv5aurdvd5j9 {
+  background-color: #212121 !important;
+}
+
+._1yep5z6g2 {
+  background-color: #303030 !important;
+}
+
+._1yep5z6g1,
+._1yep5z6124 {
+  background-color: #303030 !important;
+}
