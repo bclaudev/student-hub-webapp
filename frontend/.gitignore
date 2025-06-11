@@ -26,3 +26,6 @@ dist-ssr
 # Nutrient SDK viewer (self-hosted)
 public/nutrient-viewer/
 public/nutrient-viewer-lib/
+
+
+.env

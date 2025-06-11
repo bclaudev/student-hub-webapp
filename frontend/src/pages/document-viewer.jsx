@@ -40,6 +40,7 @@ export default function DocumentViewer() {
           styleSheets: [
             isDark ? "/my-pspdfkit-dark.css" : "/my-pspdfkit-light.css",
           ],
+          licenseKey: import.meta.env.VITE_NUTRIENT_LICENSE_KEY,
         });
 
         console.log("✅ Viewer reloaded cu tema:", theme);

@@ -103,7 +103,9 @@ export default function ResourcesPage() {
             fileId={file.id}
             fileName={file.name}
             author="You" // opțional: adaugă și user info mai târziu
-            thumbnailUrl={`http://localhost:8787${file.filePath}`}
+            thumbnailUrl={`http://localhost:8787${
+              file.thumbnailPath ?? file.filePath
+            }`}
             isPinned={file.isPinned} // opțional: vei adăuga pin logic mai încolo
             fileType={file.fileType}
             subject="Unknown" // adaugă în schema ta dacă vrei categorii
