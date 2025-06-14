@@ -26,7 +26,7 @@ export default function FileHeader({
         aria-label="Toggle favorite"
       >
         <Heart
-          className="w-3 h-3"
+          className="w-4 h-4"
           fill={isPinned ? "currentColor" : "none"}
           stroke="currentColor"
           color={isPinned ? "#ef4444" : "currentColor"}
@@ -41,7 +41,7 @@ export default function FileHeader({
             aria-label="More options"
             onClick={(e) => e.stopPropagation()} // important ca să nu deschidă PDF-ul
           >
-            <Ellipsis className="w-3 h-3" />
+            <Ellipsis className="w-4 h-4" />
           </button>
         </DropdownMenuTrigger>
 

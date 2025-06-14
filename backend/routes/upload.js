@@ -8,6 +8,39 @@ import { resourcesTable } from "../drizzle/schema.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import { promisify } from "util";
 import fs from "fs";
+import { PDFDocument } from "pdf-lib";
+import JSZip from "jszip";
+import { XMLParser } from "fast-xml-parser";
+
+async function extractAuthor(filePath, fileType) {
+  try {
+    if (fileType === "application/pdf") {
+      const buffer = await fs.promises.readFile(filePath);
+      const pdfDoc = await PDFDocument.load(buffer);
+      const author = pdfDoc.getAuthor();
+      return author || null;
+    }
+
+    if (
+      fileType ===
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ) {
+      const buffer = await fs.promises.readFile(filePath);
+      const zip = await JSZip.loadAsync(buffer);
+      const coreXml = await zip.file("docProps/core.xml")?.async("text");
+      if (!coreXml) return null;
+
+      const parser = new XMLParser();
+      const parsed = parser.parse(coreXml);
+      return parsed["cp:coreProperties"]?.["dc:creator"] || null;
+    }
+
+    return null;
+  } catch (err) {
+    console.warn("⚠️ Nu s-a putut extrage autorul:", err);
+    return null;
+  }
+}
 
 const execAsync = promisify(exec);
 const uploadRoute = new Hono();
@@ -37,6 +70,7 @@ uploadRoute.post("/upload", async (c) => {
     const ext = path.extname(file.name).toLowerCase();
     const originalFileName = `${randomUUID()}${ext}`;
     const originalFilePath = `uploads/${originalFileName}`;
+
     await writeFile(originalFilePath, buffer);
 
     let finalFilePath = originalFilePath;
@@ -60,6 +94,8 @@ uploadRoute.post("/upload", async (c) => {
         console.error("❌ Eroare la conversia DOCX -> PDF:", err);
       }
     }
+
+    const author = await extractAuthor(finalFilePath, finalFileType);
 
     // Dacă este PDF, generează thumbnail
     if (finalFilePath.endsWith(".pdf")) {
@@ -86,7 +122,7 @@ uploadRoute.post("/upload", async (c) => {
         fileType: finalFileType,
         fileSize: file.size,
         uploadedBy: userId,
-        // thumbnailPath nu e în schema, dar poți trimite în response pentru frontend
+        author,
       })
       .returning();
 

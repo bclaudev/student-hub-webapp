@@ -18,8 +18,11 @@
     "busboy": "^1.6.0",
     "dotenv": "^16.5.0",
     "drizzle-orm": "^0.41.0",
+    "fast-xml-parser": "^5.2.5",
     "hono": "^4.7.5",
     "jsonwebtoken": "^9.0.2",
+    "jszip": "^3.10.1",
+    "pdf-lib": "^1.17.1",
     "pg": "^8.16.0",
     "postgres": "^3.4.5"
   },

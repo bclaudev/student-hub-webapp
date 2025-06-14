@@ -102,7 +102,7 @@ export default function ResourcesPage() {
             key={index}
             fileId={file.id}
             fileName={file.name}
-            author="You" // opțional: adaugă și user info mai târziu
+            author={file.author}
             thumbnailUrl={`http://localhost:8787${
               file.thumbnailPath ?? file.filePath
             }`}

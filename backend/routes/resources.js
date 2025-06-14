@@ -21,6 +21,7 @@ resourcesRoute.get("/", async (c) => {
     r.file_type,
     r.uploaded_at,
     r.is_pinned,
+    r.author,
     json_agg(json_build_object('id', g.id, 'name', g.name)) FILTER (WHERE g.id IS NOT NULL) AS tags
   FROM resources r
   LEFT JOIN resource_to_group rtg ON r.id = rtg.resource_id
