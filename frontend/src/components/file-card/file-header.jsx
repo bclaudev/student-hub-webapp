@@ -10,13 +10,10 @@ import {
   DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu"; // shadcn/ui
 
-/**
- * FileHeader — now includes "Tags" submenu directly in the dropdown.
- */
 export default function FileHeader({
   isPinned,
   onTogglePin,
-  fileId, // kept for potential future use
+  fileId,
   onRename,
   onDelete,
   predefinedTags = [],
@@ -25,7 +22,7 @@ export default function FileHeader({
 }) {
   return (
     <header className="flex justify-between items-start w-full">
-      {/* ❤️ Pin / Unpin button */}
+      {/* Pin / Unpin button */}
       <button
         onClick={(e) => {
           e.stopPropagation();
