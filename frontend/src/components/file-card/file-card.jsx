@@ -3,35 +3,27 @@ import FileCover from "./file-cover";
 import FileInfo from "./file-info";
 import FileFooter from "./file-footer";
 import { useNavigate } from "react-router-dom";
-import { CreateTagModal } from "./create-tag-modal";
 import { useState } from "react";
-import Tag from "@/components/ui/tag";
-import { RenameModal } from "./rename-modal";
-
 import { motion } from "framer-motion";
 
-import {
-  ContextMenu,
-  ContextMenuTrigger,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSub,
-  ContextMenuSubTrigger,
-  ContextMenuSubContent,
-} from "@/components/ui/context-menu";
+import Tag from "@/components/ui/tag";
+import { CreateTagModal } from "./create-tag-modal";
+import { RenameModal } from "./rename-modal";
 
 import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+/**
+ * 🔄 FileCard component without ContextMenu.
+ * All tag‑related actions are handled through the dropdown in <FileHeader/>.
+ */
 export default function FileCard({
   fileId,
   fileName,
@@ -52,43 +44,81 @@ export default function FileCard({
   const [openRename, setOpenRename] = useState(false);
   const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
 
-  const predefinedTags = allTags?.map((tag) => tag.label) ?? [];
+  /**
+   * Predefined tag labels available to the user.
+   */
+  const predefinedTags = allTags?.map((t) => t.label) ?? [];
 
+  /**
+   * Add an existing tag to the current file (invoked from <FileHeader/>).
+   */
+  const handleAddTag = async (tag) => {
+    try {
+      const res = await fetch("http://localhost:8787/api/tags", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: tag, fileId }),
+      });
+
+      if (!res.ok) {
+        console.error("❌ Eroare la adăugare tag:", await res.text());
+        return;
+      }
+
+      const data = await res.json();
+      console.log("✅ Tag adăugat:", data);
+
+      // local optimistic update
+      setTags((prev) =>
+        prev.map((t) =>
+          t.label === tag ? { ...t, count: (t.count || 0) + 1 } : t
+        )
+      );
+    } catch (err) {
+      console.error("❌ Eroare fetch:", err);
+    }
+  };
+
+  /**
+   * Navigate to viewer for supported document types.
+   */
   const handleClick = () => {
-    const supportedTypes = [
+    const supported = [
       "application/pdf",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
       "application/vnd.openxmlformats-officedocument.presentationml.presentation", // .pptx
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
     ];
 
-    if (supportedTypes.includes(fileType)) {
-      navigate(`/document-viewer?file=${encodeURIComponent(thumbnailUrl)}`, {
-        state: { fileUrl: thumbnailUrl },
-      });
+    if (supported.includes(fileType)) {
+      navigate(
+        `/document-viewer?file=${encodeURIComponent(
+          thumbnailUrl
+        )}&id=${fileId}`,
+        { state: { fileUrl: thumbnailUrl, fileId } }
+      );
     } else {
       alert("⚠️ Tip de fișier momentan nesuportat de viewer.");
     }
   };
 
+  /**
+   * Toggle pin/unpin status for current file.
+   */
   const handleTogglePin = async () => {
     try {
       const res = await fetch(
         `http://localhost:8787/api/resources/${fileId}/pin`,
-        {
-          method: "PATCH",
-          credentials: "include",
-        }
+        { method: "PATCH", credentials: "include" }
       );
 
       if (!res.ok) {
-        const errorText = await res.text();
-        console.error("❌ Eroare la pin/unpin:", errorText);
+        console.error("❌ Eroare la pin/unpin:", await res.text());
         return;
       }
 
       const data = await res.json();
-
       setFiles((prev) =>
         prev
           .map((f) => (f.id === fileId ? { ...f, isPinned: data.isPinned } : f))
@@ -101,96 +131,43 @@ export default function FileCard({
 
   return (
     <>
-      <ContextMenu>
-        <ContextMenuTrigger className="w-full h-full">
-          <article
-            onClick={handleClick}
-            className="relative group w-[187px] h-[210px] overflow-hidden flex flex-col items-start px-5 py-6 rounded-3xl bg-slate-50 dark:bg-stone-900 max-w-[187px]"
-          >
-            <FileHeader
-              isPinned={isPinned}
-              onTogglePin={handleTogglePin}
-              fileId={fileId}
-              onRename={() => setOpenRename(true)}
-              onDelete={() => setOpenDeleteConfirm(true)}
-            />
-            <FileCover thumbnailUrl={thumbnailUrl} fileType={fileType} />
-            <FileInfo fileName={fileName} author={author} />
-            <FileFooter />
+      {/* 💾 File card body */}
+      <article
+        onClick={handleClick}
+        className="relative group w-[187px] h-[210px] overflow-hidden flex flex-col items-start px-5 py-6 rounded-3xl bg-slate-50 dark:bg-stone-900 max-w-[187px]"
+      >
+        <FileHeader
+          isPinned={isPinned}
+          onTogglePin={handleTogglePin}
+          fileId={fileId}
+          onRename={() => setOpenRename(true)}
+          onDelete={() => setOpenDeleteConfirm(true)}
+          predefinedTags={predefinedTags}
+          onAddTag={handleAddTag}
+          onOpenCreateTag={() => setOpenCreateTag(true)}
+        />
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileHover={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="absolute bottom-0 left-0 w-full bg-stone-900 text-white dark:bg-white dark:text-stone-900 rounded-3xl px-4 py-4 text-xs z-10"
-            >
-              <p>Date added: {dateAdded}</p>
-              <div className="flex flex-wrap gap-1 mt-2">
-                {tags.map((tag) => (
-                  <Tag key={tag} label={tag} />
-                ))}
-              </div>
-            </motion.div>
-          </article>
-        </ContextMenuTrigger>
+        <FileCover thumbnailUrl={thumbnailUrl} fileType={fileType} />
+        <FileInfo fileName={fileName} author={author} />
+        <FileFooter />
 
-        <ContextMenuContent>
-          <ContextMenuSub>
-            <ContextMenuSubTrigger>Tags</ContextMenuSubTrigger>
-            <ContextMenuSubContent>
-              {predefinedTags.map((tag) => (
-                <ContextMenuItem
-                  key={tag}
-                  onClick={async () => {
-                    try {
-                      const res = await fetch(
-                        "http://localhost:8787/api/tags",
-                        {
-                          method: "POST",
-                          credentials: "include",
-                          headers: {
-                            "Content-Type": "application/json",
-                          },
-                          body: JSON.stringify({
-                            name: tag,
-                            fileId,
-                          }),
-                        }
-                      );
+        {/* Hover overlay with metadata */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileHover={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="absolute bottom-0 left-0 w-full bg-stone-900 text-white dark:bg-white dark:text-stone-900 rounded-3xl px-4 py-4 text-xs z-10"
+        >
+          <p>Date added: {dateAdded}</p>
+          <div className="flex flex-wrap gap-1 mt-2">
+            {tags.map((tag) => (
+              <Tag key={tag} label={tag} />
+            ))}
+          </div>
+        </motion.div>
+      </article>
 
-                      if (res.ok) {
-                        const data = await res.json();
-                        console.log("✅ Tag adăugat:", data);
-
-                        // Opțional: actualizezi contorul local
-                        setTags((prev) =>
-                          prev.map((t) =>
-                            t.label === tag
-                              ? { ...t, count: (t.count || 0) + 1 }
-                              : t
-                          )
-                        );
-                      } else {
-                        const errText = await res.text();
-                        console.error("❌ Eroare la adăugare tag:", errText);
-                      }
-                    } catch (err) {
-                      console.error("❌ Eroare fetch:", err);
-                    }
-                  }}
-                >
-                  {tag}
-                </ContextMenuItem>
-              ))}
-
-              <ContextMenuItem onClick={() => setOpenCreateTag(true)}>
-                Create new tag
-              </ContextMenuItem>
-            </ContextMenuSubContent>
-          </ContextMenuSub>
-        </ContextMenuContent>
-      </ContextMenu>
-
+      {/* 🏷️ Create Tag modal */}
       <CreateTagModal
         open={openCreateTag}
         onOpenChange={setOpenCreateTag}
@@ -205,6 +182,8 @@ export default function FileCard({
           setOpenCreateTag(false);
         }}
       />
+
+      {/* ✏️ Rename modal */}
       <RenameModal
         open={openRename}
         onOpenChange={setOpenRename}
@@ -230,6 +209,8 @@ export default function FileCard({
           }
         }}
       />
+
+      {/* 🗑️ Delete confirmation */}
       <AlertDialog open={openDeleteConfirm} onOpenChange={setOpenDeleteConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -245,10 +226,7 @@ export default function FileCard({
                 try {
                   const res = await fetch(
                     `http://localhost:8787/api/resources/${fileId}`,
-                    {
-                      method: "DELETE",
-                      credentials: "include",
-                    }
+                    { method: "DELETE", credentials: "include" }
                   );
                   if (res.ok) {
                     setFiles((prev) => prev.filter((f) => f.id !== fileId));

@@ -5,11 +5,10 @@ import { defineConfig } from "drizzle-kit";
 console.log("DATABASE_URL from .env:", process.env.DATABASE_URL);
 
 export default defineConfig({
-  schema: ["./drizzle/schema.js", "./drizzle/schemas/*.js"],
   out: "./drizzle/migrations",
-  driver: "pg",
+  schema: ["./drizzle/schema.js", "./drizzle/schemas/*.js"],
   dbCredentials: {
-    // url: process.env.DATABASE_URL,
-    connectionString: process.env.DATABASE_URL,
+    url: process.env.DATABASE_URL,
   },
+  dialect: "postgresql",
 });

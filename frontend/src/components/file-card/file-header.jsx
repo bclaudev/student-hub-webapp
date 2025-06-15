@@ -5,21 +5,30 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from "@/components/ui/dropdown-menu"; // din shadcn
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+} from "@/components/ui/dropdown-menu"; // shadcn/ui
 
+/**
+ * FileHeader — now includes "Tags" submenu directly in the dropdown.
+ */
 export default function FileHeader({
   isPinned,
   onTogglePin,
-  fileId,
+  fileId, // kept for potential future use
   onRename,
   onDelete,
+  predefinedTags = [],
+  onAddTag = () => {},
+  onOpenCreateTag = () => {},
 }) {
   return (
     <header className="flex justify-between items-start w-full">
-      {/* Heart button */}
+      {/* ❤️ Pin / Unpin button */}
       <button
         onClick={(e) => {
-          e.stopPropagation(); // ⛔️ oprește clickul să ajungă la card
+          e.stopPropagation();
           onTogglePin();
         }}
         className="p-1 text-muted-foreground transition-colors cursor-pointer"
@@ -33,19 +42,46 @@ export default function FileHeader({
         />
       </button>
 
-      {/* Ellipsis button */}
+      {/* ⋯ Dropdown actions */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
             className="p-1 text-muted-foreground cursor-pointer transition-colors"
             aria-label="More options"
-            onClick={(e) => e.stopPropagation()} // important ca să nu deschidă PDF-ul
+            onClick={(e) => e.stopPropagation()}
           >
             <Ellipsis className="w-4 h-4" />
           </button>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end">
+          {/* Tags submenu */}
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>Tags</DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              {predefinedTags.map((tag) => (
+                <DropdownMenuItem
+                  key={tag}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAddTag(tag);
+                  }}
+                >
+                  {tag}
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenCreateTag();
+                }}
+              >
+                Create new tag
+              </DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+
+          {/* Rename */}
           <DropdownMenuItem
             onClick={(e) => {
               e.stopPropagation();
@@ -54,6 +90,8 @@ export default function FileHeader({
           >
             Rename
           </DropdownMenuItem>
+
+          {/* Delete */}
           <DropdownMenuItem
             className="text-red-500"
             onClick={(e) => {

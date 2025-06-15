@@ -12,3 +12,4 @@ export * from "./schemas/flashcards.js";
 export * from "./schemas/todos.js";
 export * from "./schemas/resource_to_groups.js";
 export * from "./schemas/semesters.js";
+export * from "./schemas/annotations.js";

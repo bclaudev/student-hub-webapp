@@ -3,7 +3,6 @@ import { useLocation, useSearchParams } from "react-router-dom";
 import { useEffect, useRef } from "react";
 import PSPDFKit from "@nutrient-sdk/viewer";
 import { useTheme } from "@/components/ui/theme-provider";
-import { vi } from "date-fns/locale";
 
 export default function DocumentViewer() {
   const location = useLocation();
@@ -11,7 +10,31 @@ export default function DocumentViewer() {
   const { theme } = useTheme();
 
   const fileUrl = location.state?.fileUrl || searchParams.get("file");
+  const fileId = location.state?.fileId;
   const viewerRef = useRef();
+
+  const saveAnnotations = async (instance, fileId) => {
+    const instantJson = await instance.exportInstantJSON();
+    console.log("📤 Salvare adnotări:", { fileId, instantJson });
+
+    const res = await fetch("http://localhost:8787/api/annotations", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        fileId,
+        annotations: instantJson,
+      }),
+    });
+
+    if (!res.ok) {
+      console.error("❌ Eroare la salvarea adnotărilor:", await res.text());
+    } else {
+      console.log("✅ Adnotările au fost salvate cu succes");
+    }
+  };
 
   useEffect(() => {
     if (!fileUrl) return;
@@ -21,17 +44,20 @@ export default function DocumentViewer() {
     const loadViewer = async () => {
       if (!viewerRef.current) return;
 
-      // ✅ Descarcă viewerul existent dacă este montat deja
       try {
-        PSPDFKit.unload(viewerRef.current);
+        await PSPDFKit.unload(viewerRef.current);
+        console.log("ℹ️ PSPDFKit a fost dezinstalat cu succes");
       } catch (e) {
-        console.warn("⚠️ Eroare la unload (ignorată):", e);
+        console.warn("⚠️ Eroare la unload:", e);
       }
 
       viewerRef.current.innerHTML = "";
+      const res = await fetch(`/api/annotations/${fileId}`);
+
+      const instantJson = await res.json();
 
       try {
-        await PSPDFKit.load({
+        const instance = await PSPDFKit.load({
           container: viewerRef.current,
           document: fileUrl,
           baseUrl: `${window.location.origin}/nutrient-viewer/`,
@@ -41,20 +67,34 @@ export default function DocumentViewer() {
             isDark ? "/my-pspdfkit-dark.css" : "/my-pspdfkit-light.css",
           ],
           licenseKey: import.meta.env.VITE_NUTRIENT_LICENSE_KEY,
+          instantJSON: instantJson || undefined,
         });
 
-        console.log("✅ Viewer reloaded cu tema:", theme);
+        let saveTimeout;
+        const autoSave = async () => {
+          clearTimeout(saveTimeout);
+          saveTimeout = setTimeout(async () => {
+            if (!fileId)
+              return console.warn("⚠️ fileId lipsă, autosave anulat");
+            await saveAnnotations(instance, fileId);
+          }, 300);
+        };
+
+        instance.addEventListener("annotations.change", autoSave);
+        instance.addEventListener("comments.change", autoSave);
       } catch (err) {
         console.error("❌ Eroare în loadViewer:", err);
       }
     };
 
-    const timeout = setTimeout(() => loadViewer(), 0);
+    loadViewer();
 
     return () => {
-      clearTimeout(timeout);
       try {
-        if (viewerRef.current) PSPDFKit.unload(viewerRef.current);
+        if (viewerRef.current) {
+          PSPDFKit.unload(viewerRef.current);
+          console.log("🔁 Viewer curățat la unmount");
+        }
       } catch (e) {
         console.warn("⚠️ Eroare la unload în cleanup:", e);
       }
