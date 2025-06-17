@@ -20,10 +20,27 @@ import { Controller } from "react-hook-form";
 export default function CommonFields() {
   const { form } = useEventForm();
 
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, []);
+
   /* ---------- helpers ---------- */
   const swatchColor = form.watch("color")?.match(/^#[0-9a-f]{6}$/i)
     ? form.watch("color")
     : "#A585FF";
+
+  const COLORS = [
+    { label: "Vanilla Fog", value: "#D9D5BA" },
+    { label: "Blush Error", value: "#D9B0B1" },
+    { label: "Midnight Denim", value: "#596F8F" },
+    { label: "Cloud Link", value: "#A5BAD9" },
+    { label: "Parchment Whisper", value: "#F8F5E3" },
+    { label: "Mint Ghost", value: "#DEEEE4" },
+    { label: "Lavender Static", value: "#D1D0E4" },
+    { label: "Skybuffer", value: "#E3EEF8" },
+  ];
 
   /* ---------- UI ---------- */
   return (
@@ -60,43 +77,33 @@ export default function CommonFields() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
         <Label className="sm:w-24 text-sm font-medium">Date & Time *</Label>
         <div className="flex flex-1 flex-wrap gap-4 w-full">
+          {/* 📅 date range picker */}
           <div className="min-w-[200px]">
             <DateRangePicker
               value={form.watch("dateRange")}
               onChange={(range) => form.setValue("dateRange", range)}
             />
           </div>
-          <div className="min-w-[300px] flex-1">
-            <div onPointerDown={(e) => e.stopPropagation()}>
-              <Controller
-                name="startTime"
-                control={form.control}
-                render={({ field }) => (
-                  <CustomTimePicker
-                    label="Start Time"
-                    value={field.value || ""}
-                    onChange={(val) => {
-                      if (val && val.includes(":")) {
-                        field.onChange(val);
-                      }
-                    }}
-                  />
-                )}
+
+          {/* ⏰ start & end time — same as timetable‑modal */}
+          <div
+            className="grid grid-cols-2 gap-4 flex-1 min-w-[260px]"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <div className="space-y-2">
+              <Input
+                id="start-time"
+                placeholder="Start Time"
+                type="time"
+                {...form.register("startTime", { required: true })}
               />
-              <Controller
-                name="endTime"
-                control={form.control}
-                render={({ field }) => (
-                  <CustomTimePicker
-                    label="End Time"
-                    value={field.value || ""}
-                    onChange={(val) => {
-                      if (val && val.includes(":")) {
-                        field.onChange(val);
-                      }
-                    }}
-                  />
-                )}
+            </div>
+            <div className="space-y-2">
+              <Input
+                id="end-time"
+                placeholder="End Time"
+                type="time"
+                {...form.register("endTime", { required: true })}
               />
             </div>
           </div>
@@ -108,17 +115,29 @@ export default function CommonFields() {
           Color
         </Label>
 
-        <ColorPicker
-          value={swatchColor}
-          onChange={(val) => form.setValue("color", val)}
-        />
+        <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+          {COLORS.map((color) => (
+            <button
+              key={color.value}
+              type="button"
+              className={`w-6 h-6 rounded-full border-2 transition ${
+                form.watch("color") === color.value
+                  ? "ring-2 ring-offset-1 ring-black"
+                  : "border-transparent"
+              }`}
+              style={{ backgroundColor: color.value }}
+              onClick={() => form.setValue("color", color.value)}
+              title={color.label}
+            />
+          ))}
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
         <Label htmlFor="notify" className="sm:w-24 text-sm font-medium">
           Notify
         </Label>
-        <div onPointerDown={(e) => e.stopPropagation()}>
+        <div onMouseDown={(e) => e.stopPropagation()}>
           <Select
             value={form.watch("notify")}
             onValueChange={(val) => form.setValue("notify", val)}

@@ -14,6 +14,7 @@ import TimetablePage from "@/pages/timetable";
 import OnboardingPage from "@/pages/onboarding";
 import { Toaster } from "@/components/ui/sonner";
 import DocumentViewer from "@/pages/document-viewer";
+import NotificationManager from "./components/notification-manager";
 
 function App() {
   //const user = useUser();
@@ -22,7 +23,24 @@ function App() {
   return (
     <BrowserRouter>
       <ThemeProvider defaultTheme="dark" enableSystem={false}>
-        <Toaster />
+        <NotificationManager />
+        <Toaster
+          position="top-right" // any position is fine
+          unstyled // ⬅ removes the default palette
+          toastOptions={{
+            /* shared framing for every toast */
+            className: "group flex gap-3 rounded-md border shadow-lg px-4 py-3",
+
+            /* per-variant colours */
+            classNames: {
+              success: "bg-green-50 border-green-700 text-green-700",
+              error: "bg-red-50  border-red-700  text-red-700",
+              /* optional typography tweaks */
+              title: "font-medium",
+              description: "text-sm opacity-90",
+            },
+          }}
+        />
         <Routes>
           {/* Pagini fără layout */}
           <Route path="/login" element={<LoginPage />} />

@@ -63,7 +63,7 @@ classesRoute.post("/", async (ctx) => {
     end.setHours(endHour, endMin);
 
     await db.insert(calendarEventsTable).values({
-      title: `Exam: ${parsed.data.name}`,
+      title: `{parsed.data.name}`,
       description: `Exam for ${parsed.data.name}`,
       startDateTime: start,
       endDateTime: end,
@@ -77,7 +77,7 @@ classesRoute.post("/", async (ctx) => {
     console.log("✅ Exam calendar event created (POST)");
   }
 
-  // 🔁 Generate recurring class events
+  //Generate recurring class events
   const semester = await db.query.semestersTable.findFirst({
     where: eq(semestersTable.createdBy, userId),
   });

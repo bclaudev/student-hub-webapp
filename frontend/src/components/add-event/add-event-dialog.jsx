@@ -71,6 +71,7 @@ export default function AddEventModal({ onSave, onClose, initialData, open }) {
         isValid(start) && isValid(end)
           ? { from: start, to: end }
           : { from: new Date(), to: new Date() },
+      priority: "",
     });
 
     setEventType(initialData.eventType ?? "event");
@@ -79,11 +80,65 @@ export default function AddEventModal({ onSave, onClose, initialData, open }) {
   /* ------------------------------------------------------------------ */
   /* 3. submit handler                                                   */
   /* ------------------------------------------------------------------ */
-  const handleSubmit = (values) => {
-    console.log(form.formState.errors);
-    onSave({ ...values, eventType });
+
+  const handleSubmit = (data) => {
+    console.log("✅ FORM SUBMIT:", data);
+
+    onSave({
+      ...data,
+      notifyMe: data.notify === "never" ? null : parseInt(data.notify),
+      eventType,
+      title: eventType === "class" ? data.name : data.title,
+    });
+
     onClose();
+
+    // notificare programată în browser
+    // notificare în browser
+    if (data.notify !== "never" && Notification.permission === "granted") {
+      const [hours, minutes] = data.startTime.split(":").map(Number);
+      const startDate = new Date(data.dateRange.from);
+      startDate.setHours(hours, minutes, 0, 0);
+
+      const notifyTime = new Date(
+        startDate.getTime() - parseInt(data.notify) * 60 * 1000
+      );
+      const delay = notifyTime.getTime() - Date.now();
+
+      const title =
+        eventType === "class"
+          ? data.name || "Class reminder"
+          : data.title || "Reminder";
+
+      // salvăm în localStorage
+      const scheduled = {
+        title,
+        time: notifyTime.getTime(),
+        startTime: data.startTime,
+      };
+      const existing = JSON.parse(
+        localStorage.getItem("pendingNotifications") || "[]"
+      );
+      localStorage.setItem(
+        "pendingNotifications",
+        JSON.stringify([...existing, scheduled])
+      );
+
+      if (delay > 0) {
+        setTimeout(() => {
+          new Notification(title, {
+            body: `Starts at ${data.startTime}`,
+            icon: "/icon.png",
+          });
+        }, delay);
+      }
+    }
   };
+
+  const handleInvalid = (errors) => {
+    console.log("❌ FORM INVALID:", errors);
+  };
+  console.log("VALORI ACTUALE:", form.getValues());
 
   const renderEventSpecificFields = (type) => {
     switch (type) {
@@ -104,14 +159,18 @@ export default function AddEventModal({ onSave, onClose, initialData, open }) {
 
   return (
     <Dialog open={open} onOpenChange={onClose} modal={false}>
-      <DialogContent className="w-full max-w-[100vw] sm:max-w-[800px] p-6 overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{initialData ? "Edit Event" : "New Event"}</DialogTitle>
-        </DialogHeader>
+      <EventFormProvider form={form}>
+        <DialogContent className="w-full max-w-[100vw] sm:max-w-[800px] p-6 overflow-y-auto text-foreground">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit, handleInvalid)}
+            className="space-y-4"
+          >
+            <DialogHeader>
+              <DialogTitle>
+                {initialData ? "Edit Event" : "New Event"}
+              </DialogTitle>
+            </DialogHeader>
 
-        {/* ❗ 4. PROVIDE *THIS* FORM INSTANCE TO THE REST OF THE APP  */}
-        <EventFormProvider form={form}>
-          <Form {...form} onSubmit={form.handleSubmit(handleSubmit)}>
             {/* event‑type selector */}
             <div className="space-y-2 mb-6">
               <Label className="text-sm font-medium">Event Type *</Label>
@@ -138,17 +197,15 @@ export default function AddEventModal({ onSave, onClose, initialData, open }) {
               </ToggleGroup>
             </div>
 
-            {/* common + conditional fields */}
-            <CommonFields />
+            {eventType !== "class" && <CommonFields />}
             {renderEventSpecificFields(eventType)}
 
             <div className="flex justify-end pt-4">
-              {console.log("⛳ form id", form.formId)}
               <Button type="submit">{initialData ? "Update" : "Save"}</Button>
             </div>
-          </Form>
-        </EventFormProvider>
-      </DialogContent>
+          </form>
+        </DialogContent>
+      </EventFormProvider>
     </Dialog>
   );
 }

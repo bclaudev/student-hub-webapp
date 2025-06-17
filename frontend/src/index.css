@@ -122,7 +122,7 @@
   }
 
   .rbc-toolbar {
-    @apply flex justify-between items-center mb-4 text-foreground;
+    @apply flex justify-between items-center mb-4 text-foreground border-b;
   }
 
   .rbc-toolbar-label {
@@ -195,7 +195,6 @@
 .dark .rbc-header,
 .dark .rbc-month-row + .rbc-month-row,
 .dark .rbc-month-view {
-  border-color: rgb(34, 34, 34) !important;
   background-color: transparent;
 }
 
@@ -227,7 +226,7 @@ a[data-active="true"] > svg {
 
 .rbc-calendar * {
   border-top: none !important;
-  border-bottom: none !important;
+  /* border-bottom: none !important; */
   border-color: var(--color-border) !important;
 }
 
@@ -277,4 +276,8 @@ a[data-active="true"] > svg {
 .rbc-date-cell {
   border-top: 1px solid var(--color-border) !important;
   border-right: 1px solid var(--color-border) !important;
+}
+
+.customEventCalendar {
+  border-radius: 2rem !important;
 }

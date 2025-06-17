@@ -51,13 +51,13 @@ eventsRoute.post("/", async (c) => {
         endDateTime: new Date(endDateTime),
         eventType,
         color,
-        notifyMe,
+        notifyBeforeMinutes: body.notifyMe,
         createdBy: userId,
         additionalInfo,
       })
       .returning();
 
-    return c.json({ event: newEvent }); // Return the created event
+    return c.json({ event: newEvent }, 201); // Return the created event
   } catch (error) {
     return c.json({ error: "Internal server error" }, 500);
   }

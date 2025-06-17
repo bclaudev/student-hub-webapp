@@ -11,7 +11,7 @@ export default function CalendarToolbar({
 }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="flex items-center justify-between px-4 py-2 border-b bg-background text-foreground h-20">
+    <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-background text-foreground h-20">
       {/* Left: Title */}
       <div className="flex items-center gap-4">
         <h2 className="text-lg font-semibold">Calendar</h2>

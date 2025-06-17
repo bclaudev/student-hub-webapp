@@ -14,6 +14,9 @@ import CalendarToolbar from "./calendar-toolbar";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import AddEventModal from "./add-event/add-event-dialog";
+import { CustomEventCalendar } from "./ui/custom-event-calendar";
+import { CustomEventWrapper } from "./ui/custom-event-wrapper";
+
 import "../styles/calendar-overrides.css";
 import { set } from "date-fns";
 
@@ -107,6 +110,11 @@ export default function Calendar() {
         end: new Date(result.event[0].endDateTime),
       };
 
+      toast.success("Event created", {
+        description: `“${newEvent.title}” was added to your calendar.`,
+        duration: 4000,
+      });
+
       setEvents((prev) => [...prev, newEvent]);
     } catch (err) {
       console.error("Failed to add event:", err.message);
@@ -190,7 +198,8 @@ export default function Calendar() {
               onNewEvent={handleOpenNewEventModal}
             />
           ),
-          event: EventComponent,
+          event: CustomEventCalendar,
+          eventWrapper: CustomEventWrapper,
         }}
         eventPropGetter={eventPropGetter}
         onSelectEvent={(event) => {
