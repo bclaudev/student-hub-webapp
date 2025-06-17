@@ -111,6 +111,28 @@ export default function CommonFields() {
       </div>
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+        <Label className="sm:w-24 text-sm font-medium">Occurrence</Label>
+        <div className="flex-1" onMouseDown={(e) => e.stopPropagation()}>
+          <Select
+            value={form.watch("recurrence")}
+            onValueChange={(value) => form.setValue("recurrence", value)}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select frequency" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="daily">Daily</SelectItem>
+
+              <SelectItem value="weekly">Once a week</SelectItem>
+              <SelectItem value="biweekly">Every 2 weeks</SelectItem>
+              <SelectItem value="every-three-weeks">Every 3 weeks</SelectItem>
+              <SelectItem value="monthly">Once a month</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
         <Label htmlFor="color" className="sm:w-24 text-sm font-medium">
           Color
         </Label>

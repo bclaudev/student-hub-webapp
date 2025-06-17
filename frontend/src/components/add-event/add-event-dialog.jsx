@@ -7,6 +7,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+
 import { Button } from "@/components/ui/button";
 import CommonFields from "@/components/add-event/fields-common";
 import AppointmentFields from "@/components/add-event/fields-appointment";
@@ -49,6 +62,7 @@ export default function AddEventModal({ onSave, onClose, initialData, open }) {
 
   /* keep the toggle in sync with the form */
   const [eventType, setEventType] = useState(initialData?.eventType || "event");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   /* ------------------------------------------------------------------ */
   /* 2. hydrate that instance when initialData arrives                   */
@@ -135,6 +149,28 @@ export default function AddEventModal({ onSave, onClose, initialData, open }) {
     }
   };
 
+  const handleDelete = async (deleteAll) => {
+    try {
+      const res = await fetch(`/api/events/${initialData.id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ deleteAll }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Delete failed");
+      }
+
+      onClose(); // închide modalul
+    } catch (err) {
+      console.error("Failed to delete event:", err.message);
+    }
+  };
+
   const handleInvalid = (errors) => {
     console.log("❌ FORM INVALID:", errors);
   };
@@ -200,7 +236,54 @@ export default function AddEventModal({ onSave, onClose, initialData, open }) {
             {eventType !== "class" && <CommonFields />}
             {renderEventSpecificFields(eventType)}
 
-            <div className="flex justify-end pt-4">
+            <div className="flex justify-end pt-4 text-foreground">
+              {initialData && (
+                <AlertDialog
+                  open={showDeleteConfirm}
+                  onOpenChange={setShowDeleteConfirm}
+                >
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      className="mr-auto"
+                    >
+                      Delete
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="text-foreground">
+                        Delete recurring event?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This event is part of a series. Do you want to delete
+                        only this occurrence or the entire series?
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel
+                        onClick={async () => {
+                          await handleDelete(false); // doar acest eveniment
+                          setShowDeleteConfirm(false);
+                        }}
+                        className="text-foreground"
+                      >
+                        Only this event
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={async () => {
+                          await handleDelete(true); // toate din serie
+                          setShowDeleteConfirm(false);
+                        }}
+                      >
+                        This and following events
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+
               <Button type="submit">{initialData ? "Update" : "Save"}</Button>
             </div>
           </form>

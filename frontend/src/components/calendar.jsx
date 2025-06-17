@@ -181,6 +181,42 @@ export default function Calendar() {
     fetchEvents();
   }, []);
 
+  const handleDeleteEvent = async (event) => {
+    const confirmDeleteAll = window.confirm(
+      "Vrei să ștergi toate evenimentele din serie?\n\nApasă Cancel pentru a șterge doar acest eveniment."
+    );
+
+    try {
+      const res = await fetch(`/api/events/${event.id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          deleteAll: confirmDeleteAll,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Delete failed");
+      }
+
+      toast.success("Eveniment șters");
+
+      // Actualizează lista de evenimente local
+      if (confirmDeleteAll && event.seriesId) {
+        setEvents((prev) => prev.filter((e) => e.seriesId !== event.seriesId));
+      } else {
+        setEvents((prev) => prev.filter((e) => e.id !== event.id));
+      }
+    } catch (err) {
+      console.error("Failed to delete event:", err.message);
+      toast.error("Eroare la ștergere");
+    }
+  };
+
   return (
     <div className="h-screen">
       <ReactBigCalendar

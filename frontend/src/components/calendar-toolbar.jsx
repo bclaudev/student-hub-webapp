@@ -32,7 +32,7 @@ export default function CalendarToolbar({
       <Button
         onClick={onNewEvent}
         size="sm"
-        className="ml-auto px-4 text-foreground"
+        className="ml-auto px-4 text-white"
       >
         New event
       </Button>

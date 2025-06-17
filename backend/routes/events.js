@@ -3,8 +3,11 @@ import { db } from "../db.js";
 import { calendarEventsTable } from "../drizzle/schema.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import { eq } from "drizzle-orm";
+import { generateRecurringClassEvents } from "../lib/recurrence/generate-recurring-class-events.js";
+import { randomUUID } from "crypto";
 
 const eventsRoute = new Hono();
+const seriesId = randomUUID();
 
 // Middleware to verify user token
 eventsRoute.use("*", verifyToken);
@@ -24,6 +27,7 @@ eventsRoute.post("/", async (c) => {
       eventType,
       color,
       notifyMe,
+      recurrence,
     } = body; // Destructure event details from the request body
 
     // Validate required fields
@@ -40,6 +44,48 @@ eventsRoute.post("/", async (c) => {
     delete additionalInfo.eventType;
     delete additionalInfo.color;
     delete additionalInfo.notifyMe;
+
+    // 🌀 Dacă există recurrence, generăm recurența
+    if (recurrence) {
+      const start = new Date(startDateTime);
+      const end = new Date(endDateTime);
+
+      const weekday = start.toLocaleString("en-US", { weekday: "long" });
+      const startTimeStr = start.toTimeString().slice(0, 5);
+      const endTimeStr = end.toTimeString().slice(0, 5);
+
+      const recurrenceEnd = new Date(start);
+      recurrenceEnd.setDate(recurrenceEnd.getDate() + 84); // ~12 săptămâni
+
+      const recurringDates = generateRecurringClassEvents({
+        weekday,
+        startTime: startTimeStr,
+        endTime: endTimeStr,
+        recurrence,
+        semesterStart: start,
+        semesterEnd: recurrenceEnd,
+      });
+
+      const eventsToInsert = recurringDates.map(({ start, end }) => ({
+        title,
+        description,
+        startDateTime: start,
+        endDateTime: end,
+        eventType,
+        color,
+        notifyBeforeMinutes: notifyMe,
+        createdBy: userId,
+        seriesId,
+        additionalInfo,
+      }));
+
+      const inserted = await db
+        .insert(calendarEventsTable)
+        .values(eventsToInsert)
+        .returning();
+
+      return c.json({ events: inserted }, 201);
+    }
 
     // Insert new event into the database
     const newEvent = await db
@@ -114,7 +160,7 @@ eventsRoute.put("/:id", async (c) => {
     };
 
     // Update the event in the database
-    const [updatedEvent] = await db
+    const [updatedEvents] = await db
       .update(calendarEventsTable)
       .set({
         title,
@@ -126,12 +172,16 @@ eventsRoute.put("/:id", async (c) => {
         notifyMe,
         additionalInfo: mergedAdditionalInfo,
       })
-      .where(eq(calendarEventsTable.id, eventId))
+      .where(
+        recurrence
+          ? eq(calendarEventsTable.seriesId, existingEvent.seriesId)
+          : eq(calendarEventsTable.id, eventId)
+      )
       .returning();
 
     return c.json({
       message: "Event updated successfully",
-      event: updatedEvent,
+      event: updatedEvents,
     }); // Return the updated event
   } catch (error) {
     return c.json({ error: "Internal server error" }, 500);
@@ -141,10 +191,10 @@ eventsRoute.put("/:id", async (c) => {
 // Route to delete an event
 eventsRoute.delete("/:id", async (c) => {
   try {
-    const user = c.get("user"); // Get user from the request context
-    const eventId = parseInt(c.req.param("id")); // Get event ID from the request parameters
+    const user = c.get("user");
+    const eventId = parseInt(c.req.param("id"));
+    const { deleteAll } = await c.req.json();
 
-    // Check if the event exists and belongs to the user
     const [existingEvent] = await db
       .select()
       .from(calendarEventsTable)
@@ -156,14 +206,21 @@ eventsRoute.delete("/:id", async (c) => {
       return c.json({ error: "Event not found" }, 404);
     }
 
-    // Delete the event from the database
-    await db
-      .delete(calendarEventsTable)
-      .where(eq(calendarEventsTable.id, eventId))
-      .execute();
-
-    return c.json({ message: "Event deleted successfully" }); // Return success message
+    if (deleteAll && existingEvent.seriesId) {
+      await db
+        .delete(calendarEventsTable)
+        .where(eq(calendarEventsTable.seriesId, existingEvent.seriesId))
+        .execute();
+      return c.json({ message: "All recurring events deleted successfully" });
+    } else {
+      await db
+        .delete(calendarEventsTable)
+        .where(eq(calendarEventsTable.id, eventId))
+        .execute();
+      return c.json({ message: "Event deleted successfully" });
+    }
   } catch (error) {
+    console.error(error);
     return c.json({ error: "Internal server error" }, 500);
   }
 });

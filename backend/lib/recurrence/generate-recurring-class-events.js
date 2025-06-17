@@ -38,7 +38,16 @@ export function generateRecurringClassEvents({
 
     results.push({ start, end });
 
-    current.setDate(current.getDate() + (recurrence === "biweekly" ? 14 : 7));
+    const recurrenceMap = {
+      daily: 1,
+      weekly: 7,
+      biweekly: 14,
+      "every-three-weeks": 21,
+      monthly: 30,
+    };
+
+    const interval = recurrenceMap[recurrence] ?? 7;
+    current.setDate(current.getDate() + interval);
   }
 
   return results;
