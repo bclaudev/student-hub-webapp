@@ -88,7 +88,7 @@ const TimetableItem = ({
             size={14}
             strokeWidth={5}
             style={{ color: iconColor }}
-            className="text-white style={{ color: iconColor }}"
+            className="text-foreground style={{ color: iconColor }}"
           />
         );
       case "colloquy":
@@ -109,7 +109,7 @@ const TimetableItem = ({
         <div className="h-full w-full">
           <div
             onClick={() => onPreview()}
-            className="h-full w-full px-3 text-sm text-[#0d0d0d] dark:text-[#eaeaea] cursor-pointer !rounded-none flex flex-col justify-center gap-1 hover:brightness-105 transition"
+            className="h-full w-full px-3 text-sm text-black cursor-pointer !rounded-none flex flex-col justify-center gap-1 hover:brightness-105 transition"
             style={{ backgroundColor: color }}
           >
             <div className="flex items-center gap-2 font-semibold">

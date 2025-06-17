@@ -27,7 +27,7 @@ export default function NotificationManager() {
           console.log("🔁 Triggering missed or due notification:", notif.title);
           new Notification(notif.title, {
             body: `Starts at ${notif.startTime}`,
-            icon: "/icon.png",
+            icon: "/assets/studenthub_logo_collapsed_dark.svg",
           });
         } else if (delay > 0) {
           stillPending.push(notif);

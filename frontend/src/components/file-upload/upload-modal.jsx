@@ -9,7 +9,7 @@ export default function UploadModal() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="px-4 text-foreground">
+        <Button size="sm" className="px-4 text-white">
           Upload
         </Button>
       </DialogTrigger>
