@@ -21,7 +21,7 @@ export const calendarEventsTable = pgTable("calendar_events", {
   color: varchar("color", { length: 7 }), // Event color, optional, max length 7 characters (e.g., hex color code)
   notifyMe: integer("notify_before_minutes"), // Notification preference, default is false
   recurrence: text("recurrence"), // Recurrence pattern, optional
-  seriesId: text("series_id").notNull(false),
+  seriesId: text("series_id"),
 
   // Foreign key reference to the users table, with cascade delete
   createdBy: integer("created_by").references(() => usersTable.id, {

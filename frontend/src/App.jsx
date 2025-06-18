@@ -57,6 +57,7 @@ function App() {
             <Route path="/pdf-viewer" element={<PDFViewer />} />
             <Route path="timetable" element={<TimetablePage />} />
             <Route path="/document-viewer" element={<DocumentViewer />} />
+            <Route path="/register" element={<RegisterPage />} />
           </Route>
 
           {/* Catch-all */}

@@ -104,44 +104,6 @@ export default function Onboarding() {
                   you with the best experience.
                 </p>
               </div>
-
-              <div className="space-y-4">
-                <Card className="border-2 border-primary bg-primary/10 cursor-pointer">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
-                        <GraduationCap className="h-6 w-6 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-foreground">
-                          Student
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          Set up your academic schedule
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border border-border cursor-pointer hover:border-muted transition-colors">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
-                        <Target className="h-6 w-6 text-muted-foreground" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-foreground">
-                          Educator
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          Manage courses and students
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
             </div>
           )}
 

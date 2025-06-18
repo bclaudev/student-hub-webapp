@@ -21,5 +21,5 @@ export const resourcesTable = pgTable("resources", {
     onDelete: "cascade",
   }),
   groupId: integer("group_id").references(() => resourceGroupsTable.id),
-  author: text("author").notNull(),
+  author: text("author"),
 });

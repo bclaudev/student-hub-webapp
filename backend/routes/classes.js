@@ -211,7 +211,11 @@ classesRoute.patch("/:id", async (c) => {
     return c.json({ success: true });
   } catch (error) {
     console.error("PATCH /api/classes/:id failed", error);
-    return c.text("Internal server error", 500);
+    console.error("Full error:", error); // vezi ce s-a întâmplat exact
+    return ctx.json(
+      { error: "Internal Server Error", details: String(error) },
+      500
+    );
   }
 });
 
