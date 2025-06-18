@@ -1,10 +1,9 @@
 // frontend/src/components/notes/notebook-editor.jsx
 import { useParams, useNavigate } from "react-router-dom";
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor";
 
@@ -16,59 +15,93 @@ export default function NotebookEditorPage() {
   const [initialContent, setInitialContent] = useState(null);
   const [pageId, setPageId] = useState(null);
 
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Placeholder.configure({ placeholder: "Begin to write" }),
-    ],
-    content: initialContent || "",
-  });
+  const editor = useEditor(
+    {
+      extensions: [
+        StarterKit,
+        Placeholder.configure({ placeholder: "Begin to write" }),
+      ],
+      content: initialContent || "",
+      autofocus: true,
+    },
+    [initialContent]
+  );
 
   useEffect(() => {
-    fetch(`/api/notebooks/${id}`)
+    fetch(`http://localhost:8787/api/notebooks/${id}`, {
+      credentials: "include",
+    })
       .then((res) => res.json())
       .then((data) => {
         if (data.title) setTitle(data.title);
       });
 
-    fetch(`/api/notebook-pages?notebookId=${id}`)
+    fetch(`http://localhost:8787/api/notebook-pages?notebookId=${id}`, {
+      credentials: "include",
+    })
       .then((res) => res.json())
       .then((pages) => {
         if (pages.length > 0) {
           const parsed = JSON.parse(pages[0].content);
           setInitialContent(parsed);
           setPageId(pages[0].id);
-          editor?.commands.setContent(parsed);
         }
       });
-  }, [id, editor]);
+  }, [id]);
 
   const handleSave = async () => {
     if (!editor) return;
     setSaving(true);
 
-    await fetch(`/api/notebooks/${id}`, {
+    const content = editor.getJSON();
+    console.log("🚨 handleSave a fost apelat!");
+    console.log("📄 editor content:", content);
+    console.log("📦 pageId înainte:", pageId);
+
+    await fetch(`http://localhost:8787/api/notebooks/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ title }),
-    });
-
-    if (pageId) {
-      await fetch(`/api/notebook-pages/${pageId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: editor.getJSON() }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("📘 Notebook PATCH response:", data);
       });
-    } else {
-      await fetch(`/api/notebook-pages`, {
+
+    let currentPageId = pageId;
+
+    if (!currentPageId) {
+      console.log("🆕 POSTING NEW...");
+      const res = await fetch(`http://localhost:8787/api/notebook-pages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           notebookId: id,
           title: "Page 1",
-          content: editor.getJSON(),
+          content,
         }),
       });
+      const data = await res.json();
+      console.log("✅ POST response:", data);
+      currentPageId = data.id;
+      setPageId(data.id);
+    }
+
+    if (currentPageId) {
+      console.log("🛠 PATCHING...");
+      const res = await fetch(
+        `http://localhost:8787/api/notebook-pages/${currentPageId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ content }),
+        }
+      );
+      const result = await res.json();
+      console.log("🛠 PATCH response:", result);
     }
 
     setSaving(false);
@@ -78,8 +111,12 @@ export default function NotebookEditorPage() {
   if (!id || !editor) return null;
 
   return (
-    <div className="p-6 space-y-6 w-full max-w-screen-xl mx-auto">
-      <SimpleEditor editor={editor} onSave={handleSave} />
+    <div className="p-6 space-y-6 w-full max-w-none">
+      <SimpleEditor
+        key={initialContent ? "loaded" : "empty"}
+        editor={editor}
+        onSave={handleSave}
+      />
     </div>
   );
 }

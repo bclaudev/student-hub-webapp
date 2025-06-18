@@ -281,3 +281,16 @@ a[data-active="true"] > svg {
 .customEventCalendar {
   border-radius: 2rem !important;
 }
+
+.simple-editor-content {
+  max-width: none !important;
+}
+
+.simple-editor-content,
+.ProseMirror {
+  min-height: 88.5vh; /* Ocupă tot ecranul la început */
+  height: auto;
+  max-height: none;
+  overflow: visible;
+  display: block;
+}
