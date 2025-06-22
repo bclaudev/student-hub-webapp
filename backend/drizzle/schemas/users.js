@@ -9,5 +9,8 @@ export const usersTable = pgTable("users", {
   uploadSize: integer("upload_size").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   dateOfBirth: timestamp("date_of_birth").notNull(),
-  role: text('role').default('user').notNull(),
+  lastLoginAt: timestamp("last_login_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  role: text("role").default("user").notNull(),
 });

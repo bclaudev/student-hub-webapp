@@ -11,6 +11,7 @@ import fs from "fs";
 import { PDFDocument } from "pdf-lib";
 import JSZip from "jszip";
 import { XMLParser } from "fast-xml-parser";
+import { posthog } from "../lib/posthog.js";
 
 async function extractAuthor(filePath, fileType) {
   try {
@@ -125,6 +126,20 @@ uploadRoute.post("/upload", async (c) => {
         author,
       })
       .returning();
+
+    await posthog.capture({
+      distinctId: userId,
+      event: "resource_uploaded",
+      properties: {
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: finalFileType,
+        author: author || undefined,
+        thumbnailGenerated: Boolean(thumbnailPath),
+        wasConvertedToPdf: ext === ".docx",
+      },
+    });
+    console.log("📬 Event trimis spre PostHog!");
 
     saved.push({
       ...inserted[0],

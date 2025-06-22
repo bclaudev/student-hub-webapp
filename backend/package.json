@@ -13,11 +13,11 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@faker-js/faker": "^9.8.0",
     "@hono/node-server": "^1.14.0",
     "@hono/zod-validator": "^0.5.0",
     "busboy": "^1.6.0",
     "dotenv": "^16.5.0",
-    "drizzle-kit": "^0.31.1",
     "drizzle-orm": "^0.44.2",
     "fast-xml-parser": "^5.2.5",
     "hono": "^4.7.5",
@@ -25,9 +25,11 @@
     "jszip": "^3.10.1",
     "pdf-lib": "^1.17.1",
     "pg": "^8.16.0",
-    "postgres": "^3.4.5"
+    "postgres": "^3.4.5",
+    "posthog-node": "^5.1.1"
   },
   "devDependencies": {
+    "drizzle-kit": "^0.31.1",
     "nodemon": "^3.1.9",
     "tsx": "^4.19.3"
   }

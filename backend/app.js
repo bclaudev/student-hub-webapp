@@ -18,8 +18,11 @@ import tagsRoute from "./routes/tags.js";
 import semestersRoute from "./routes/semesters.js";
 import logoutRoute from "./routes/logout.js";
 import annotationsRoute from "./routes/annotations.js";
+import { registerAdminRoutes } from "./routes/admin.js";
 
 const app = new Hono();
+
+registerAdminRoutes(app);
 
 app.use(
   "*",

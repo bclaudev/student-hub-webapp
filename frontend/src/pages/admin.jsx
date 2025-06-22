@@ -1,16 +1,142 @@
 import { Navigate } from "react-router-dom";
 import { useUser } from "@/hooks/use-user";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Users,
+  FileText,
+  CalendarDays,
+  NotebookPen,
+  Clipboard,
+} from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import AdminUsersTable from "@/components/admin-components/AdminUsersTable";
 
 export default function AdminDashboard() {
   const user = useUser();
+  const isAdmin = user?.role === "admin";
 
-  if (!user) return null; // sau un spinner de încărcare
-  if (user.role !== "admin") return <Navigate to="/" />;
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["admin-overview"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/overview", {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to fetch");
+      return res.json();
+    },
+    enabled: isAdmin,
+  });
+
+  if (!user) return null;
+  if (!isAdmin) return <Navigate to="/" />;
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
-      <p className="text-muted-foreground">Salut, {user.firstName}! Ai acces de administrator.</p>
+      <p className="text-muted-foreground mb-6">
+        Salut, {user.firstName}! Ai acces de administrator.
+      </p>
+
+      {/* KPI CARDS */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <span className="text-sm font-medium text-muted-foreground">
+              Utilizatori
+            </span>
+            <Users className="h-5 w-5 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {isLoading ? "…" : data?.totalUsers ?? "0"}
+            </div>
+            <p className="text-xs text-muted-foreground">total</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <span className="text-sm font-medium text-muted-foreground">
+              Resources
+            </span>
+            <FileText className="h-5 w-5 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {isLoading ? "…" : data?.totalResources ?? "0"}
+            </div>
+            <p className="text-xs text-muted-foreground">uploaded</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <span className="text-sm font-medium text-muted-foreground">
+              Events
+            </span>
+            <CalendarDays className="h-5 w-5 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {isLoading ? "…" : data?.totalEvents ?? "0"}
+            </div>
+            <p className="text-xs text-muted-foreground">create</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <span className="text-sm font-medium text-muted-foreground">
+              Notebooks
+            </span>
+            <NotebookPen className="h-5 w-5 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {isLoading ? "…" : data?.totalNotebooks ?? "0"}
+            </div>
+            <p className="text-xs text-muted-foreground">saved</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <span className="text-sm font-medium text-muted-foreground">
+              Classes
+            </span>
+            <Clipboard className="h-5 w-5 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {isLoading ? "…" : data?.totalClasses ?? "0"}
+            </div>
+            <p className="text-xs text-muted-foreground">planned</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* TABS */}
+      <Tabs defaultValue="users" className="w-full">
+        <TabsList>
+          <TabsTrigger value="users">Utilizatori</TabsTrigger>
+          <TabsTrigger value="resources">Fișiere</TabsTrigger>
+          <TabsTrigger value="notebooks">Notebook-uri</TabsTrigger>
+          <TabsTrigger value="events">Evenimente</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="users">
+          <AdminUsersTable />
+        </TabsContent>
+        <TabsContent value="resources">
+          <div className="mt-4">🔧 Aici va fi lista de fișiere</div>
+        </TabsContent>
+        <TabsContent value="notebooks">
+          <div className="mt-4">🔧 Aici va fi lista de notebook-uri</div>
+        </TabsContent>
+        <TabsContent value="events">
+          <div className="mt-4">🔧 Aici va fi lista de evenimente</div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { resourceToGroupTable } from "../drizzle/schema.js";
 import { eq, and } from "drizzle-orm";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import { sql } from "drizzle-orm";
+import { posthog } from "../lib/posthog.js";
 
 const tagsRoute = new Hono();
 
@@ -66,6 +67,18 @@ tagsRoute.post("/tags", async (c) => {
         .returning();
       tagId = inserted[0].id;
     }
+
+    posthog.capture({
+      distinctId: String(user.id),
+      event: "tag_created",
+      properties: {
+        tagId,
+        tagName: name,
+        fileId,
+        isGlobal: false,
+        createdAt: new Date().toISOString(),
+      },
+    });
 
     // 2. Creează legătura în tabela many-to-many
     await db.insert(resourceToGroupTable).values({

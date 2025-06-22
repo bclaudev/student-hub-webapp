@@ -22,7 +22,7 @@ userRoute.get("/all", async (c) => {
     return c.json({ error: "Forbidden" }, 403);
   }
 
-  const allUsers = await db.select().from(users); // Drizzle ORM
+  const allUsers = await db.select().from(users);
   return c.json(allUsers);
 });
 
