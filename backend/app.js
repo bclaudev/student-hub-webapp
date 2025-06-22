@@ -16,6 +16,7 @@ import { classesRoute } from "./routes/classes.js";
 import { serveStatic } from "@hono/node-server/serve-static";
 import tagsRoute from "./routes/tags.js";
 import semestersRoute from "./routes/semesters.js";
+import logoutRoute from "./routes/logout.js";
 import annotationsRoute from "./routes/annotations.js";
 
 const app = new Hono();
@@ -51,6 +52,8 @@ app.route("/api", tagsRoute);
 app.route("/api/classes", classesRoute);
 app.route("/api/semesters", semestersRoute);
 app.route("/api/annotations", annotationsRoute);
+app.route("/api/semesters", semestersRoute);
+app.route("/api", logoutRoute);
 
 const port = 8787;
 

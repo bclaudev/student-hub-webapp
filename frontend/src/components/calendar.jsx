@@ -181,21 +181,15 @@ export default function Calendar() {
     fetchEvents();
   }, []);
 
-  const handleDeleteEvent = async (event) => {
-    const confirmDeleteAll = window.confirm(
-      "Vrei să ștergi toate evenimentele din serie?\n\nApasă Cancel pentru a șterge doar acest eveniment."
-    );
-
+  const handleDeleteEvent = async ({ id, seriesId, deleteAll }) => {
     try {
-      const res = await fetch(`/api/events/${event.id}`, {
+      const res = await fetch(`/api/events/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({
-          deleteAll: confirmDeleteAll,
-        }),
+        body: JSON.stringify({ deleteAll }),
       });
 
       if (!res.ok) {
@@ -203,13 +197,14 @@ export default function Calendar() {
         throw new Error(data.error || "Delete failed");
       }
 
+      console.log("🔁 Deleting", id, "with seriesId:", seriesId);
+
       toast.success("Eveniment șters");
 
-      // Actualizează lista de evenimente local
-      if (confirmDeleteAll && event.seriesId) {
-        setEvents((prev) => prev.filter((e) => e.seriesId !== event.seriesId));
+      if (deleteAll && seriesId) {
+        setEvents((prev) => prev.filter((e) => e.seriesId !== seriesId));
       } else {
-        setEvents((prev) => prev.filter((e) => e.id !== event.id));
+        setEvents((prev) => prev.filter((e) => e.id !== id));
       }
     } catch (err) {
       console.error("Failed to delete event:", err.message);
@@ -247,6 +242,7 @@ export default function Calendar() {
       {isModalOpen && (
         <AddEventModal
           onSave={handleAddEvent}
+          onDelete={handleDeleteEvent}
           initialData={selectedEvent}
           onClose={() => {
             setIsModalOpen(false);

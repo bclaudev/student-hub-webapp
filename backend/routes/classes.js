@@ -6,6 +6,7 @@ import { eq, and } from "drizzle-orm";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import { generateRecurringClassEvents } from "../lib/recurrence/generate-recurring-class-events.js";
 import { semestersTable } from "../drizzle/schema.js";
+import { randomUUID } from "crypto";
 
 const classesRoute = new Hono();
 
@@ -38,6 +39,7 @@ classesRoute.post("/", async (ctx) => {
   const userId = ctx.get("user").id;
   const body = await ctx.req.json();
   const parsed = classSchema.safeParse(body);
+  const seriesId = randomUUID();
 
   if (!parsed.success) {
     return ctx.json({ error: parsed.error.flatten() }, 400);
@@ -63,13 +65,14 @@ classesRoute.post("/", async (ctx) => {
     end.setHours(endHour, endMin);
 
     await db.insert(calendarEventsTable).values({
-      title: `{parsed.data.name}`,
+      title: `Exam for ${parsed.data.name}`,
       description: `Exam for ${parsed.data.name}`,
       startDateTime: start,
       endDateTime: end,
       eventType: "exam",
       color: parsed.data.color || "#a585ff",
       createdBy: userId,
+      seriesId,
       additionalInfo: {
         classId: insertedClass.id,
       },
@@ -120,6 +123,7 @@ classesRoute.post("/", async (ctx) => {
       eventType: "class",
       color: parsed.data.color || "#a585ff",
       createdBy: userId,
+      seriesId,
       additionalInfo: {
         classId: insertedClass.id,
       },

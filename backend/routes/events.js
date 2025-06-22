@@ -7,7 +7,6 @@ import { generateRecurringClassEvents } from "../lib/recurrence/generate-recurri
 import { randomUUID } from "crypto";
 
 const eventsRoute = new Hono();
-const seriesId = randomUUID();
 
 // Middleware to verify user token
 eventsRoute.use("*", verifyToken);
@@ -15,10 +14,8 @@ eventsRoute.use("*", verifyToken);
 // Route to create a new event
 eventsRoute.post("/", async (c) => {
   try {
-    const userId = c.get("user").id; // Get user ID from the request context
-
-    const body = await c.req.json(); // Parse request body
-
+    const userId = c.get("user").id;
+    const body = await c.req.json();
     const {
       title,
       description,
@@ -28,14 +25,12 @@ eventsRoute.post("/", async (c) => {
       color,
       notifyMe,
       recurrence,
-    } = body; // Destructure event details from the request body
+    } = body;
 
-    // Validate required fields
     if (!title || !startDateTime || !endDateTime || !eventType) {
       return c.json({ error: "Missing required fields" }, 400);
     }
 
-    // Prepare additional info by excluding certain fields
     const additionalInfo = { ...body };
     delete additionalInfo.title;
     delete additionalInfo.description;
@@ -45,7 +40,8 @@ eventsRoute.post("/", async (c) => {
     delete additionalInfo.color;
     delete additionalInfo.notifyMe;
 
-    // 🌀 Dacă există recurrence, generăm recurența
+    const seriesId = recurrence ? randomUUID() : undefined;
+
     if (recurrence) {
       const start = new Date(startDateTime);
       const end = new Date(endDateTime);
@@ -55,7 +51,7 @@ eventsRoute.post("/", async (c) => {
       const endTimeStr = end.toTimeString().slice(0, 5);
 
       const recurrenceEnd = new Date(start);
-      recurrenceEnd.setDate(recurrenceEnd.getDate() + 84); // ~12 săptămâni
+      recurrenceEnd.setDate(recurrenceEnd.getDate() + 84);
 
       const recurringDates = generateRecurringClassEvents({
         weekday,
@@ -87,7 +83,7 @@ eventsRoute.post("/", async (c) => {
       return c.json({ events: inserted }, 201);
     }
 
-    // Insert new event into the database
+    // Fără recurență
     const newEvent = await db
       .insert(calendarEventsTable)
       .values({
@@ -103,7 +99,7 @@ eventsRoute.post("/", async (c) => {
       })
       .returning();
 
-    return c.json({ event: newEvent }, 201); // Return the created event
+    return c.json({ event: newEvent }, 201);
   } catch (error) {
     return c.json({ error: "Internal server error" }, 500);
   }

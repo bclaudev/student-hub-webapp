@@ -15,4 +15,15 @@ userRoute.get("/", async (c) => {
   return c.json({ user });
 });
 
+userRoute.get("/all", async (c) => {
+  const currentUser = c.get("user");
+
+  if (currentUser.role !== "admin") {
+    return c.json({ error: "Forbidden" }, 403);
+  }
+
+  const allUsers = await db.select().from(users); // Drizzle ORM
+  return c.json(allUsers);
+});
+
 export default userRoute;

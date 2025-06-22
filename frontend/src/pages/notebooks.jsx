@@ -14,6 +14,16 @@ export default function NotesPage() {
   const navigate = useNavigate();
   const [notebooks, setNotebooks] = useState([]);
 
+  const updateNotebookTitle = (id, newTitle) => {
+    setNotebooks((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, title: newTitle } : n))
+    );
+  };
+
+  const deleteNotebookFromList = (id) => {
+    setNotebooks((prev) => prev.filter((n) => n.id !== id));
+  };
+
   useEffect(() => {
     fetch("/api/notebooks")
       .then((res) => res.json())
@@ -48,9 +58,19 @@ export default function NotesPage() {
         </DropdownMenu>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div
+        className="py-4 grid gap-1 max-w-screen-xl"
+        style={{
+          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+        }}
+      >
         {notebooks.map((notebook) => (
-          <NotebookCard key={notebook.id} notebook={notebook} />
+          <NotebookCard
+            key={notebook.id}
+            notebook={notebook}
+            onRename={updateNotebookTitle}
+            onDelete={deleteNotebookFromList}
+          />
         ))}
       </div>
     </div>

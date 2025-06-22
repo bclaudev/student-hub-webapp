@@ -4,8 +4,20 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import AuthRedirector from "@/components/onboarding/AuthRedirector";
+import posthog from "posthog-js";
 
 export default function LoginPage() {
+  useEffect(() => {
+    const userFromStorage = localStorage.getItem("user");
+    if (userFromStorage) {
+      const parsed = JSON.parse(userFromStorage);
+      posthog.identify(parsed.id, {
+        email: parsed.email,
+        name: `${parsed.firstName} ${parsed.lastName}`,
+      });
+    }
+  }, []);
+
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
@@ -18,6 +30,12 @@ export default function LoginPage() {
       if (!res.ok) throw new Error("Unauthorized");
 
       const data = await res.json();
+
+      posthog.identify(data.user.id, {
+        email: data.user.email,
+        name: `${data.user.firstName} ${data.user.lastName}`,
+      });
+
       setUser(data.user);
       return data.user;
       console.log("User fetched:", data.user);

@@ -15,11 +15,30 @@ import { FormSection } from "./form-section";
 import { DateRangePicker } from "../shared/date-range-picker";
 import TimeRangePicker from "../shared/time-range-picker";
 import { useEventForm } from "@/context/event-form-context";
+import { useQuery } from "@tanstack/react-query";
 
 export default function StudyFields() {
   const { form } = useEventForm();
   const inputId = useId();
+  const { data: semesterData } = useQuery({
+    queryKey: ["activeSemester"],
+    queryFn: () => fetch("/api/semesters/active").then((res) => res.json()),
+  });
 
+  const activeSemesterId = semesterData?.activeSemester?.id;
+
+  const { data: classData } = useQuery({
+    queryKey: ["classes", activeSemesterId],
+    queryFn: () =>
+      fetch(`/api/classes?semesterId=${activeSemesterId}`).then((res) =>
+        res.json()
+      ),
+    enabled: !!activeSemesterId,
+  });
+
+  console.log("ID semestru activ:", activeSemesterId);
+
+  const classes = classData?.classes || [];
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
@@ -77,8 +96,17 @@ export default function StudyFields() {
               <SelectValue placeholder="Select class" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="math101">Math 101</SelectItem>
-              <SelectItem value="cs205">CS 205</SelectItem>
+              {classes.length === 0 ? (
+                <SelectItem disabled value="no-classes">
+                  No classes found
+                </SelectItem>
+              ) : (
+                classes.map((cls) => (
+                  <SelectItem key={cls.id} value={cls.id.toString()}>
+                    {cls.abbreviation || cls.name || "Unnamed Class"}
+                  </SelectItem>
+                ))
+              )}
             </SelectContent>
           </Select>
         </div>

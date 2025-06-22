@@ -43,7 +43,13 @@ const eventTypes = [
   { label: "Study", value: "study" },
 ];
 
-export default function AddEventModal({ onSave, onClose, initialData, open }) {
+export default function AddEventModal({
+  onSave,
+  onClose,
+  initialData,
+  open,
+  onDelete,
+}) {
   /* ------------------------------------------------------------------ */
   /* 1. create ONE form instance                                         */
   /* ------------------------------------------------------------------ */
@@ -149,28 +155,6 @@ export default function AddEventModal({ onSave, onClose, initialData, open }) {
     }
   };
 
-  const handleDelete = async (deleteAll) => {
-    try {
-      const res = await fetch(`/api/events/${initialData.id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ deleteAll }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Delete failed");
-      }
-
-      onClose(); // închide modalul
-    } catch (err) {
-      console.error("Failed to delete event:", err.message);
-    }
-  };
-
   const handleInvalid = (errors) => {
     console.log("❌ FORM INVALID:", errors);
   };
@@ -263,17 +247,26 @@ export default function AddEventModal({ onSave, onClose, initialData, open }) {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel
-                        onClick={async () => {
-                          await handleDelete(false); // doar acest eveniment
+                        onClick={() => {
+                          onDelete?.({
+                            id: initialData.id,
+                            seriesId: initialData.seriesId,
+                            deleteAll: false,
+                          });
                           setShowDeleteConfirm(false);
                         }}
                         className="text-foreground"
                       >
                         Only this event
                       </AlertDialogCancel>
+
                       <AlertDialogAction
-                        onClick={async () => {
-                          await handleDelete(true); // toate din serie
+                        onClick={() => {
+                          onDelete?.({
+                            id: initialData.id,
+                            seriesId: initialData.seriesId,
+                            deleteAll: true,
+                          });
                           setShowDeleteConfirm(false);
                         }}
                       >

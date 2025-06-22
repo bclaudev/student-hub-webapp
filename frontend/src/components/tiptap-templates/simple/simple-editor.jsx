@@ -210,12 +210,8 @@ export function SimpleEditor({ editor, onSave }) {
           />
         )}
       </Toolbar>
-      <div className="w-full h-auto overflow-visible content-wrapper">
-        <EditorContent
-          editor={editor}
-          role="presentation"
-          className="simple-editor-content min-h-screen h-auto max-h-none overflow-visible"
-        />
+      <div className="simple-editor-content text-[var(--color-foreground)] w-full h-auto overflow-visible content-wrapper">
+        <EditorContent editor={editor} />
       </div>
     </EditorContext.Provider>
   );

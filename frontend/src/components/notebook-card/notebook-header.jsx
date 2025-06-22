@@ -11,7 +11,12 @@ import {
   DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu"; // shadcn/ui
 
-export default function NotebookHeader({ isPinned, onTogglePin }) {
+export default function NotebookHeader({
+  isPinned,
+  onTogglePin,
+  onRename,
+  onDelete,
+}) {
   return (
     <header className="flex justify-between items-start w-full">
       <button

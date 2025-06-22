@@ -294,3 +294,42 @@ a[data-active="true"] > svg {
   overflow: visible;
   display: block;
 }
+
+.tiptap {
+  background-color: var(--color-card);
+  color: var(--color-foreground);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* Alte îmbunătățiri utile */
+.tiptap h1,
+.tiptap h2,
+.tiptap h3 {
+  color: var(--color-primary);
+  margin-top: 1.5rem;
+}
+
+.tiptap blockquote {
+  border-left: 4px solid var(--color-muted);
+  padding-left: 1rem;
+  color: var(--color-muted-foreground);
+  font-style: italic;
+}
+
+.tiptap ul,
+.tiptap ol {
+  padding-left: 2rem;
+}
+
+.tiptap strong {
+  color: var(--color-foreground);
+  font-weight: bold;
+}
+
+.tiptap a {
+  color: var(--color-primary);
+  text-decoration: underline;
+}

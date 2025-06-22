@@ -6,6 +6,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor";
+import { useTheme } from "@/components/ui/theme-provider";
 
 export default function NotebookEditorPage() {
   const { id } = useParams();
@@ -15,16 +16,25 @@ export default function NotebookEditorPage() {
   const [initialContent, setInitialContent] = useState(null);
   const [pageId, setPageId] = useState(null);
 
+  const { theme } = useTheme();
+
   const editor = useEditor(
     {
       extensions: [
         StarterKit,
         Placeholder.configure({ placeholder: "Begin to write" }),
       ],
+      editorProps: {
+        attributes: {
+          class: `prose focus:outline-none ${
+            theme === "dark" ? "prose-invert" : ""
+          }`,
+        },
+      },
       content: initialContent || "",
       autofocus: true,
     },
-    [initialContent]
+    [initialContent, theme]
   );
 
   useEffect(() => {

@@ -119,4 +119,26 @@ notebooksRoute.patch("/notebooks/:id/pin", async (c) => {
   return c.json({ success: true, isPinned: !notebook.isPinned });
 });
 
+notebooksRoute.delete("/notebooks/:id", async (c) => {
+  const userId = c.get("user").id;
+  const id = c.req.param("id");
+
+  const existing = await db.query.notebooks.findFirst({
+    where: (notebooks, { eq, and }) =>
+      and(eq(notebooks.id, id), eq(notebooks.userId, userId)),
+  });
+
+  if (!existing) {
+    return c.json({ error: "Not allowed" }, 403);
+  }
+
+  // Șterge paginile asociate
+  await db.delete(notebookPages).where(eq(notebookPages.notebookId, id));
+
+  // Apoi șterge notebook-ul
+  await db.delete(notebooks).where(eq(notebooks.id, id));
+
+  return c.json({ success: true });
+});
+
 export default notebooksRoute;

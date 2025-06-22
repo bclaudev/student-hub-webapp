@@ -29,7 +29,14 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 
-import { Calendar, Clipboard, Book, Notebook, ShieldCheck } from "lucide-react";
+import {
+  Calendar,
+  Clipboard,
+  Book,
+  Notebook,
+  ShieldCheck,
+  LogOut,
+} from "lucide-react";
 
 import { useUser } from "@/hooks/use-user";
 
@@ -57,7 +64,24 @@ export function AppSidebar() {
     : studenthub_logo_default;
 
   const user = useUser();
-  console.log("USER INFO:", user);
+
+  const handleLogout = async () => {
+    try {
+      const res = await fetch("/api/logout", {
+        method: "POST",
+        credentials: "include", // necesar pentru cookie
+      });
+
+      if (res.ok) {
+        window.location.href = "/login";
+      } else {
+        console.error("Logout failed:", await res.text());
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
   return (
     <Sidebar collapsible="icon">
       <motion.div
@@ -65,41 +89,28 @@ export function AppSidebar() {
         transition={{ duration: 0.25, ease: "easeInOut" }}
         className="relative overflow-visible h-full"
       >
-        <SidebarContent className="relative overflow-visible">
-          <SidebarHeader className="mt-8 px-4 py-2 text-lg font-bold flex items-center justify-center h-12 transition-all duration-300">
-            <div className="relative h-10 w-32 flex items-center justify-center">
-              <motion.img
-                key="full"
-                src={isDark ? studenthub_logo_dark : studenthub_logo_default}
-                alt="Logo"
-                initial={{ opacity: 1, scale: 1 }}
-                animate={{
-                  opacity: isCollapsed ? 0 : 1,
-                  scale: isCollapsed ? 0.95 : 1,
-                }}
-                transition={{ duration: 0.25 }}
-                className="absolute h-6 object-contain"
-                style={{ left: 0, right: 0, margin: "0 auto" }}
-              />
-              <motion.img
-                key="collapsed"
-                src={
-                  isDark
-                    ? studenthub_logo_collapsed_dark
-                    : studenthub_logo_collapsed
-                }
-                alt="Logo"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{
-                  opacity: isCollapsed ? 1 : 0,
-                  scale: isCollapsed ? 1 : 0.95,
-                }}
-                transition={{ duration: 0.25 }}
-                className="absolute h-6 w-6 object-contain"
-                style={{ left: 0, right: 0, margin: "0 auto" }}
-              />
+        <SidebarContent className="relative overflow-visible h-full">
+          <SidebarHeader className="mt-8 px-4 py-2 text-lg font-bold flex items-center justify-center h-12 transition-all duration-300"></SidebarHeader>
+          <div className="pl-5 pr-4 mt-6 mb-8">
+            <div className="flex items-center gap-3 cursor-pointer">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={"/claudia.jpg"} alt={`@${user?.firstName}`} />
+                <AvatarFallback>
+                  {(user?.firstName?.[0] ?? "") + (user?.lastName?.[0] ?? "")}
+                </AvatarFallback>
+              </Avatar>
+              {!isCollapsed && (
+                <div className="flex flex-col leading-tight">
+                  <span className="font-medium text-foreground text-sm">
+                    Hello, {user ? `${user.firstName}` : "Hello"}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    Change profile settings
+                  </span>
+                </div>
+              )}
             </div>
-          </SidebarHeader>
+          </div>
           <SidebarGroup className="relative">
             {/* <SidebarGroupLabel>Main</SidebarGroupLabel> */}
             <SidebarGroupContent>
@@ -196,46 +207,60 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                 )}
               </SidebarMenu>
+              <div className="mt-8">
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      size="lg"
+                      className="!h-12 !p-4 group-data-[collapsible=icon]:!h-12 group-data-[collapsible=icon]:!p-2 rounded-3xl pl-4"
+                      onClick={handleLogout}
+                    >
+                      <div className="flex items-center gap-2 group-data-[state=collapsed]:justify-center">
+                        <LogOut className="w-4 h-4" />
+
+                        <span className="group-data-[state=collapsed]:hidden">
+                          Logout
+                        </span>
+                      </div>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </div>
             </SidebarGroupContent>
           </SidebarGroup>
-          <SidebarFooter className="px-4 py-2 mt-auto border-t border-border">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <div className="flex items-center gap-3 cursor-pointer">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage
-                      src={"/claudia.jpg"} // or dynamic if you add avatars later
-                      alt={`@${user?.firstName}`}
-                    />
-                    <AvatarFallback>
-                      {(user?.firstName?.[0] ?? "") +
-                        (user?.lastName?.[0] ?? "")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col">
-                    <span className="font-medium text-foreground">
-                      {user ? `${user.firstName}` : "..."}
-                    </span>
-                  </div>
-                </div>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent side="top" align="start" className="w-48">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => alert("Go to profile")}>
-                  Profile
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => alert("Go to settings")}>
-                  Settings
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <ThemeToggle />
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => alert("Logging out...")}>
-                  Log out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          <SidebarFooter className="mt-auto flex justify-center items-center pb-4">
+            <div className="relative h-10 w-32 flex items-center justify-center">
+              <motion.img
+                key="full"
+                src={isDark ? studenthub_logo_dark : studenthub_logo_default}
+                alt="Logo"
+                initial={{ opacity: 1, scale: 1 }}
+                animate={{
+                  opacity: isCollapsed ? 0 : 1,
+                  scale: isCollapsed ? 0.95 : 1,
+                }}
+                transition={{ duration: 0.25 }}
+                className="absolute h-6 object-contain"
+                style={{ left: 0, right: 0, margin: "0 auto" }}
+              />
+              <motion.img
+                key="collapsed"
+                src={
+                  isDark
+                    ? studenthub_logo_collapsed_dark
+                    : studenthub_logo_collapsed
+                }
+                alt="Logo"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{
+                  opacity: isCollapsed ? 1 : 0,
+                  scale: isCollapsed ? 1 : 0.95,
+                }}
+                transition={{ duration: 0.25 }}
+                className="absolute h-6 w-6 object-contain"
+                style={{ left: 0, right: 0, margin: "0 auto" }}
+              />
+            </div>
           </SidebarFooter>
         </SidebarContent>
       </motion.div>

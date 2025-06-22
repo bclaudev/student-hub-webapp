@@ -3,7 +3,7 @@ import { z } from "zod";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import { db } from "../db.js";
 import { semestersTable } from "../drizzle/schema.js";
-import { eq, and } from "drizzle-orm";
+import { and, eq, lte, gte } from "drizzle-orm";
 import { classesTable } from "../drizzle/schema.js";
 
 const semesterSchema = z.object({
@@ -123,6 +123,31 @@ semestersRoute.get("/", async (c) => {
     console.error("Eroare internă în GET /semesters/get:", err);
     return c.json({ error: "Internal Server Error" }, 500);
   }
+});
+
+semestersRoute.get("/active", async (c) => {
+  const user = c.get("user");
+
+  const today = new Date().toISOString();
+
+  const result = await db
+    .select()
+    .from(semestersTable)
+    .where(
+      and(
+        eq(semestersTable.createdBy, user.id),
+        lte(semestersTable.startDate, today),
+        gte(semestersTable.endDate, today)
+      )
+    );
+
+  const activeSemester = result[0];
+
+  if (!activeSemester) {
+    return c.json({ error: "No active semester for today" }, 404);
+  }
+
+  return c.json({ activeSemester });
 });
 
 export default semestersRoute;
