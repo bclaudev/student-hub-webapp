@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import AdminUsersTable from "@/components/admin-components/AdminUsersTable";
+import { UserGrowthChart } from "@/components/admin-components/UsersGrowthChart";
 
 export default function AdminDashboard() {
   const user = useUser();
@@ -32,19 +33,19 @@ export default function AdminDashboard() {
   if (!isAdmin) return <Navigate to="/" />;
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
+    <div className="p-6 bg-background">
+      <h1 className="text-2xl font-bold mb-4 text-foreground">
+        Admin Dashboard
+      </h1>
       <p className="text-muted-foreground mb-6">
-        Salut, {user.firstName}! Ai acces de administrator.
+        Hello, {user.firstName}! You have admin access.
       </p>
 
       {/* KPI CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <span className="text-sm font-medium text-muted-foreground">
-              Utilizatori
-            </span>
+            <span className="text-sm font-medium text-foreground">Users</span>
             <Users className="h-5 w-5 text-primary" />
           </CardHeader>
           <CardContent>
@@ -118,14 +119,15 @@ export default function AdminDashboard() {
       {/* TABS */}
       <Tabs defaultValue="users" className="w-full">
         <TabsList>
-          <TabsTrigger value="users">Utilizatori</TabsTrigger>
-          <TabsTrigger value="resources">Fișiere</TabsTrigger>
-          <TabsTrigger value="notebooks">Notebook-uri</TabsTrigger>
-          <TabsTrigger value="events">Evenimente</TabsTrigger>
+          <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="resources">Resources</TabsTrigger>
+          <TabsTrigger value="notebooks">Notebooks</TabsTrigger>
+          <TabsTrigger value="events">Events</TabsTrigger>
         </TabsList>
 
         <TabsContent value="users">
           <AdminUsersTable />
+          <UserGrowthChart />
         </TabsContent>
         <TabsContent value="resources">
           <div className="mt-4">🔧 Aici va fi lista de fișiere</div>

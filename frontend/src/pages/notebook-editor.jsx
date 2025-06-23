@@ -121,7 +121,7 @@ export default function NotebookEditorPage() {
   if (!id || !editor) return null;
 
   return (
-    <div className="p-6 space-y-6 w-full max-w-none">
+    <div className="p-6 space-y-6 w-full max-w-none bg-background">
       <SimpleEditor
         key={initialContent ? "loaded" : "empty"}
         editor={editor}

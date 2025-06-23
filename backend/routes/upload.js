@@ -127,18 +127,16 @@ uploadRoute.post("/upload", async (c) => {
       })
       .returning();
 
-    await posthog.capture({
-      distinctId: userId,
-      event: "resource_uploaded",
-      properties: {
-        fileName: file.name,
-        fileSize: file.size,
-        fileType: finalFileType,
-        author: author || undefined,
-        thumbnailGenerated: Boolean(thumbnailPath),
-        wasConvertedToPdf: ext === ".docx",
-      },
+    posthog.capture("resource_uploaded", {
+      distinct_id: userId, // cu underscore!
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: finalFileType,
+      author: author || undefined,
+      thumbnailGenerated: Boolean(thumbnailPath),
+      wasConvertedToPdf: ext === ".docx",
     });
+
     console.log("📬 Event trimis spre PostHog!");
 
     saved.push({
@@ -156,6 +154,7 @@ uploadRoute.post("/upload", async (c) => {
     }
   }
 
+  await posthog.flush();
   return c.json({ success: true, uploaded: saved });
 });
 

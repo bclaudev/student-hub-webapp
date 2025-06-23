@@ -7,7 +7,7 @@ export const usersTable = pgTable("users", {
   email: text("email").unique().notNull(),
   password: text("password").notNull(),
   uploadSize: integer("upload_size").default(0),
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: timestamp("created_at"),
   dateOfBirth: timestamp("date_of_birth").notNull(),
   lastLoginAt: timestamp("last_login_at", { withTimezone: true })
     .defaultNow()

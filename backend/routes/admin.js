@@ -6,7 +6,7 @@ import {
   notebooks,
   classesTable,
 } from "../drizzle/schema.js";
-import { eq, gte, count } from "drizzle-orm";
+import { eq, gte, count, sql } from "drizzle-orm";
 import { getTodayStart } from "../lib/utils.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 
@@ -97,5 +97,20 @@ export function registerAdminRoutes(app) {
     await db.delete(usersTable).where(eq(usersTable.id, Number(id)));
 
     return c.json({ success: true });
+  });
+
+  app.get("/api/admin/stats/users-per-week", async (c) => {
+    const result = await db.execute(sql`
+      SELECT
+        DATE_TRUNC('week', created_at) AS week,
+        COUNT(*)::int AS count
+      FROM users
+      WHERE created_at > NOW() - INTERVAL '6 weeks'
+      GROUP BY week
+      ORDER BY week ASC
+    `);
+    console.log("👀 Users per week:", result);
+
+    return c.json(result);
   });
 }

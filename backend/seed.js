@@ -34,20 +34,30 @@ function getRandomDateBetween(start, end) {
 }
 
 async function seedUsers(count = 50) {
-  const users = Array.from({ length: count }, () => ({
-    firstName: faker.person.firstName(),
-    lastName: faker.person.lastName(),
-    email: faker.internet.email(),
-    password: faker.internet.password(),
-    uploadSize: 0,
-    dateOfBirth: faker.date.birthdate(),
-    role: "user",
-  }));
+  const now = new Date();
+  const sixWeeksAgo = new Date();
+  sixWeeksAgo.setDate(now.getDate() - 7 * 6);
+
+  const users = Array.from({ length: count }, () => {
+    const createdAt = getRandomDateBetween(sixWeeksAgo, now);
+
+    return {
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
+      email: faker.internet.email(),
+      password: faker.internet.password(),
+      uploadSize: 0,
+      dateOfBirth: faker.date.birthdate(),
+      role: "user",
+      createdAt, // 👈 drizzle expects camelCase
+    };
+  });
 
   const inserted = await db
     .insert(usersTable)
     .values(users)
     .returning({ id: usersTable.id });
+
   return inserted.map((u) => u.id);
 }
 
