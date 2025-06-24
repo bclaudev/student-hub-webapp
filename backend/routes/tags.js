@@ -29,9 +29,8 @@ tagsRoute.get("/tags", async (c) => {
     console.log(">>> TAGS RAW:", tags);
 
     return c.json(tags);
-    // folosim rows pentru .execute()
   } catch (error) {
-    console.error("❌ Eroare în GET /tags:", error);
+    console.error(" Eroare în GET /tags:", error);
     return c.json({ error: "Internal server error" }, 500);
   }
 });
@@ -88,7 +87,7 @@ tagsRoute.post("/tags", async (c) => {
 
     return c.json({ success: true, name, id: tagId });
   } catch (error) {
-    console.error("❌ Eroare în POST /tags:", error);
+    console.error("Eroare în POST /tags:", error);
     return c.json({ error: "Internal server error" }, 500);
   }
 });

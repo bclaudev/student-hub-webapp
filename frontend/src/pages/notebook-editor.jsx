@@ -64,9 +64,9 @@ export default function NotebookEditorPage() {
     setSaving(true);
 
     const content = editor.getJSON();
-    console.log("🚨 handleSave a fost apelat!");
-    console.log("📄 editor content:", content);
-    console.log("📦 pageId înainte:", pageId);
+    console.log(" handleSave a fost apelat!");
+    console.log(" editor content:", content);
+    console.log(" pageId înainte:", pageId);
 
     await fetch(`http://localhost:8787/api/notebooks/${id}`, {
       method: "PATCH",
@@ -94,7 +94,7 @@ export default function NotebookEditorPage() {
         }),
       });
       const data = await res.json();
-      console.log("✅ POST response:", data);
+      console.log("POST response:", data);
       currentPageId = data.id;
       setPageId(data.id);
     }
@@ -111,7 +111,7 @@ export default function NotebookEditorPage() {
         }
       );
       const result = await res.json();
-      console.log("🛠 PATCH response:", result);
+      console.log("PATCH response:", result);
     }
 
     setSaving(false);

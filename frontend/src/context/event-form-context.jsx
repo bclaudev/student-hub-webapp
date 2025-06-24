@@ -3,16 +3,8 @@
 import { createContext, useContext } from "react";
 import { useForm } from "react-hook-form";
 
-/** -------------------------------------------------
- *  1. Context definition
- * -------------------------------------------------*/
 const EventFormContext = createContext(null);
 
-/** -------------------------------------------------
- *  2. Provider
- *     – if a form instance is supplied, reuse it
- *     – otherwise create a fresh one (for “new event”)
- * -------------------------------------------------*/
 export function EventFormProvider({ children, form: externalForm }) {
   const form = externalForm ?? internalForm;
 
@@ -23,9 +15,6 @@ export function EventFormProvider({ children, form: externalForm }) {
   );
 }
 
-/** -------------------------------------------------
- *  3. Hook
- * -------------------------------------------------*/
 export function useEventForm() {
   const ctx = useContext(EventFormContext);
   if (!ctx)

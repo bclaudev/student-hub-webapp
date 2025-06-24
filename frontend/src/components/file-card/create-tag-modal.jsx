@@ -28,13 +28,13 @@ export function CreateTagModal({ open, onOpenChange, fileId, onTagCreated }) {
     try {
       data = await res.json();
     } catch (err) {
-      console.error("❌ Răspuns invalid JSON de la backend:", err);
+      console.error("Răspuns invalid JSON de la backend:", err);
     }
 
     setLoading(false);
 
     if (!res.ok) {
-      console.error("❌ Eroare la creare tag:", data);
+      console.error("Eroare la creare tag:", data);
       return;
     }
 

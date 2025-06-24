@@ -1,9 +1,12 @@
 {
-  "devDependencies": {
-    "concurrently": "^9.1.2"
-  },
+  "name": "student-hub-root",
+  "private": true,
+  "version": "1.0.0",
   "scripts": {
     "dev": "concurrently \"npm run dev --prefix frontend\" \"npm run dev --prefix backend\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
   },
   "dependencies": {
     "date-fns": "^4.1.0",

@@ -34,7 +34,7 @@ const classSchema = z.object({
 
 classesRoute.use("*", verifyToken);
 
-// ✅ CREATE class + calendar exam event if applicable
+// CREATE class + calendar exam event if applicable
 classesRoute.post("/", async (ctx) => {
   const userId = ctx.get("user").id;
   const body = await ctx.req.json();
@@ -77,7 +77,7 @@ classesRoute.post("/", async (ctx) => {
         classId: insertedClass.id,
       },
     });
-    console.log("✅ Exam calendar event created (POST)");
+    console.log("Exam calendar event created (POST)");
   }
 
   //Generate recurring class events
@@ -87,14 +87,14 @@ classesRoute.post("/", async (ctx) => {
 
   if (!semester) {
     console.warn(
-      "⚠️ User has no semester configured, skipping class event generation."
+      "User has no semester configured, skipping class event generation."
     );
     return ctx.json(
       {
         error: "Semester not found for user. Please complete onboarding first.",
       },
       400
-    ); // sau 200, dar cu warning
+    );
   }
   console.log("📦 Generating recurring events with:", {
     weekday: parsed.data.day,
@@ -110,7 +110,7 @@ classesRoute.post("/", async (ctx) => {
         parsed.data.day.charAt(0).toUpperCase() + parsed.data.day.slice(1),
       startTime: parsed.data.startTime,
       endTime: parsed.data.endTime,
-      recurrence: parsed.data.recurrence, // "weekly" | "biweekly"
+      recurrence: parsed.data.recurrence,
       semesterStart: semester.startDate,
       semesterEnd: semester.endDate,
     });
@@ -139,7 +139,7 @@ classesRoute.post("/", async (ctx) => {
   return ctx.json(insertedClass);
 });
 
-// ✅ UPDATE class (rămâne cu logică de update exam dacă vrei)
+// UPDATE class
 classesRoute.put("/:id", async (ctx) => {
   const userId = ctx.get("user").id;
   const classId = Number(ctx.req.param("id"));
@@ -164,7 +164,7 @@ classesRoute.put("/:id", async (ctx) => {
   return ctx.json({ success: true });
 });
 
-// ✅ DELETE class
+// DELETE class
 classesRoute.delete("/:id", async (ctx) => {
   const userId = ctx.get("user").id;
   const classId = Number(ctx.req.param("id"));
@@ -178,7 +178,7 @@ classesRoute.delete("/:id", async (ctx) => {
   return ctx.json({ success: true });
 });
 
-// ✅ GET all classes
+// GET all classes
 classesRoute.get("/", async (ctx) => {
   const userId = ctx.get("user").id;
 
@@ -203,19 +203,15 @@ classesRoute.get("/", async (ctx) => {
   return ctx.json({ classes });
 });
 
-// ✅ PATCH color only
+// PATCH color only
 classesRoute.patch("/:id", async (c) => {
   const id = c.req.param("id");
   const { color } = await c.req.json();
-
-  console.log("Received PATCH for class ID:", id, "with color:", color);
 
   try {
     await db.update(classesTable).set({ color }).where(eq(classesTable.id, id));
     return c.json({ success: true });
   } catch (error) {
-    console.error("PATCH /api/classes/:id failed", error);
-    console.error("Full error:", error); // vezi ce s-a întâmplat exact
     return ctx.json(
       { error: "Internal Server Error", details: String(error) },
       500

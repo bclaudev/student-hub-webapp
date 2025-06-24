@@ -69,7 +69,7 @@ export function AppSidebar() {
     try {
       const res = await fetch("/api/logout", {
         method: "POST",
-        credentials: "include", // necesar pentru cookie
+        credentials: "include",
       });
 
       if (res.ok) {

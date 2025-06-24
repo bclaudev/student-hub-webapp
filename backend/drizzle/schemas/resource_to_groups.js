@@ -13,7 +13,6 @@ export const resourceToGroupTable = pgTable(
       .notNull(),
   },
   (table) => ({
-    // împiedică duplicatele la nivel de pereche
     pk: primaryKey(table.resourceId, table.groupId),
   })
 );

@@ -46,7 +46,6 @@ export default function CommonFields() {
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-        {/* title -------------------------------------------------------- */}
         <Label htmlFor="title" className="sm:w-24 text-sm font-medium">
           Title *
         </Label>
@@ -57,7 +56,6 @@ export default function CommonFields() {
         />
       </div>
 
-      {/* description -------------------------------------------------- */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
         <Label
           htmlFor="description"
@@ -77,7 +75,6 @@ export default function CommonFields() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
         <Label className="sm:w-24 text-sm font-medium">Date & Time *</Label>
         <div className="flex flex-1 flex-wrap gap-4 w-full">
-          {/* 📅 date range picker */}
           <div className="min-w-[200px]">
             <DateRangePicker
               value={form.watch("dateRange")}
@@ -85,7 +82,6 @@ export default function CommonFields() {
             />
           </div>
 
-          {/* ⏰ start & end time — same as timetable‑modal */}
           <div
             className="grid grid-cols-2 gap-4 flex-1 min-w-[260px]"
             onMouseDown={(e) => e.stopPropagation()}

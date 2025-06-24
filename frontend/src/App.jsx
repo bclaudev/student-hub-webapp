@@ -25,17 +25,16 @@ function App() {
       <ThemeProvider defaultTheme="dark" enableSystem={false}>
         <NotificationManager />
         <Toaster
-          position="top-right" // any position is fine
-          unstyled // ⬅ removes the default palette
+          position="top-right"
+          unstyled
           toastOptions={{
-            /* shared framing for every toast */
             className: "group flex gap-3 rounded-md border shadow-lg px-4 py-3",
 
             /* per-variant colours */
             classNames: {
               success: "bg-green-50 border-green-700 text-green-700",
               error: "bg-red-50  border-red-700  text-red-700",
-              /* optional typography tweaks */
+              /* optional tweaks */
               title: "font-medium",
               description: "text-sm opacity-90",
             },

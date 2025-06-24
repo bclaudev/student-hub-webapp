@@ -87,7 +87,7 @@ export default function Calendar() {
 
       const payload = {
         ...rest,
-        startDateTime: start.toISOString(), // Optional: only if backend expects ISO
+        startDateTime: start.toISOString(),
         endDateTime: end.toISOString(),
         eventType,
       };
@@ -147,7 +147,7 @@ export default function Calendar() {
   };
 
   const handleOpenNewEventModal = () => {
-    console.log("📅 Opening New Event Modal");
+    console.log("Opening New Event Modal");
     setSelectedEvent(null);
     setIsEditing(false);
     setIsModalOpen(true);
@@ -197,7 +197,7 @@ export default function Calendar() {
         throw new Error(data.error || "Delete failed");
       }
 
-      console.log("🔁 Deleting", id, "with seriesId:", seriesId);
+      console.log("Deleting", id, "with seriesId:", seriesId);
 
       toast.success("Eveniment șters");
 

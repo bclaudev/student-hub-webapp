@@ -70,7 +70,7 @@ export function registerAdminRoutes(app) {
     }
 
     const users = await db.select().from(usersTable);
-    return c.json({ users }); // 👈 wrap în obiect
+    return c.json({ users });
   });
 
   app.delete("/api/admin/users/:id", async (c) => {
@@ -81,7 +81,7 @@ export function registerAdminRoutes(app) {
 
     const { id } = c.req.param();
 
-    // Nu permite ștergerea userilor admin
+    // Does not allow deleting admin user
     const user = await db.query.usersTable.findFirst({
       where: eq(usersTable.id, Number(id)),
     });

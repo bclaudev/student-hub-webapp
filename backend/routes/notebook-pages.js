@@ -50,19 +50,19 @@ notebookPagesRoute.patch("/notebook-pages/:id", async (c) => {
     });
 
     if (!page) {
-      console.error("❌ Page not found in DB!");
+      console.error("Page not found in DB!");
       return c.json({ error: "Page not found" }, 404);
     }
 
     if (page.notebook.userId !== userId) {
-      console.error("❌ Page does not belong to current user!");
+      console.error("Page does not belong to current user!");
       return c.json({ error: "Not allowed" }, 403);
     }
 
     const before = await db.query.notebookPages.findFirst({
       where: (notebookPages, { eq }) => eq(notebookPages.id, id),
     });
-    console.log("🧠 Content BEFORE update:", before?.content);
+    console.log("Content BEFORE update:", before?.content);
 
     await db
       .update(notebookPages)
@@ -77,11 +77,11 @@ notebookPagesRoute.patch("/notebook-pages/:id", async (c) => {
     const after = await db.query.notebookPages.findFirst({
       where: (notebookPages, { eq }) => eq(notebookPages.id, id),
     });
-    console.log("✅ Content AFTER update:", after?.content);
+    console.log("Content AFTER update:", after?.content);
 
     return c.json({ success: true });
   } catch (err) {
-    console.error("💥 PATCH notebook-page error:", err);
+    console.error("PATCH notebook-page error:", err);
     return c.json({ error: "Internal Server Error" }, 500);
   }
 });

@@ -5,7 +5,7 @@ export function useUser() {
 
   useEffect(() => {
     fetch("/api/user", {
-      credentials: "include", // sends cookies
+      credentials: "include",
     })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => setUser(data?.user || null))

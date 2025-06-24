@@ -4,7 +4,7 @@ import { useEffect } from "react";
 export default function NotificationManager() {
   useEffect(() => {
     console.log(
-      "🔄 NotificationManager mounted at",
+      "NotificationManager mounted at",
       new Date().toLocaleTimeString()
     );
 
@@ -32,7 +32,7 @@ export default function NotificationManager() {
         } else if (delay > 0) {
           stillPending.push(notif);
         } else {
-          console.log("⚠️ Skipping old notification:", notif.title);
+          console.log("Skipping old notification:", notif.title);
         }
       }
 
@@ -43,7 +43,7 @@ export default function NotificationManager() {
     };
 
     runCheck(); // run once immediately
-    const interval = setInterval(runCheck, 30000); // every 30s
+    const interval = setInterval(runCheck, 30000);
 
     return () => clearInterval(interval);
   }, []);

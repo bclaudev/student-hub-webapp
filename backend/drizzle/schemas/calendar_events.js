@@ -10,24 +10,19 @@ import {
 } from "drizzle-orm/pg-core";
 import { usersTable } from "./users.js";
 
-// Define the schema for the calendar events table
 export const calendarEventsTable = pgTable("calendar_events", {
-  id: serial("id").primaryKey(), // Primary key, auto-incrementing ID
-  title: text("title").notNull(), // Event title, required
-  description: text("description"), // Event description, optional
-  startDateTime: timestamp("start_datetime").notNull(), // Event start date and time, required
-  endDateTime: timestamp("end_datetime").notNull(), // Event end date and time, required
-  eventType: varchar("event_type", { length: 20 }).notNull(), // Event type, required, max length 20 characters
-  color: varchar("color", { length: 7 }), // Event color, optional, max length 7 characters (e.g., hex color code)
-  notifyMe: integer("notify_before_minutes"), // Notification preference, default is false
-  recurrence: text("recurrence"), // Recurrence pattern, optional
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description"),
+  startDateTime: timestamp("start_datetime").notNull(),
+  endDateTime: timestamp("end_datetime").notNull(),
+  eventType: varchar("event_type", { length: 20 }).notNull(),
+  color: varchar("color", { length: 7 }),
+  notifyMe: integer("notify_before_minutes"),
+  recurrence: text("recurrence"),
   seriesId: text("series_id"),
-
-  // Foreign key reference to the users table, with cascade delete
   createdBy: integer("created_by").references(() => usersTable.id, {
     onDelete: "cascade",
   }),
-
-  // Additional information stored as JSON, default is an empty object
   additionalInfo: jsonb("additional_info").default("{}"),
 });

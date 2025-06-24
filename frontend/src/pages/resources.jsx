@@ -29,7 +29,7 @@ export default function ResourcesPage() {
             fileType: file.file_type,
             filePath: file.file_path,
             uploadedAt: file.uploaded_at,
-            isPinned: file.is_pinned, // ← adăugat
+            isPinned: file.is_pinned,
           }))
           .sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0)) // pinned first
       );
@@ -47,13 +47,13 @@ export default function ResourcesPage() {
 
         if (!res.ok) {
           const text = await res.text();
-          console.error("❌ Server error:", text);
+          console.error(" Server error:", text);
           return;
         }
 
-        const data = await res.json(); // ✅ aici, direct .json()
+        const data = await res.json();
 
-        console.log("✅ Taguri primite:", data);
+        console.log("Taguri primite:", data);
 
         setTags(
           data.map((tag) => ({
@@ -63,7 +63,7 @@ export default function ResourcesPage() {
           }))
         );
       } catch (err) {
-        console.error("❌ Eroare la fetch tags:", err);
+        console.error(" Eroare la fetch tags:", err);
       }
     };
 
@@ -106,9 +106,9 @@ export default function ResourcesPage() {
             thumbnailUrl={`http://localhost:8787${
               file.thumbnailPath ?? file.filePath
             }`}
-            isPinned={file.isPinned} // opțional: vei adăuga pin logic mai încolo
+            isPinned={file.isPinned}
             fileType={file.fileType}
-            subject="Unknown" // adaugă în schema ta dacă vrei categorii
+            subject="Unknown"
             dateAdded={new Date(file.uploadedAt).toLocaleDateString()}
             tags={file.tags?.map((t) => t.name) ?? []}
             allTags={tags}

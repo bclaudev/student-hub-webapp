@@ -48,7 +48,7 @@ export default function NotebookCard({ notebook }) {
       const data = await res.json();
       setIsPinned(data.isPinned);
     } else {
-      console.error("❌ Eroare la toggle pin");
+      console.error("Eroare la toggle pin");
     }
   };
 

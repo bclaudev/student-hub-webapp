@@ -9,8 +9,6 @@ import {
 import { relations } from "drizzle-orm";
 import { usersTable } from "./users.js";
 
-// ------------------ NOTEBOOKS ------------------
-
 export const notebooks = pgTable("notebooks", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: integer("user_id").references(() => usersTable.id, {
@@ -22,12 +20,9 @@ export const notebooks = pgTable("notebooks", {
   isPinned: boolean("is_pinned").default(false).notNull(),
 });
 
-// 👇 RELAȚIA: un notebook are multe pagini
 export const notebooksRelations = relations(notebooks, ({ many }) => ({
   pages: many(notebookPages),
 }));
-
-// ------------------ NOTEBOOK PAGES ------------------
 
 export const notebookPages = pgTable("notebook_pages", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -40,7 +35,6 @@ export const notebookPages = pgTable("notebook_pages", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// 👇 RELAȚIA: o pagină aparține unui notebook
 export const notebookPagesRelations = relations(notebookPages, ({ one }) => ({
   notebook: one(notebooks, {
     fields: [notebookPages.notebookId],

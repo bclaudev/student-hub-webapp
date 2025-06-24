@@ -43,15 +43,9 @@ export default function FileCard({
   const [openCreateTag, setOpenCreateTag] = useState(false);
   const [openRename, setOpenRename] = useState(false);
   const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
-
-  /**
-   * Predefined tag labels available to the user.
-   */
+  // Extract predefined tags from allTags prop
   const predefinedTags = allTags?.map((t) => t.label) ?? [];
-
-  /**
-   * Add an existing tag to the current file (invoked from <FileHeader/>).
-   */
+  // Extract tag labels for easier handling
   const handleAddTag = async (tag) => {
     try {
       const res = await fetch("http://localhost:8787/api/tags", {
@@ -62,27 +56,24 @@ export default function FileCard({
       });
 
       if (!res.ok) {
-        console.error("❌ Eroare la adăugare tag:", await res.text());
+        console.error("Eroare la adăugare tag:", await res.text());
         return;
       }
 
       const data = await res.json();
-      console.log("✅ Tag adăugat:", data);
-
-      // local optimistic update
+      console.log("Tag adăugat:", data);
+      // Update local state with new tag
       setTags((prev) =>
         prev.map((t) =>
           t.label === tag ? { ...t, count: (t.count || 0) + 1 } : t
         )
       );
     } catch (err) {
-      console.error("❌ Eroare fetch:", err);
+      console.error("Eroare fetch:", err);
     }
   };
 
-  /**
-   * Navigate to viewer for supported document types.
-   */
+  // Handle click to open viewer for supported file types
   const handleClick = () => {
     const supported = [
       "application/pdf",
@@ -99,13 +90,10 @@ export default function FileCard({
         { state: { fileUrl: thumbnailUrl, fileId } }
       );
     } else {
-      alert("⚠️ Tip de fișier momentan nesuportat de viewer.");
+      alert("Tip de fișier momentan nesuportat de viewer.");
     }
   };
 
-  /**
-   * Toggle pin/unpin status for current file.
-   */
   const handleTogglePin = async () => {
     try {
       const res = await fetch(
@@ -114,7 +102,7 @@ export default function FileCard({
       );
 
       if (!res.ok) {
-        console.error("❌ Eroare la pin/unpin:", await res.text());
+        console.error("Eroare la pin/unpin:", await res.text());
         return;
       }
 
@@ -125,7 +113,7 @@ export default function FileCard({
           .sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0))
       );
     } catch (err) {
-      console.error("❌ Eroare fetch:", err);
+      console.error("Eroare fetch:", err);
     }
   };
 
@@ -167,7 +155,7 @@ export default function FileCard({
         </motion.div>
       </article>
 
-      {/* 🏷️ Create Tag modal */}
+      {/* Create Tag modal */}
       <CreateTagModal
         open={openCreateTag}
         onOpenChange={setOpenCreateTag}
@@ -183,7 +171,7 @@ export default function FileCard({
         }}
       />
 
-      {/* ✏️ Rename modal */}
+      {/* Rename modal */}
       <RenameModal
         open={openRename}
         onOpenChange={setOpenRename}
@@ -205,12 +193,12 @@ export default function FileCard({
               );
             }
           } catch (err) {
-            console.error("❌ Eroare redenumire:", err);
+            console.error("Eroare redenumire:", err);
           }
         }}
       />
 
-      {/* 🗑️ Delete confirmation */}
+      {/* Delete confirmation */}
       <AlertDialog open={openDeleteConfirm} onOpenChange={setOpenDeleteConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -232,7 +220,7 @@ export default function FileCard({
                     setFiles((prev) => prev.filter((f) => f.id !== fileId));
                   }
                 } catch (err) {
-                  console.error("❌ Eroare la ștergere:", err);
+                  console.error("Eroare la ștergere:", err);
                 }
               }}
             >

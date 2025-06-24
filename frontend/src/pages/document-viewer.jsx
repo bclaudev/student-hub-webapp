@@ -15,7 +15,7 @@ export default function DocumentViewer() {
 
   const saveAnnotations = async (instance, fileId) => {
     const instantJson = await instance.exportInstantJSON();
-    console.log("📤 Salvare adnotări:", { fileId, instantJson });
+    console.log("Salvare adnotări:", { fileId, instantJson });
 
     const res = await fetch("http://localhost:8787/api/annotations", {
       method: "POST",
@@ -30,9 +30,9 @@ export default function DocumentViewer() {
     });
 
     if (!res.ok) {
-      console.error("❌ Eroare la salvarea adnotărilor:", await res.text());
+      console.error("Eroare la salvarea adnotărilor:", await res.text());
     } else {
-      console.log("✅ Adnotările au fost salvate cu succes");
+      console.log("Adnotările au fost salvate cu succes");
     }
   };
 
@@ -46,9 +46,9 @@ export default function DocumentViewer() {
 
       try {
         await PSPDFKit.unload(viewerRef.current);
-        console.log("ℹ️ PSPDFKit a fost dezinstalat cu succes");
+        console.log("PSPDFKit a fost dezinstalat cu succes");
       } catch (e) {
-        console.warn("⚠️ Eroare la unload:", e);
+        console.warn(" Eroare la unload:", e);
       }
 
       viewerRef.current.innerHTML = "";
@@ -74,8 +74,7 @@ export default function DocumentViewer() {
         const autoSave = async () => {
           clearTimeout(saveTimeout);
           saveTimeout = setTimeout(async () => {
-            if (!fileId)
-              return console.warn("⚠️ fileId lipsă, autosave anulat");
+            if (!fileId) return console.warn(" fileId lipsă, autosave anulat");
             await saveAnnotations(instance, fileId);
           }, 300);
         };
@@ -83,7 +82,7 @@ export default function DocumentViewer() {
         instance.addEventListener("annotations.change", autoSave);
         instance.addEventListener("comments.change", autoSave);
       } catch (err) {
-        console.error("❌ Eroare în loadViewer:", err);
+        console.error("Eroare în loadViewer:", err);
       }
     };
 
@@ -93,10 +92,10 @@ export default function DocumentViewer() {
       try {
         if (viewerRef.current) {
           PSPDFKit.unload(viewerRef.current);
-          console.log("🔁 Viewer curățat la unmount");
+          console.log(" Viewer curățat la unmount");
         }
       } catch (e) {
-        console.warn("⚠️ Eroare la unload în cleanup:", e);
+        console.warn(" Eroare la unload în cleanup:", e);
       }
     };
   }, [fileUrl, theme]);
@@ -104,7 +103,7 @@ export default function DocumentViewer() {
   if (!fileUrl) {
     return (
       <div className="p-6 text-center text-red-500">
-        ⚠️ Fișierul nu a fost specificat. Te rugăm să te întorci și să alegi un
+        Fișierul nu a fost specificat. Te rugăm să te întorci și să alegi un
         document.
       </div>
     );

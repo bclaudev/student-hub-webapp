@@ -49,7 +49,7 @@ async function seedUsers(count = 50) {
       uploadSize: 0,
       dateOfBirth: faker.date.birthdate(),
       role: "user",
-      createdAt, // 👈 drizzle expects camelCase
+      createdAt,
     };
   });
 
@@ -255,5 +255,5 @@ async function seedNotebooks(userIds) {
   const classes = await seedClasses(semesters);
   await seedCalendarEvents(userIds, classes);
   await seedNotebooks(userIds);
-  console.log("✅ Seed completed.");
+  console.log("Seed completed.");
 })();

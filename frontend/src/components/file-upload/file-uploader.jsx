@@ -50,7 +50,7 @@ export function FileUploader({ onUploadSuccess }) {
       const result = await res.json();
       onUploadSuccess?.(result);
     } catch (error) {
-      console.error("❌ Upload error:", error);
+      console.error("Upload error:", error);
     }
   };
 

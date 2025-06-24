@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: student_hub
+    volumes:
+      - student_hub_db_data:/var/lib/postgresql/data
+
+volumes:
+  student_hub_db_data:

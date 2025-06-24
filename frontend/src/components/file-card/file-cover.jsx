@@ -7,8 +7,8 @@ pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 export default function FileCover({ thumbnailUrl, fileType }) {
   const [loaded, setLoaded] = useState(false);
 
-  console.log("📦 fileType:", fileType);
-  console.log("🖼️ thumbnailUrl:", thumbnailUrl);
+  console.log("fileType:", fileType);
+  console.log("thumbnailUrl:", thumbnailUrl);
 
   if (fileType?.startsWith("image")) {
     return (
@@ -29,7 +29,7 @@ export default function FileCover({ thumbnailUrl, fileType }) {
         <Document
           file={thumbnailUrl}
           onLoadSuccess={() => setLoaded(true)}
-          onLoadError={(e) => console.error("❌ PDF load error:", e)}
+          onLoadError={(e) => console.error("PDF load error:", e)}
         >
           <Page
             pageNumber={1}

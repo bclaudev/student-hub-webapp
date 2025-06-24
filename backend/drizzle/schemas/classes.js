@@ -15,7 +15,6 @@ import { semestersTable } from "./semesters.js";
 export const classesTable = pgTable("classes", {
   id: serial("id").primaryKey(),
 
-  // tipul clasei
   class_type: text("class_type").notNull(),
 
   name: text("name").notNull().default("Class Name"),

@@ -20,7 +20,7 @@ export default function CustomTimePicker({ label = "Time", value, onChange }) {
   const [minute, setMinute] = useState("00");
 
   useEffect(() => {
-    console.log("⏱️ CustomTimePicker got value:", value);
+    console.log("CustomTimePicker got value:", value);
 
     if (typeof value === "string" && value.includes(":")) {
       const [h = "00", m = "00"] = value.split(":");
@@ -30,7 +30,7 @@ export default function CustomTimePicker({ label = "Time", value, onChange }) {
         setMinute(m);
       }
     } else {
-      console.warn("⚠️ Ignoring invalid time:", value);
+      console.warn("Ignoring invalid time:", value);
     }
   }, [value]);
 

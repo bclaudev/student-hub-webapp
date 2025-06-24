@@ -16,4 +16,4 @@ posthog.capture({
 });
 
 await posthog.flush();
-console.log("✅ Event trimis manual");
+console.log("Event trimis manual");

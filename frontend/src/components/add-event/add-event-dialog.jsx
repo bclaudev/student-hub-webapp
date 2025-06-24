@@ -50,9 +50,7 @@ export default function AddEventModal({
   open,
   onDelete,
 }) {
-  /* ------------------------------------------------------------------ */
-  /* 1. create ONE form instance                                         */
-  /* ------------------------------------------------------------------ */
+  // Create one form instance
   const form = useForm({
     defaultValues: {
       title: "",
@@ -70,11 +68,9 @@ export default function AddEventModal({
   const [eventType, setEventType] = useState(initialData?.eventType || "event");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  /* ------------------------------------------------------------------ */
-  /* 2. hydrate that instance when initialData arrives                   */
-  /* ------------------------------------------------------------------ */
+  // Initialize the form with initial data when the modal opens
   useEffect(() => {
-    if (!open || !initialData) return; // editing happens *after* modal opens
+    if (!open || !initialData) return;
 
     const start = new Date(initialData.start);
     const end = new Date(initialData.end);
@@ -97,10 +93,7 @@ export default function AddEventModal({
     setEventType(initialData.eventType ?? "event");
   }, [open, initialData, form]);
 
-  /* ------------------------------------------------------------------ */
-  /* 3. submit handler                                                   */
-  /* ------------------------------------------------------------------ */
-
+  // Handle form submission
   const handleSubmit = (data) => {
     console.log("✅ FORM SUBMIT:", data);
 
@@ -156,7 +149,7 @@ export default function AddEventModal({
   };
 
   const handleInvalid = (errors) => {
-    console.log("❌ FORM INVALID:", errors);
+    console.log("FORM INVALID:", errors);
   };
   console.log("VALORI ACTUALE:", form.getValues());
 

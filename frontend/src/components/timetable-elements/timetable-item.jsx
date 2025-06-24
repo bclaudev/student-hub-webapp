@@ -44,7 +44,7 @@ const TimetableItem = ({
         body: JSON.stringify({ color }),
       });
 
-      await refreshEvents(); // <- o funcție definită de tine
+      await refreshEvents();
     } catch (err) {
       console.error("Failed to update color:", err);
     }

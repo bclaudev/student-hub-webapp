@@ -38,7 +38,7 @@ async function extractAuthor(filePath, fileType) {
 
     return null;
   } catch (err) {
-    console.warn("⚠️ Nu s-a putut extrage autorul:", err);
+    console.warn("Nu s-a putut extrage autorul:", err);
     return null;
   }
 }
@@ -92,7 +92,7 @@ uploadRoute.post("/upload", async (c) => {
         )}.pdf`;
         finalFileType = "application/pdf";
       } catch (err) {
-        console.error("❌ Eroare la conversia DOCX -> PDF:", err);
+        console.error("Eroare la conversia DOCX -> PDF:", err);
       }
     }
 
@@ -111,7 +111,7 @@ uploadRoute.post("/upload", async (c) => {
         );
         thumbnailPath = `/${thumbPath}`;
       } catch (err) {
-        console.error("❌ Eroare la generare thumbnail:", err);
+        console.error("Eroare la generare thumbnail:", err);
       }
     }
 
@@ -137,7 +137,7 @@ uploadRoute.post("/upload", async (c) => {
       wasConvertedToPdf: ext === ".docx",
     });
 
-    console.log("📬 Event trimis spre PostHog!");
+    console.log(" Event trimis spre PostHog!");
 
     saved.push({
       ...inserted[0],
@@ -149,7 +149,7 @@ uploadRoute.post("/upload", async (c) => {
       try {
         fs.unlinkSync(originalFilePath);
       } catch (e) {
-        console.warn("⚠️ Nu am putut șterge DOCX:", e);
+        console.warn("Nu am putut șterge DOCX:", e);
       }
     }
   }

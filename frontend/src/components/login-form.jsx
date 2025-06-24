@@ -26,7 +26,7 @@ export function LoginForm({ fetchUser }) {
 
       const response = await fetch("http://localhost:8787/login", {
         method: "POST",
-        credentials: "include", // For cookie-based auth
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },

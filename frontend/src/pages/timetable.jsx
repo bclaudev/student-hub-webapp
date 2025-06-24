@@ -63,7 +63,7 @@ export default function TimetablePage() {
   };
 
   useEffect(() => {
-    console.log("activeSemesterId:", activeSemesterId); // 👈 adaugă asta
+    console.log("activeSemesterId:", activeSemesterId);
 
     if (!activeSemesterId) return;
 
@@ -111,57 +111,9 @@ export default function TimetablePage() {
   );
 }
 
-// export function generateRecurringEvents(cls) {
-//   if (!cls.startDate || !cls.startTime || !cls.endTime || !cls.day) {
-//     console.warn("Invalid class data skipped:", cls);
-//     return [];
-//   }
-
-//   const dayMap = {
-//     monday: RRule.MO,
-//     tuesday: RRule.TU,
-//     wednesday: RRule.WE,
-//     thursday: RRule.TH,
-//     friday: RRule.FR,
-//   };
-
-//   const weekday = dayMap[cls.day.toLowerCase()];
-//   if (!weekday) return [];
-
-//   const startDate = new Date(cls.startDate);
-//   const [sh, sm] = cls.startTime.slice(0, 5).split(":").map(Number);
-//   startDate.setHours(sh, sm);
-
-//   const rule = new RRule({
-//     freq: RRule.WEEKLY,
-//     byweekday: weekday,
-//     dtstart: startDate,
-//     count: 10,
-//   });
-
-//   return rule.all().map((date, index) => {
-//     const [eh, em] = cls.endTime.slice(0, 5).split(":").map(Number);
-//     const endDate = new Date(date);
-//     endDate.setHours(eh, em);
-
-//     return {
-//       id: `${cls.id}-${index}`,
-//       classId: cls.id,
-//       title: cls.name,
-//       abbreviation: cls.abbreviation,
-//       start: date,
-//       end: endDate,
-//       location:
-//         cls.deliveryMode === "Campus" ? cls.roomNumber : cls.meetingLink,
-//       class_type: cls.class_type,
-//       color: cls.color,
-//     };
-//   });
-// }
-
 export function generateRecurringEvents(cls) {
   if (!cls.startDate || !cls.startTime || !cls.endTime || !cls.day) {
-    console.warn("⛔ Invalid class skipped:", cls);
+    console.warn("Invalid class skipped:", cls);
     return [];
   }
 
@@ -175,7 +127,7 @@ export function generateRecurringEvents(cls) {
 
   const weekday = dayMap[cls.day.toLowerCase()];
   if (!weekday) {
-    console.warn("⛔ Invalid weekday in class:", cls.day);
+    console.warn(" Invalid weekday in class:", cls.day);
     return [];
   }
 
@@ -184,7 +136,7 @@ export function generateRecurringEvents(cls) {
   const [eh, em] = cls.endTime?.slice(0, 5).split(":").map(Number);
 
   if ([sh, sm, eh, em].some((n) => isNaN(n))) {
-    console.warn("⛔ Invalid time values in class:", cls);
+    console.warn("Invalid time values in class:", cls);
     return [];
   }
 
@@ -192,7 +144,7 @@ export function generateRecurringEvents(cls) {
   startDate.setHours(sh, sm);
 
   if (isNaN(startDate.getTime())) {
-    console.warn("⛔ Invalid startDate in class:", cls);
+    console.warn("Invalid startDate in class:", cls);
     return [];
   }
 
@@ -221,6 +173,6 @@ export function generateRecurringEvents(cls) {
     };
   });
 
-  console.log("✅ Generated events:", events);
+  console.log("Generated events:", events);
   return events;
 }
