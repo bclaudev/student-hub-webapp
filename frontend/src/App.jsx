@@ -15,11 +15,24 @@ import OnboardingPage from "@/pages/onboarding";
 import { Toaster } from "@/components/ui/sonner";
 import DocumentViewer from "@/pages/document-viewer";
 import NotificationManager from "./components/notification-manager";
+import posthog from "posthog-js";
 
 function App() {
   //const user = useUser();
   //if (user === null) return null; // sau un loading spinner
+  useEffect(() => {
+    const sessionStart = Date.now();
+    posthog.capture("session_start");
 
+    return () => {
+      const sessionEnd = Date.now();
+      const duration = Math.round((sessionEnd - sessionStart) / 1000); // în secunde
+
+      posthog.capture("session_end", {
+        duration_seconds: duration,
+      });
+    };
+  }, []);
   return (
     <BrowserRouter>
       <ThemeProvider defaultTheme="dark" enableSystem={false}>
