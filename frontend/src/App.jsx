@@ -16,23 +16,31 @@ import { Toaster } from "@/components/ui/sonner";
 import DocumentViewer from "@/pages/document-viewer";
 import NotificationManager from "./components/notification-manager";
 import posthog from "posthog-js";
-
+import { useEffect } from "react";
 function App() {
   //const user = useUser();
   //if (user === null) return null; // sau un loading spinner
   useEffect(() => {
     const sessionStart = Date.now();
     posthog.capture("session_start");
+    localStorage.setItem("session_start", sessionStart.toString());
 
-    return () => {
-      const sessionEnd = Date.now();
-      const duration = Math.round((sessionEnd - sessionStart) / 1000); // în secunde
+    const handleUnload = () => {
+      const start = Number(localStorage.getItem("session_start"));
+      const end = Date.now();
+      const duration = Math.round((end - start) / 1000);
 
       posthog.capture("session_end", {
         duration_seconds: duration,
       });
+
+      posthog.shutdown();
     };
+
+    window.addEventListener("beforeunload", handleUnload);
+    return () => window.removeEventListener("beforeunload", handleUnload);
   }, []);
+
   return (
     <BrowserRouter>
       <ThemeProvider defaultTheme="dark" enableSystem={false}>
