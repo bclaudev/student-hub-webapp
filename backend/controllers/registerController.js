@@ -1,6 +1,6 @@
-import { db } from '../db.js';
-import { usersTable } from '../drizzle/schema.js';
-import { eq } from 'drizzle-orm';
+import { db } from "../db.js";
+import { usersTable } from "../drizzle/schema.js";
+import { eq } from "drizzle-orm";
 
 export const registerUser = async (c) => {
   try {
@@ -17,13 +17,24 @@ export const registerUser = async (c) => {
 
     // Check if all required fields are provided
     if (!email || !password || !firstName || !lastName || !dateOfBirth) {
-      return c.json({ message: "All fields (email, password, firstName, lastName, dateOfBirth) are required" }, 400);
+      return c.json(
+        {
+          message:
+            "All fields (email, password, firstName, lastName, dateOfBirth) are required",
+        },
+        400
+      );
     }
 
     // Validate date format
     const parsedDate = new Date(dateOfBirth);
     if (isNaN(parsedDate.getTime())) {
-      return c.json({ message: "Please provide a valid date of birth in YYYY-MM-DD format." }, 400);
+      return c.json(
+        {
+          message: "Please provide a valid date of birth in YYYY-MM-DD format.",
+        },
+        400
+      );
     }
 
     // Check if user already exists
@@ -37,13 +48,28 @@ export const registerUser = async (c) => {
     }
 
     // Insert new user into the database
-    const [newUser] = await db.insert(usersTable).values({
-      email,
-      password,
-      firstName,
-      lastName,
-      dateOfBirth: parsedDate, // Save properly formatted date
-    }).returning();
+    const [newUser] = await db
+      .insert(usersTable)
+      .values({
+        email,
+        password,
+        firstName,
+        lastName,
+        dateOfBirth: parsedDate, // Save properly formatted date
+      })
+      .returning();
+
+    // Posthog event tracking
+    await posthog.capture({
+      distinctId: newUser.id,
+      event: "user_registered",
+      properties: {
+        email: newUser.email,
+        role: newUser.role || "user", // dacă nu ai încă `role` setat
+        source: "manual_signup",
+      },
+    });
+    await posthog.flush();
 
     // Return success message and user details
     return c.json({

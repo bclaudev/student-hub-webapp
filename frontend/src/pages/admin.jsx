@@ -128,6 +128,15 @@ export default function AdminDashboard() {
         <TabsContent value="users">
           <AdminUsersTable />
           <UserGrowthChart />
+          <div className="mt-6 rounded-lg overflow-hidden border">
+            <iframe
+              width="100%"
+              height="400"
+              frameborder="0"
+              allowfullscreen
+              src="https://eu.posthog.com/embedded/fUGFPUsDWSFUV2nTieYMH0j8ev53zQ"
+            ></iframe>
+          </div>
         </TabsContent>
         <TabsContent value="resources">
           <div className="mt-4">🔧 Aici va fi lista de fișiere</div>
