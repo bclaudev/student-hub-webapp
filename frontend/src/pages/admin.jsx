@@ -136,6 +136,27 @@ export default function AdminDashboard() {
               allowfullscreen
               src="https://eu.posthog.com/embedded/fUGFPUsDWSFUV2nTieYMH0j8ev53zQ"
             ></iframe>
+            <iframe
+              width="25%"
+              height="400"
+              frameborder="0"
+              allowfullscreen
+              src="https://eu.posthog.com/embedded/EOzbJOruk4d6H8KGUbZ2xeGDMCbBkw"
+            ></iframe>
+            <iframe
+              width="25%"
+              height="400"
+              frameborder="0"
+              allowfullscreen
+              src="https://eu.posthog.com/embedded/6WVFe_1CDtVQetfO8za34ONCn4aS0g"
+            ></iframe>
+            <iframe
+              width="100%"
+              height="400"
+              frameborder="0"
+              allowfullscreen
+              src="https://eu.posthog.com/embedded/mlXwzowa1rzkOIji6IFPZsvESEI-NA"
+            ></iframe>
           </div>
         </TabsContent>
         <TabsContent value="resources">

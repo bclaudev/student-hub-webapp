@@ -1,6 +1,7 @@
 import { db } from "../db.js";
 import { usersTable } from "../drizzle/schema.js";
 import { eq } from "drizzle-orm";
+import { posthog } from "../lib/posthog.js";
 
 export const registerUser = async (c) => {
   try {
@@ -58,6 +59,7 @@ export const registerUser = async (c) => {
         dateOfBirth: parsedDate, // Save properly formatted date
       })
       .returning();
+    console.log("📬 Sending PostHog event for user:", newUser.email);
 
     // Posthog event tracking
     await posthog.capture({

@@ -12,6 +12,8 @@ import { PDFDocument } from "pdf-lib";
 import JSZip from "jszip";
 import { XMLParser } from "fast-xml-parser";
 import { posthog } from "../lib/posthog.js";
+import { usersTable } from "../drizzle/schema.js";
+import { eq, sql } from "drizzle-orm";
 
 async function extractAuthor(filePath, fileType) {
   try {
@@ -127,14 +129,23 @@ uploadRoute.post("/upload", async (c) => {
       })
       .returning();
 
-    posthog.capture("resource_uploaded", {
-      distinct_id: userId, // cu underscore!
-      fileName: file.name,
-      fileSize: file.size,
-      fileType: finalFileType,
-      author: author || undefined,
-      thumbnailGenerated: Boolean(thumbnailPath),
-      wasConvertedToPdf: ext === ".docx",
+    const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+
+    await db
+      .update(usersTable)
+      .set({
+        uploadSize: sql`${usersTable.uploadSize} + ${totalSize}`,
+      })
+      .where(eq(usersTable.id, userId));
+
+    posthog.capture({
+      distinctId: userId,
+      event: "resource_uploaded",
+      properties: {
+        totalFiles: files.length,
+        totalSizeBytes: totalSize,
+        totalSizeMB: +(totalSize / 1024 / 1024).toFixed(2),
+      },
     });
 
     console.log(" Event trimis spre PostHog!");
