@@ -1,4 +1,11 @@
-import { pgTable, serial, text, integer, timestamp } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  serial,
+  text,
+  integer,
+  timestamp,
+  boolean,
+} from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -13,4 +20,5 @@ export const usersTable = pgTable("users", {
     .defaultNow()
     .notNull(),
   role: text("role").default("user").notNull(),
+  startWeekOnMonday: boolean("start_week_on_monday").default(false),
 });

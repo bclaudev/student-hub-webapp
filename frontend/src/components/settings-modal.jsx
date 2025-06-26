@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Bell,
   Globe,
@@ -59,6 +59,15 @@ function SettingsContent({ activeTab }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const { user, setUser } = useUser();
+  const [startWeekOnMonday, setStartWeekOnMonday] = useState(
+    user?.startWeekOnMonday ?? false
+  );
+
+  useEffect(() => {
+    if (user?.startWeekOnMonday !== undefined) {
+      setStartWeekOnMonday(user.startWeekOnMonday);
+    }
+  }, [user?.startWeekOnMonday]);
 
   const handleNameSave = async () => {
     const res = await fetch("/api/user/name", {
@@ -196,6 +205,73 @@ function SettingsContent({ activeTab }) {
           </CardHeader>
           <CardContent className="space-y-4">
             <ThemeToggle />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (activeTab === "timetable") {
+    const handleToggle = async (value) => {
+      setStartWeekOnMonday(value);
+
+      const res = await fetch("/api/user/settings/timetable", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ startWeekOnMonday: value }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        console.log("🧠 Updated user from server:", data.user); // << aici vezi dacă vine startWeekOnMonday
+
+        setUser(data.user);
+        toast.success("Timetable setting updated");
+      } else {
+        toast.error("Couldn't update setting");
+      }
+    };
+
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-2xl font-semibold mb-2 text-foreground">
+            Timetable
+          </h2>
+          <p className="text-foreground">
+            Customize how your week is displayed.
+          </p>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Timetable Preferences</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="startWeek">Start week on Monday</Label>
+              <Switch
+                id="startWeek"
+                checked={startWeekOnMonday}
+                onCheckedChange={async (value) => {
+                  setStartWeekOnMonday(value);
+
+                  const res = await fetch("/api/user/settings/timetable", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ startWeekOnMonday: value }),
+                  });
+
+                  if (res.ok) {
+                    const data = await res.json();
+                    setUser(data.user);
+                    toast.success("Timetable setting updated");
+                  } else {
+                    toast.error("Couldn't update setting");
+                  }
+                }}
+              />
+            </div>
           </CardContent>
         </Card>
       </div>

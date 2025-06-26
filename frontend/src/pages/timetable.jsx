@@ -4,12 +4,19 @@ import { useEffect, useState } from "react";
 import TimetableHeader from "@/components/timetable-elements/timetable-header";
 import TimetableCalendar from "@/components/timetable-elements/timetable-calendar";
 import { RRule } from "rrule";
+import { useUser } from "@/hooks/use-user.jsx";
 
 export default function TimetablePage() {
   const [classes, setClasses] = useState([]);
   const [events, setEvents] = useState([]);
   const [activeSemesterId, setActiveSemesterId] = useState(null);
   const [activeSemester, setActiveSemester] = useState(null);
+  const { user, fetchUser } = useUser();
+  const startFromMonday = user?.startWeekOnMonday;
+  useEffect(() => {
+    fetchUser();
+  }, []);
+  console.log("🎯 user.startWeekOnMonday:", user?.startWeekOnMonday);
 
   // 1) Funcția care refetch-uiște clasele și reconstruiește evenimentele recurent
   const refetchClasses = async () => {
@@ -85,6 +92,15 @@ export default function TimetablePage() {
     fetchClasses();
   }, [activeSemesterId]);
 
+  useEffect(() => {
+    console.log("🔍 User in timetable:", user);
+    console.log("🔁 startWeekOnMonday:", startFromMonday);
+  }, [user]);
+  console.log(
+    "📅 Passing startFromMonday to TimetableCalendar:",
+    startFromMonday
+  );
+
   return (
     <div className="flex flex-col h-screen">
       <TimetableHeader
@@ -105,6 +121,7 @@ export default function TimetablePage() {
           onDeleteClass={handleDeleteClass}
           semesterStartDate={activeSemester?.startDate}
           semesterId={activeSemesterId}
+          startWeekOnMonday={user?.startWeekOnMonday}
         />
       </div>
     </div>
@@ -131,7 +148,7 @@ export function generateRecurringEvents(cls) {
     return [];
   }
 
-  // 🧠 Protect split format
+  // Protect split format
   const [sh, sm] = cls.startTime?.slice(0, 5).split(":").map(Number);
   const [eh, em] = cls.endTime?.slice(0, 5).split(":").map(Number);
 

@@ -9,12 +9,31 @@ const userRoute = new Hono();
 userRoute.use("*", verifyToken); // Middleware that adds `user` to the context
 
 userRoute.get("/", async (c) => {
-  const user = c.get("user");
-  if (!user) {
+  const tokenUser = c.get("user"); // user din token
+  if (!tokenUser) {
     return c.json({ error: "Unauthorized" }, 401);
   }
 
-  // Return user info (customize as needed)
+  // Fetch user complet din baza de date
+  const dbUser = await db.query.usersTable.findFirst({
+    where: eq(usersTable.id, tokenUser.id),
+  });
+
+  if (!dbUser) {
+    return c.json({ error: "User not found" }, 404);
+  }
+
+  // Transforma în camelCase dacă folosești snake_case în DB
+  const user = {
+    id: dbUser.id,
+    firstName: dbUser.firstName,
+    lastName: dbUser.lastName,
+    email: dbUser.email,
+    role: dbUser.role,
+    dateOfBirth: dbUser.dateOfBirth,
+    startWeekOnMonday: dbUser.startWeekOnMonday, // 🔥 acest câmp lipsea!
+  };
+
   return c.json({ user });
 });
 
@@ -87,6 +106,22 @@ userRoute.put("/email", async (c) => {
   });
 
   return c.json({ success: true, user: updatedUser });
+});
+
+userRoute.put("/settings/timetable", async (c) => {
+  const user = c.get("user");
+  const { startWeekOnMonday } = await c.req.json();
+
+  await db
+    .update(usersTable)
+    .set({ startWeekOnMonday })
+    .where(eq(usersTable.id, user.id));
+
+  const updatedUser = await db.query.usersTable.findFirst({
+    where: eq(usersTable.id, user.id),
+  });
+
+  return c.json({ user: updatedUser });
 });
 
 export default userRoute;

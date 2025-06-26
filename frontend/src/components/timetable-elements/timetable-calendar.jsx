@@ -31,14 +31,6 @@ import enUS from "date-fns/locale/en-US";
 
 const locales = { "en-US": enUS };
 
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  locales,
-});
-
 const getDynamicTimeBounds = (events) => {
   const minHour = Math.min(
     ...events.map((e) => new Date(e.start).getHours()),
@@ -63,10 +55,41 @@ const TimetableCalendar = ({
   onDeleteClass,
   semesterStartDate,
   semesterId,
+  startWeekOnMonday = false,
 }) => {
+  console.log("📆 startWeekOnMonday received:", startWeekOnMonday);
+
+  const days = startWeekOnMonday
+    ? [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+      ]
+    : [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ];
+  console.log("🗓️ Days generated:", days);
+
   const [editingEvent, setEditingEvent] = useState(null);
   const [previewClass, setPreviewClass] = useState(null);
-
+  const localizer = dateFnsLocalizer({
+    format,
+    parse,
+    startOfWeek: (date, options) =>
+      startOfWeek(date, { weekStartsOn: startWeekOnMonday ? 1 : 0 }),
+    getDay,
+    locales,
+  });
   const { min, max } = getDynamicTimeBounds(events);
 
   const CustomEvent = ({ event }) => (
