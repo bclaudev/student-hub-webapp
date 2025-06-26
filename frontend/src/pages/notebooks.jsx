@@ -59,7 +59,7 @@ export default function NotesPage() {
       </div>
 
       <div
-        className="py-4 grid gap-1 max-w-screen-xl"
+        className="py-4 grid max-w-screen-xl gap-4 w-full h-[calc(100vh-100px)] overflow-y-auto"
         style={{
           gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
         }}

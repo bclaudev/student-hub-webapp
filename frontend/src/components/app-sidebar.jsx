@@ -38,7 +38,7 @@ import {
   LogOut,
 } from "lucide-react";
 
-import { useUser } from "@/hooks/use-user";
+import { useUser } from "@/hooks/use-user.jsx";
 
 import ThemeToggle from "@/components/ui/theme-toggle";
 
@@ -48,12 +48,17 @@ import { useTheme } from "@/components/ui/theme-provider";
 
 import { motion } from "framer-motion";
 
+import SettingsModal from "@/components/settings-modal";
+
+import { useState, useEffect } from "react";
+
 export function AppSidebar() {
   const location = useLocation();
   const { state } = useSidebar();
   const { theme } = useTheme();
   const isCollapsed = state === "collapsed";
   const isDark = theme === "dark";
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const logo = isCollapsed
     ? isDark
@@ -63,8 +68,12 @@ export function AppSidebar() {
     ? studenthub_logo_dark
     : studenthub_logo_default;
 
-  const user = useUser();
+  const { user } = useUser();
 
+  useEffect(() => {
+    console.log("User context changed:", user);
+  }, [user]);
+  if (!user) return null;
   const handleLogout = async () => {
     try {
       const res = await fetch("/api/logout", {
@@ -104,7 +113,10 @@ export function AppSidebar() {
                   <span className="font-medium text-foreground text-sm">
                     Hello, {user ? `${user.firstName}` : "Hello"}
                   </span>
-                  <span className="text-xs text-muted-foreground">
+                  <span
+                    onClick={() => setSettingsOpen(true)}
+                    className="text-xs text-muted-foreground hover:text-foreground cursor-pointer"
+                  >
                     Change profile settings
                   </span>
                 </div>
@@ -262,6 +274,7 @@ export function AppSidebar() {
               />
             </div>
           </SidebarFooter>
+          <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
         </SidebarContent>
       </motion.div>
       <SidebarTrigger

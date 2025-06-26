@@ -1,5 +1,5 @@
 import { Navigate } from "react-router-dom";
-import { useUser } from "@/hooks/use-user";
+import { useUser } from "@/hooks/use-user.jsx";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {

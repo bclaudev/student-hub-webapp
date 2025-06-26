@@ -119,10 +119,10 @@ export default function FileCard({
 
   return (
     <>
-      {/* 💾 File card body */}
+      {/* File card body */}
       <article
         onClick={handleClick}
-        className="relative group w-[187px] h-[210px] overflow-hidden flex flex-col items-start px-5 py-6 rounded-3xl bg-slate-50 dark:bg-stone-900 max-w-[187px]"
+        className="relative group w-[300px] h-[210px] overflow-hidden flex flex-col items-start px-5 py-6 rounded-3xl bg-slate-50 dark:bg-stone-900 max-w-[187px]"
       >
         <FileHeader
           isPinned={isPinned}
