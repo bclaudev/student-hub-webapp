@@ -9,24 +9,6 @@ import { useUser } from "@/hooks/use-user.jsx";
 export default function LoginPage() {
   const { user, setUser } = useUser();
   const navigate = useNavigate();
-  useEffect(() => {
-    if (user) {
-      posthog.identify(user.id, {
-        email: user.email,
-        name: `${user.firstName} ${user.lastName}`,
-      });
-    }
-  }, [user]);
-  useEffect(() => {
-    const userFromStorage = localStorage.getItem("user");
-    if (userFromStorage) {
-      const parsed = JSON.parse(userFromStorage);
-      posthog.identify(parsed.id, {
-        email: parsed.email,
-        name: `${parsed.firstName} ${parsed.lastName}`,
-      });
-    }
-  }, []);
 
   const fetchUser = async () => {
     try {
@@ -52,8 +34,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
-      <div className="w-full max-w-sm md:max-w-3xl">
+    <div className="flex min-h-screen flex-col items-center justify-center">
+      <div className="w-full">
         <LoginForm fetchUser={fetchUser} />
         {user && <AuthRedirector />}
       </div>

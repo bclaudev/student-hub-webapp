@@ -6,11 +6,17 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { User, Lock, Plus, Circle } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import logo from "@/assets/studenthub_logo_default.svg";
+import { toast } from "sonner";
 
 export function LoginForm({ fetchUser }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [notification, setNotification] = useState(null);
+  const [rememberMe, setRememberMe] = useState(false);
+
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
@@ -47,7 +53,7 @@ export function LoginForm({ fetchUser }) {
         }
       } else {
         const errorData = await response.json();
-        console.error("Login failed:", errorData.message);
+        toast.error("Login failed! Invalid credentials");
       }
     } catch (error) {
       console.error("Error during login:", error);
@@ -55,69 +61,91 @@ export function LoginForm({ fetchUser }) {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 text-foreground">
-      <div className="w-full max-w-sm space-y-6">
-        <form onSubmit={handleSubmit} className="p-6 md:p-8">
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col items-center text-center">
-              <h1 className="text-2xl font-bold">Welcome back</h1>
-              <p className="text-muted-foreground text-balance">
-                Login to your Student Hub account
-              </p>
-            </div>
-            <div className="grid gap-3">
-              <Label htmlFor="email">Email</Label>
+    <div className="flex min-h-[600px] h-screen">
+      <img
+        src={logo}
+        alt="Student Hub Logo"
+        className="absolute top-6 right-6 h-10 w-auto z-50"
+      />
+      {/* Left Panel */}
+      <div className="flex-1 bg-gradient-to-br from-[#a585ff] to-purple-600 relative overflow-hidden flex items-center justify-center p-12">
+        <div className="relative z-10 text-white text-center max-w-md">
+          <h1 className="text-5xl font-bold mb-6">
+            Welcome back to Student Hub!
+          </h1>
+          <p className="text-white/90 text-lg leading-relaxed text-justify">
+            Did you know? Students who engage in structured time management
+            practices tend to perform better academically and report lower
+            levels of stress.{" "}
+          </p>
+        </div>
+      </div>
+
+      {/* Right Panel */}
+      <div className="flex-1 bg-white flex items-center justify-center p-12">
+        <div className="w-full max-w-sm">
+          <h2 className="text-3xl font-bold text-gray-800 mb-8">Sign In</h2>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="relative">
+              <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <Input
-                id="email"
-                name="email"
+                type="email"
+                placeholder="Username or email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                type="email"
-                placeholder="m@example.com"
+                className="pl-12 py-4 border-2 border-gray-200 rounded-2xl focus:border-[#a585ff] focus:ring-[#a585ff] text-gray-700 placeholder-gray-400"
                 required
               />
             </div>
-            <div className="grid gap-3">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-                <a
-                  href="#"
-                  className="text-primary ml-auto text-sm underline-offset-2 hover:underline"
-                >
-                  Forgot your password?
-                </a>
-              </div>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <Input
-                id="password"
-                name="password"
+                type="password"
+                placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                type="password"
+                className="pl-12 py-4 border-2 border-gray-200 rounded-2xl focus:border-[#a585ff] focus:ring-[#a585ff] text-gray-700 placeholder-gray-400"
                 required
               />
             </div>
-            <Button type="submit" className="w-full">
-              Login
-            </Button>
-
-            <div className="text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <a href="#" className="text-primary underline underline-offset-4">
-                Sign up
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="remember"
+                  checked={rememberMe}
+                  onCheckedChange={(checked) => setRememberMe(checked)}
+                  className="border-gray-300"
+                />
+                <label
+                  htmlFor="remember"
+                  className="text-sm text-gray-600 cursor-pointer"
+                >
+                  Remember me
+                </label>
+              </div>
+              <a
+                href="#"
+                className="text-sm text-gray-500 hover:text-[#a585ff] transition-colors"
+              >
+                Forgot password?
               </a>
             </div>
-          </div>
-        </form>
-        <div className="bg-muted relative hidden md:block">
-          <img
-            src="/placeholder.svg"
-            alt="Image"
-            className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-          />
-        </div>
-        <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-          By clicking continue, you agree to our{" "}
-          <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+            <Button
+              type="submit"
+              className="w-full bg-[#a585ff] hover:bg-[#9575ef] text-white font-semibold py-4 rounded-2xl transition-all duration-300 text-lg"
+            >
+              Sign In
+            </Button>
+            <div className="text-center pt-4">
+              <span className="text-gray-600">New here? </span>
+              <a
+                href="#"
+                className="text-[#a585ff] hover:text-[#9575ef] font-medium transition-colors"
+              >
+                Create an Account
+              </a>
+            </div>
+          </form>
         </div>
       </div>
     </div>
