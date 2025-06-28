@@ -1,9 +1,11 @@
 import Calendar from "@/components/calendar";
 import DashboardLayout from "@/layouts/dashboard-layout";
 import { useState, useEffect } from "react";
+import { useUser } from "@/hooks/use-user.jsx";
 
 export default function CalendarPage() {
   const [events, setEvents] = useState([]);
+  const { user, fetchUser } = useUser();
 
   useEffect(() => {
     const fetchEvents = async () => {

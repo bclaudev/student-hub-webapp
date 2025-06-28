@@ -31,7 +31,8 @@ userRoute.get("/", async (c) => {
     email: dbUser.email,
     role: dbUser.role,
     dateOfBirth: dbUser.dateOfBirth,
-    startWeekOnMonday: dbUser.startWeekOnMonday, // 🔥 acest câmp lipsea!
+    startWeekOnMonday: dbUser.startWeekOnMonday,
+    calendarWeekStartOnMonday: dbUser.calendarWeekStartOnMonday,
   };
 
   return c.json({ user });
@@ -115,6 +116,22 @@ userRoute.put("/settings/timetable", async (c) => {
   await db
     .update(usersTable)
     .set({ startWeekOnMonday })
+    .where(eq(usersTable.id, user.id));
+
+  const updatedUser = await db.query.usersTable.findFirst({
+    where: eq(usersTable.id, user.id),
+  });
+
+  return c.json({ user: updatedUser });
+});
+
+userRoute.put("/settings/calendar", async (c) => {
+  const user = c.get("user");
+  const { calendarWeekStartOnMonday } = await c.req.json();
+
+  await db
+    .update(usersTable)
+    .set({ calendarWeekStartOnMonday })
     .where(eq(usersTable.id, user.id));
 
   const updatedUser = await db.query.usersTable.findFirst({

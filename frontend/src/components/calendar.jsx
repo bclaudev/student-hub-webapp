@@ -16,6 +16,7 @@ import { useEffect } from "react";
 import AddEventModal from "./add-event/add-event-dialog";
 import { CustomEventCalendar } from "./ui/custom-event-calendar";
 import { CustomEventWrapper } from "./ui/custom-event-wrapper";
+import { useUser } from "@/hooks/use-user.jsx";
 
 import "../styles/calendar-overrides.css";
 import { set } from "date-fns";
@@ -37,6 +38,27 @@ export default function Calendar() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const { user } = useUser();
+  const startWeekOnMonday = user?.calendarWeekStartOnMonday;
+
+  const localizer = useMemo(() => {
+    return dateFnsLocalizer({
+      format,
+      parse,
+      startOfWeek: (date, _options) => {
+        return startOfWeek(date, {
+          weekStartsOn: startWeekOnMonday ? 1 : 0,
+        });
+      },
+      getDay,
+      locales,
+    });
+  }, [startWeekOnMonday]);
+
+  console.log(
+    "🧠 calendarWeekStartOnMonday from user context:",
+    user?.calendarWeekStartOnMonday
+  );
 
   const handleAddEvent = async (eventObj) => {
     try {

@@ -21,4 +21,7 @@ export const usersTable = pgTable("users", {
     .notNull(),
   role: text("role").default("user").notNull(),
   startWeekOnMonday: boolean("start_week_on_monday").default(false),
+  calendarWeekStartOnMonday: boolean("calendar_week_start_on_monday").default(
+    false
+  ),
 });

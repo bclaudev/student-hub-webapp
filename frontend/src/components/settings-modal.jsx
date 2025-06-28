@@ -62,12 +62,21 @@ function SettingsContent({ activeTab }) {
   const [startWeekOnMonday, setStartWeekOnMonday] = useState(
     user?.startWeekOnMonday ?? false
   );
+  const [calendarWeekStartOnMonday, setCalendarWeekStartOnMonday] = useState(
+    user?.calendarWeekStartOnMonday ?? false
+  );
 
   useEffect(() => {
     if (user?.startWeekOnMonday !== undefined) {
       setStartWeekOnMonday(user.startWeekOnMonday);
     }
   }, [user?.startWeekOnMonday]);
+
+  useEffect(() => {
+    if (user?.calendarWeekStartOnMonday !== undefined) {
+      setCalendarWeekStartOnMonday(user.calendarWeekStartOnMonday);
+    }
+  }, [user]);
 
   const handleNameSave = async () => {
     const res = await fetch("/api/user/name", {
@@ -266,6 +275,53 @@ function SettingsContent({ activeTab }) {
                     const data = await res.json();
                     setUser(data.user);
                     toast.success("Timetable setting updated");
+                  } else {
+                    toast.error("Couldn't update setting");
+                  }
+                }}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (activeTab === "calendar") {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-2xl font-semibold mb-2 text-foreground">
+            Calendar
+          </h2>
+          <p className="text-foreground">
+            Choose how you prefer your calendar view.
+          </p>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Calendar Preferences</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="calendarWeekStart">Start week on Monday</Label>
+              <Switch
+                id="calendarWeekStart"
+                checked={calendarWeekStartOnMonday}
+                onCheckedChange={async (value) => {
+                  setCalendarWeekStartOnMonday(value);
+
+                  const res = await fetch("/api/user/settings/calendar", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ calendarWeekStartOnMonday: value }),
+                  });
+
+                  if (res.ok) {
+                    const data = await res.json();
+                    setUser(data.user);
+                    toast.success("Calendar setting updated");
                   } else {
                     toast.error("Couldn't update setting");
                   }
