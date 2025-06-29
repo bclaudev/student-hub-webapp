@@ -90,7 +90,7 @@ export default function AddEventModal({
           : { from: new Date(), to: new Date() },
       priority: "",
 
-      name: info.name ?? "",
+      name: initialData.title,
       abbreviation: info.abbreviation ?? "",
       professorName: info.teacherName ?? "",
       locationType: info.deliveryMode === "Campus" ? "classroom" : "online",

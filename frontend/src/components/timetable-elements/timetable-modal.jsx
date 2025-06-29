@@ -101,13 +101,16 @@ export default function TimetableModal({
       endTime,
       recurrence,
       examDate: examDate || null,
-      curriculum: uploadedCurriculumPath,
       startDate:
         recurrence === "once-a-week"
           ? new Date(semesterStartDate)
           : new Date(startDate),
       color: initialData.color || "#a585ff",
     };
+
+    if (uploadedCurriculumPath) {
+      payload.curriculum = uploadedCurriculumPath;
+    }
 
     try {
       const res = await fetch(

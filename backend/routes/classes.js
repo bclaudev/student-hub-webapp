@@ -11,7 +11,7 @@ import { posthog } from "../lib/posthog.js";
 
 const classesRoute = new Hono();
 
-// 🔧 Schema cu preprocess pentru examDate
+// Schema cu preprocess pentru examDate
 const classSchema = z.object({
   class_type: z.enum(["course", "seminar", "colloquy"]),
   name: z.string().min(1),
@@ -159,7 +159,7 @@ classesRoute.post("/", async (ctx) => {
         .insert(calendarEventsTable)
         .values(calendarEvents)
         .returning();
-      console.log(`✅ ${calendarEvents.length} class events created`);
+      console.log(` ${calendarEvents.length} class events created`);
       insertedEvents.forEach((ev) => {
         posthog.capture({
           distinctId: userId,
@@ -176,7 +176,7 @@ classesRoute.post("/", async (ctx) => {
 
       await posthog.flush();
     } else {
-      console.warn("⚠️ No recurring events generated, skipping insert.");
+      console.warn("No recurring events generated, skipping insert.");
     }
   }
   return ctx.json(insertedClass);
@@ -203,7 +203,7 @@ classesRoute.put("/:id", async (ctx) => {
         and(eq(classesTable.id, classId), eq(classesTable.createdBy, userId))
       );
 
-    // 🔥 Delete old recurring events for this class
+    // Delete old recurring events for this class
     await db
       .delete(calendarEventsTable)
       .where(
@@ -214,7 +214,7 @@ classesRoute.put("/:id", async (ctx) => {
         )
       );
 
-    // 🔁 Regenerate recurring events
+    // Regenerate recurring events
     const semester = await db.query.semestersTable.findFirst({
       where: eq(semestersTable.createdBy, userId),
     });
