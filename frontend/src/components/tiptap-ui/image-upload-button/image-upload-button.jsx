@@ -1,21 +1,21 @@
 "use client";
-import * as React from "react"
+import * as React from "react";
 
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
+import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
 
 // --- Icons ---
-import { ImagePlusIcon } from "@/components/tiptap-icons/image-plus-icon"
+import { ImagePlusIcon } from "@/components/tiptap-icons/image-plus-icon";
 
-import { Button } from "@/components/tiptap-ui-primitive/button"
+import { Button } from "@/components/tiptap-ui-primitive/button";
 
 export function isImageActive(editor, extensionName) {
-  if (!editor) return false
+  if (!editor) return false;
   return editor.isActive(extensionName);
 }
 
 export function insertImage(editor, extensionName) {
-  if (!editor) return false
+  if (!editor) return false;
 
   return editor
     .chain()
@@ -31,70 +31,79 @@ export function useImageUploadButton(
   extensionName = "imageUpload",
   disabled = false
 ) {
-  const isActive = isImageActive(editor, extensionName)
+  const isActive = isImageActive(editor, extensionName);
   const handleInsertImage = React.useCallback(() => {
-    if (disabled) return false
+    if (disabled) return false;
     return insertImage(editor, extensionName);
-  }, [editor, extensionName, disabled])
+  }, [editor, extensionName, disabled]);
 
   return {
     isActive,
     handleInsertImage,
-  }
+  };
 }
 
-export const ImageUploadButton = React.forwardRef((
-  {
-    editor: providedEditor,
-    extensionName = "imageUpload",
-    text,
-    className = "",
-    disabled,
-    onClick,
-    children,
-    ...buttonProps
-  },
-  ref
-) => {
-  const editor = useTiptapEditor(providedEditor)
-  const { isActive, handleInsertImage } = useImageUploadButton(editor, extensionName, disabled)
+export const ImageUploadButton = React.forwardRef(
+  (
+    {
+      editor: providedEditor,
+      extensionName = "imageUpload",
+      text,
+      className = "",
+      disabled,
+      onClick,
+      children,
+      ...buttonProps
+    },
+    ref
+  ) => {
+    const editor = useTiptapEditor(providedEditor);
+    const { isActive, handleInsertImage } = useImageUploadButton(
+      editor,
+      extensionName,
+      disabled
+    );
 
-  const handleClick = React.useCallback((e) => {
-    onClick?.(e)
+    const handleClick = React.useCallback(
+      (e) => {
+        onClick?.(e);
 
-    if (!e.defaultPrevented && !disabled) {
-      handleInsertImage()
+        if (!e.defaultPrevented && !disabled) {
+          handleInsertImage();
+        }
+      },
+      [onClick, disabled, handleInsertImage]
+    );
+
+    if (!editor || !editor.isEditable) {
+      return null;
     }
-  }, [onClick, disabled, handleInsertImage])
 
-  if (!editor || !editor.isEditable) {
-    return null
+    return (
+      <Button
+        ref={ref}
+        type="button"
+        className={className.trim()}
+        data-style="ghost"
+        data-active-state={isActive ? "on" : "off"}
+        role="button"
+        tabIndex={-1}
+        aria-label="Add image"
+        aria-pressed={isActive}
+        onClick={handleClick}
+        {...buttonProps}
+      >
+        {children || (
+          <>
+            <ImagePlusIcon className="tiptap-button-icon" />
+            {text && <span className="tiptap-button-text">{text}</span>}
+          </>
+        )}
+      </Button>
+    );
   }
+);
 
-  return (
-    <Button
-      ref={ref}
-      type="button"
-      className={className.trim()}
-      data-style="ghost"
-      data-active-state={isActive ? "on" : "off"}
-      role="button"
-      tabIndex={-1}
-      aria-label="Add image"
-      aria-pressed={isActive}
-      tooltip="Add image"
-      onClick={handleClick}
-      {...buttonProps}>
-      {children || (
-        <>
-          <ImagePlusIcon className="tiptap-button-icon" />
-          {text && <span className="tiptap-button-text">{text}</span>}
-        </>
-      )}
-    </Button>
-  );
-})
+ImageUploadButton.displayName = "ImageUploadButton";
 
-ImageUploadButton.displayName = "ImageUploadButton"
-
-export default ImageUploadButton
+export default ImageUploadButton;

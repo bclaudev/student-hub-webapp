@@ -25,7 +25,9 @@ export default function NotesPage() {
   };
 
   useEffect(() => {
-    fetch("/api/notebooks")
+    fetch("/api/notebooks", {
+      credentials: "include",
+    })
       .then((res) => res.json())
       .then((data) => setNotebooks(data));
   }, []);
@@ -35,10 +37,18 @@ export default function NotesPage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ title: "Untitled", userId: 1 }),
+      body: JSON.stringify({ title: "Untitled" }),
     });
 
+    if (!res.ok) {
+      const error = await res.json();
+      console.error("❌ Eroare la creare notebook:", error);
+      alert("Eroare la creare notebook: " + (error?.error || res.statusText));
+      return;
+    }
+
     const data = await res.json();
+    console.log("✅ Notebook creat:", data);
     navigate(`/notebooks/${data.id}`);
   };
 

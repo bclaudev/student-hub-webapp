@@ -7,6 +7,10 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor";
 import { useTheme } from "@/components/ui/theme-provider";
+import TextAlign from "@tiptap/extension-text-align";
+import TaskList from "@tiptap/extension-task-list";
+import TaskItem from "@tiptap/extension-task-item";
+import Heading from "@tiptap/extension-heading";
 
 export default function NotebookEditorPage() {
   const { id } = useParams();
@@ -23,10 +27,20 @@ export default function NotebookEditorPage() {
       extensions: [
         StarterKit,
         Placeholder.configure({ placeholder: "Begin to write" }),
+        TextAlign.configure({
+          types: ["heading", "paragraph"],
+        }),
+        TaskList,
+        TaskItem.configure({
+          nested: true,
+        }),
+        Heading.configure({
+          levels: [1, 2, 3, 4],
+        }),
       ],
       editorProps: {
         attributes: {
-          class: `prose focus:outline-none ${
+          class: `prose focus:outline-none editor-content ${
             theme === "dark" ? "prose-invert" : ""
           }`,
         },

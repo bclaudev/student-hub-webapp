@@ -80,21 +80,53 @@ const MainToolbarContent = ({
   onLinkClick,
   isMobile,
   onSave,
+  editor,
 }) => {
   return (
     <>
-      <Spacer />
       <ToolbarGroup>
         <UndoRedoButton action="undo" />
         <UndoRedoButton action="redo" />
       </ToolbarGroup>
       <ToolbarSeparator />
       <ToolbarGroup>
-        <HeadingDropdownMenu levels={[1, 2, 3, 4]} />
-        <ListDropdownMenu types={["bulletList", "orderedList", "taskList"]} />
+        {[1, 2, 3, 4].map((level) => (
+          <Button
+            key={level}
+            onClick={() =>
+              editor.chain().focus().toggleHeading({ level }).run()
+            }
+            data-active={editor.isActive("heading", { level })}
+            aria-label={`Heading ${level}`}
+          >
+            H{level}
+          </Button>
+        ))}
+        <Button
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          data-active={editor.isActive("bulletList")}
+          aria-label="Bullet List"
+        >
+          • List
+        </Button>
+        <Button
+          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          data-active={editor.isActive("orderedList")}
+          aria-label="Ordered List"
+        >
+          1. List
+        </Button>
+        <Button
+          onClick={() => editor.chain().focus().toggleTaskList().run()}
+          data-active={editor.isActive("taskList")}
+          aria-label="Task List"
+        >
+          ☑ List
+        </Button>
         <BlockQuoteButton />
         <CodeBlockButton />
       </ToolbarGroup>
+
       <ToolbarSeparator />
       <ToolbarGroup>
         <MarkButton type="bold" />
@@ -126,10 +158,8 @@ const MainToolbarContent = ({
         <ImageUploadButton text="Add" />
       </ToolbarGroup>
       <Spacer />
+
       {isMobile && <ToolbarSeparator />}
-      <ToolbarGroup>
-        <ThemeToggle />
-      </ToolbarGroup>
       <ToolbarSeparator />
       <ToolbarGroup>
         <Button
@@ -202,6 +232,7 @@ export function SimpleEditor({ editor, onSave }) {
             onLinkClick={() => setMobileView("link")}
             isMobile={isMobile}
             onSave={onSave}
+            editor={editor}
           />
         ) : (
           <MobileToolbarContent

@@ -54,7 +54,14 @@ export default function DocumentViewer() {
       viewerRef.current.innerHTML = "";
       const res = await fetch(`/api/annotations/${fileId}`);
 
-      const instantJson = await res.json();
+      const fetchedJson = await res.json();
+
+      const instantJson = {
+        format: "https://pspdfkit.com/instant-json/v1",
+        annotations: fetchedJson.annotations || [],
+        comments: fetchedJson.comments || [],
+      };
+      console.log("Instant JSON primit:", instantJson);
 
       try {
         const instance = await PSPDFKit.load({

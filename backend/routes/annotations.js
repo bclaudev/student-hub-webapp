@@ -53,13 +53,15 @@ annotationsRoute.get("/:fileId", async (c) => {
       )
       .limit(1);
 
-    if (!row) {
-      return c.json({ annotations: [], comments: [] });
-    }
+    const annotationsData = row?.data;
 
-    return c.json(row.data);
+    return c.json({
+      format: "https://pspdfkit.com/instant-json/v1",
+      annotations: annotationsData?.annotations ?? [],
+      comments: annotationsData?.comments ?? [],
+    });
   } catch (err) {
-    console.error(" Eroare în GET /annotations/:fileId:", err);
+    console.error("Eroare în GET /annotations/:fileId:", err);
     return c.json({ error: "Internal Server Error" }, 500);
   }
 });

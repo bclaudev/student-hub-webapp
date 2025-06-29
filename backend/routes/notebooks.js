@@ -10,7 +10,7 @@ notebooksRoute.use("*", verifyToken);
 
 notebooksRoute.post("/notebooks", async (c) => {
   const body = await c.req.json();
-  const userId = body.userId; // ex: 1
+  const userId = c.get("user").id;
   const title = body.title || "Untitled";
 
   const [notebook] = await db

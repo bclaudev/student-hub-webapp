@@ -333,3 +333,26 @@ a[data-active="true"] > svg {
   color: var(--color-primary);
   text-decoration: underline;
 }
+
+/* Selecție normală */
+.editor-content ::selection {
+  background-color: #a585ff !important;
+  color: white !important;
+}
+
+/* Selecție în dark mode */
+.dark .editor-content ::selection {
+  background-color: #d6bbff !important;
+  color: black !important;
+}
+
+/* Asigură-te că overridezi toate nodurile (paragrafe, spans, etc) */
+.editor-content *::selection {
+  background-color: #a585ff !important;
+  color: white !important;
+}
+
+.dark .editor-content *::selection {
+  background-color: #d6bbff !important;
+  color: black !important;
+}
