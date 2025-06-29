@@ -141,6 +141,16 @@ classesRoute.post("/", async (ctx) => {
       seriesId,
       additionalInfo: {
         classId: insertedClass.id,
+        abbreviation: parsed.data.abbreviation,
+        teacherName: parsed.data.teacherName,
+        roomNumber: parsed.data.roomNumber,
+        meetingLink: parsed.data.meetingLink,
+        class_type: parsed.data.class_type,
+        deliveryMode: parsed.data.deliveryMode,
+        recurrence: parsed.data.recurrence,
+        examDate: parsed.data.examDate,
+        curriculum: parsed.data.curriculum,
+        color: parsed.data.color || "#a585ff",
       },
     }));
 
@@ -243,7 +253,17 @@ classesRoute.put("/:id", async (ctx) => {
       createdBy: userId,
       seriesId,
       additionalInfo: {
-        classId,
+        classId: insertedClass.id,
+        abbreviation: parsed.data.abbreviation,
+        teacherName: parsed.data.teacherName,
+        roomNumber: parsed.data.roomNumber,
+        meetingLink: parsed.data.meetingLink,
+        class_type: parsed.data.class_type,
+        deliveryMode: parsed.data.deliveryMode,
+        recurrence: parsed.data.recurrence,
+        examDate: parsed.data.examDate,
+        curriculum: parsed.data.curriculum,
+        color: parsed.data.color || "#a585ff",
       },
     }));
 

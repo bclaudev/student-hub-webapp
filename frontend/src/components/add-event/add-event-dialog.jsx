@@ -74,6 +74,7 @@ export default function AddEventModal({
 
     const start = new Date(initialData.start);
     const end = new Date(initialData.end);
+    const info = initialData.additionalInfo || {};
 
     form.reset({
       title: initialData.title ?? "",
@@ -88,6 +89,17 @@ export default function AddEventModal({
           ? { from: start, to: end }
           : { from: new Date(), to: new Date() },
       priority: "",
+
+      name: info.name ?? "",
+      abbreviation: info.abbreviation ?? "",
+      professorName: info.teacherName ?? "",
+      locationType: info.deliveryMode === "Campus" ? "classroom" : "online",
+      room: info.roomNumber ?? "",
+      meetingLink: info.meetingLink ?? "",
+      recurrence: info.recurrence ?? "",
+      examDate: info.examDate ? info.examDate.split("T")[0] : "",
+      curriculum: null, // we can't prefill a file input
+      classType: info.classType ?? "",
     });
 
     setEventType(initialData.eventType ?? "event");
