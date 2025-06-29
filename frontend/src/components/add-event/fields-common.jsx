@@ -114,7 +114,7 @@ export default function CommonFields() {
             onValueChange={(value) => form.setValue("recurrence", value)}
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select frequency" />
+              <SelectValue placeholder="Select recurrence" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="daily">Daily</SelectItem>

@@ -144,7 +144,7 @@ export default function FileCard({
           initial={{ opacity: 0, y: 20 }}
           whileHover={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="absolute bottom-0 left-0 w-full bg-stone-900 text-white dark:bg-white dark:text-stone-900 rounded-3xl px-4 py-4 text-xs z-10"
+          className="absolute bottom-0 transition-all left-0 w-full bg-stone-900 text-white dark:bg-white dark:text-stone-900 rounded-3xl px-4 py-4 text-xs z-10"
         >
           <p>Date added: {dateAdded}</p>
           <div className="flex flex-wrap gap-1 mt-2">

@@ -55,7 +55,7 @@ export function LoginForm({ fetchUser }) {
         const userData = await fetchUser?.();
         if (userData) {
           console.log("User data:", userData);
-          navigate("/calendar");
+          navigate("/timetable");
         } else {
           console.warn("fetchUser returned nothing");
         }

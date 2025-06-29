@@ -19,7 +19,7 @@ export default function AuthRedirector() {
         ) {
           navigate("/onboarding");
         } else {
-          navigate("/calendar");
+          navigate("/timetable");
         }
       } catch (err) {
         console.error("Eroare la verificarea semestrului:", err);

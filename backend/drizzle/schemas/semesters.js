@@ -1,4 +1,11 @@
-import { pgTable, serial, text, date, integer } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  serial,
+  text,
+  date,
+  integer,
+  boolean,
+} from "drizzle-orm/pg-core";
 import { usersTable } from "./users.js";
 
 export const semestersTable = pgTable("semesters", {
@@ -9,4 +16,5 @@ export const semestersTable = pgTable("semesters", {
   name: text("name").default("Semestru curent"),
   startDate: date("start_date").notNull(),
   endDate: date("end_date").notNull(),
+  isActive: boolean("is_active").default(false).notNull(),
 });

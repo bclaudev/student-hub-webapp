@@ -56,6 +56,12 @@ classesRoute.post("/", async (ctx) => {
   const result = await db.insert(classesTable).values(payload).returning();
   const insertedClass = result[0];
 
+  const cleanExamDate =
+    parsed.data.examDate instanceof Date &&
+    !isNaN(parsed.data.examDate.getTime())
+      ? parsed.data.examDate
+      : null;
+
   if (parsed.data.examDate) {
     const [startHour, startMin] = parsed.data.startTime.split(":").map(Number);
     const [endHour, endMin] = parsed.data.endTime.split(":").map(Number);
@@ -148,7 +154,7 @@ classesRoute.post("/", async (ctx) => {
         class_type: parsed.data.class_type,
         deliveryMode: parsed.data.deliveryMode,
         recurrence: parsed.data.recurrence,
-        examDate: parsed.data.examDate,
+        examDate: cleanExamDate,
         curriculum: parsed.data.curriculum,
         color: parsed.data.color || "#a585ff",
       },
@@ -190,6 +196,12 @@ classesRoute.put("/:id", async (ctx) => {
     const classId = Number(ctx.req.param("id"));
     const body = await ctx.req.json();
     const parsed = classSchema.safeParse(body);
+
+    const cleanExamDate =
+      parsed.data.examDate instanceof Date &&
+      !isNaN(parsed.data.examDate.getTime())
+        ? parsed.data.examDate
+        : null;
 
     if (!parsed.success) {
       return ctx.json({ error: parsed.error.flatten() }, 400);
@@ -253,7 +265,7 @@ classesRoute.put("/:id", async (ctx) => {
       createdBy: userId,
       seriesId,
       additionalInfo: {
-        classId: insertedClass.id,
+        classId,
         abbreviation: parsed.data.abbreviation,
         teacherName: parsed.data.teacherName,
         roomNumber: parsed.data.roomNumber,
@@ -261,7 +273,8 @@ classesRoute.put("/:id", async (ctx) => {
         class_type: parsed.data.class_type,
         deliveryMode: parsed.data.deliveryMode,
         recurrence: parsed.data.recurrence,
-        examDate: parsed.data.examDate,
+        examDate: cleanExamDate,
+
         curriculum: parsed.data.curriculum,
         color: parsed.data.color || "#a585ff",
       },

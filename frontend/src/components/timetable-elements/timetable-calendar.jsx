@@ -125,11 +125,16 @@ const TimetableCalendar = ({
         components={{
           event: CustomEvent,
           timeGutterHeader: () => {
+            console.log("Gutter render!");
             const now = new Date();
             const start = semesterStartDate
               ? new Date(semesterStartDate)
               : null;
             const end = semesterEndDate ? new Date(semesterEndDate) : null;
+
+            console.log("NOW:", now.toISOString());
+            console.log("START:", start?.toISOString());
+            console.log("END:", end?.toISOString());
 
             if (!start || !end || isNaN(start) || isNaN(end)) return null;
 
@@ -143,6 +148,7 @@ const TimetableCalendar = ({
               1,
               differenceInCalendarWeeks(now, start, { weekStartsOn: 1 }) + 1
             );
+            console.log("Start:", semesterStartDate, "End:", semesterEndDate);
 
             return (
               <div className="flex items-center justify-center h-full">

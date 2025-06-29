@@ -34,7 +34,7 @@ export default function Onboarding() {
       });
 
       if (res.ok) {
-        window.location.href = "/calendar";
+        window.location.href = "/timetable";
       } else {
         alert("Eroare la salvarea semestrului");
       }

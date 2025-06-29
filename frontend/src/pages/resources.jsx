@@ -70,18 +70,6 @@ export default function ResourcesPage() {
     fetchTags();
   }, []);
 
-  //   const files = [
-  //     {
-  //       fileName: "Lecture Notes",
-  //       author: "Prof. Smith",
-  //       thumbnailUrl: bookCover,
-  //       isPinned: false,
-  //       fileType: "image/png",
-  //       subject: "Philosophy",
-  //       dateAdded: "2025-05-18",
-  //     },
-  //   ];
-
   const filteredFiles = activeTag
     ? files.filter((file) => file.tags?.some((t) => t.name === activeTag))
     : files;
@@ -96,7 +84,7 @@ export default function ResourcesPage() {
       />
 
       {/* Content grid */}
-      <div className="px-4 py-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 w-full h-[calc(100vh-100px)] overflow-y-auto">
+      <div className="px-4 py-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-1 w-full h-[calc(100vh-100px)] overflow-y-auto">
         {filteredFiles.map((file, index) => (
           <FileCard
             key={index}

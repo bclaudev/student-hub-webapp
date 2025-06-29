@@ -20,12 +20,32 @@ export default function TimetablePage() {
         credentials: "include",
       });
       const data = await res.json();
+
       if (data.semesters && data.semesters.length > 0) {
-        const active =
-          data.semesters.find((s) => s.isActive) || data.semesters[0];
+        const now = new Date();
+
+        // Sortează semestrele după startDate
+        const sorted = data.semesters.sort(
+          (a, b) => new Date(a.startDate) - new Date(b.startDate)
+        );
+
+        // Încearcă să găsești semestrul în care e azi
+        let active = sorted.find((s) => {
+          const start = new Date(s.startDate);
+          const end = new Date(s.endDate);
+          return now >= start && now <= end;
+        });
+
+        // Dacă nu există semestru activ, ia-l pe cel mai apropiat din viitor
+        if (!active) {
+          active =
+            sorted.find((s) => new Date(s.startDate) > now) ||
+            sorted[sorted.length - 1];
+        }
+
         setActiveSemester(active);
         setActiveSemesterId(active.id);
-        console.log("📚 Semestrul activ setat automat:", active);
+        console.log("📚 Semestrul selectat automat:", active);
       }
     };
 
@@ -100,8 +120,8 @@ export default function TimetablePage() {
     <div className="flex flex-col h-screen">
       <TimetableHeader
         onSave={refetchClasses}
-        activeSemesterId={activeSemesterId}
         activeSemester={activeSemester}
+        activeSemesterId={activeSemesterId}
         onSemesterChange={(semester) => {
           setActiveSemester(semester);
           setActiveSemesterId(semester.id);
@@ -115,6 +135,7 @@ export default function TimetablePage() {
           onSave={refetchClasses}
           onDeleteClass={handleDeleteClass}
           semesterStartDate={activeSemester?.startDate}
+          semesterEndDate={activeSemester?.endDate}
           semesterId={activeSemesterId}
           startWeekOnMonday={user?.startWeekOnMonday}
         />

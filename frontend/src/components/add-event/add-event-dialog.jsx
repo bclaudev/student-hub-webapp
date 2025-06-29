@@ -221,7 +221,7 @@ export default function AddEventModal({
                   <ToggleGroupItem
                     key={value}
                     value={value}
-                    className="min-w-[120px] px-4 py-2 text-sm font-medium text-center"
+                    className="min-w-[120px] px-4 py-2 text-sm font-medium text-center rounded-xl  border-input data-[state=on]:bg-[#bcbcbc] data-[state=on]:text-white transition-colors"
                   >
                     {label}
                   </ToggleGroupItem>

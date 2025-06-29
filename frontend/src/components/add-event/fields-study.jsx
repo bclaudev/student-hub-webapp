@@ -58,30 +58,6 @@ export default function StudyFields() {
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
         <Label
-          htmlFor={`${inputId}-topics`}
-          className="sm:w-24 text-sm font-medium"
-        >
-          Topics / Chapters
-        </Label>
-        <div onPointerDown={(e) => e.stopPropagation()}>
-          <Select
-            value={form.watch("topics")}
-            onValueChange={(val) => form.setValue("topics", val)}
-          >
-            <SelectTrigger className="flex-1 w-full">
-              <SelectValue placeholder="Choose a topic" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="chapter-1">Chapter 1</SelectItem>
-              <SelectItem value="chapter-2">Chapter 2</SelectItem>
-              <SelectItem value="revision">Final Revision</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-        <Label
           htmlFor={`${inputId}-linkedClass`}
           className="sm:w-24 text-sm font-medium"
         >
@@ -110,7 +86,14 @@ export default function StudyFields() {
               ) : (
                 classes.map((cls) => (
                   <SelectItem key={cls.id} value={cls.id.toString()}>
-                    {cls.abbreviation || cls.name || "Unnamed Class"}
+                    <span className="flex items-center gap-2">
+                      <span className="text-muted-foreground text-xs uppercase">
+                        {cls.class_type}
+                      </span>
+                      <span>
+                        {cls.abbreviation || cls.name || "Unnamed Class"}
+                      </span>
+                    </span>{" "}
                   </SelectItem>
                 ))
               )}
