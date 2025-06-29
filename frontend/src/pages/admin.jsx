@@ -14,8 +14,16 @@ import AdminUsersTable from "@/components/admin-components/AdminUsersTable";
 import { UserGrowthChart } from "@/components/admin-components/UsersGrowthChart";
 
 export default function AdminDashboard() {
-  const user = useUser();
+  const { user } = useUser();
   const isAdmin = user?.role === "admin";
+
+  if (user === null) {
+    return <div className="p-6 text-muted-foreground">Se încarcă datele…</div>;
+  }
+
+  if (user.role !== "admin") {
+    return <Navigate to="/" />;
+  }
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["admin-overview"],
@@ -28,9 +36,6 @@ export default function AdminDashboard() {
     },
     enabled: isAdmin,
   });
-
-  if (!user) return null;
-  if (!isAdmin) return <Navigate to="/" />;
 
   return (
     <div className="p-6 bg-background">

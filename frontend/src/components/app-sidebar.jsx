@@ -15,6 +15,8 @@ import {
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
+import { Link } from "react-router-dom";
+
 import studenthub_logo_default from "@/assets/studenthub_logo_default.svg";
 import studenthub_logo_dark from "@/assets/studenthub_logo_dark.svg";
 import studenthub_logo_collapsed from "@/assets/studenthub_logo_collapsed.svg";
@@ -206,15 +208,15 @@ export function AppSidebar() {
                       className="!h-12 !p-4 group-data-[collapsible=icon]:!h-12 group-data-[collapsible=icon]:!p-2 rounded-3xl pl-4"
                       isActive={location.pathname === "/admin"}
                     >
-                      <a
-                        href="/admin"
+                      <Link
+                        to="/admin"
                         className="flex items-center gap-2 group-data-[state=collapsed]:justify-center"
                       >
                         <ShieldCheck className="w-4 h-4" />
                         <span className="group-data-[state=collapsed]:hidden">
                           Admin
                         </span>
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )}
