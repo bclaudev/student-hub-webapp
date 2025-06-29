@@ -92,4 +92,53 @@ tagsRoute.post("/tags", async (c) => {
   }
 });
 
+tagsRoute.post("/tags/create-and-assign", async (c) => {
+  try {
+    const user = c.get("user");
+    const { tagName, resourceId } = await c.req.json();
+
+    if (!tagName || !resourceId) {
+      return c.json({ error: "Missing tagName or resourceId" }, 400);
+    }
+
+    // Caută dacă există deja un tag cu acest nume
+    let tag = await db.query.resourceGroupsTable.findFirst({
+      where: and(
+        eq(resourceGroupsTable.name, tagName),
+        eq(resourceGroupsTable.createdBy, user.id)
+      ),
+    });
+
+    if (!tag) {
+      const inserted = await db
+        .insert(resourceGroupsTable)
+        .values({ name: tagName, createdBy: user.id })
+        .returning();
+      tag = inserted[0];
+    }
+
+    // Creează legătura many-to-many
+    await db.insert(resourceToGroupTable).values({
+      resourceId,
+      groupId: tag.id,
+    });
+
+    posthog.capture({
+      distinctId: String(user.id),
+      event: "tag_assigned",
+      properties: {
+        tagId: tag.id,
+        tagName,
+        resourceId,
+        autoFrom: "class_curriculum",
+      },
+    });
+
+    return c.json({ success: true, tagId: tag.id });
+  } catch (error) {
+    console.error("Eroare în POST /tags/create-and-assign:", error);
+    return c.json({ error: "Internal Server Error" }, 500);
+  }
+});
+
 export default tagsRoute;

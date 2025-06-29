@@ -82,6 +82,9 @@ eventsRoute.post("/", async (c) => {
         .returning();
 
       inserted.forEach((ev) => {
+        const durationMinutes = Math.round(
+          (new Date(ev.endDateTime) - new Date(ev.startDateTime)) / 1000 / 60
+        );
         posthog.capture({
           distinctId: userId,
           event: "calendar_event_created",
@@ -91,6 +94,7 @@ eventsRoute.post("/", async (c) => {
             recurring: true,
             eventId: ev.id,
             title: ev.title,
+            durationMinutes,
           },
         });
       });
@@ -115,17 +119,41 @@ eventsRoute.post("/", async (c) => {
       })
       .returning();
 
+    const created = newEvent[0];
+
+    const durationMinutes = Math.round(
+      (new Date(endDateTime) - new Date(startDateTime)) / 1000 / 60
+    );
+
     posthog.capture({
       distinctId: userId,
       event: "calendar_event_created",
       properties: {
-        type: newEvent[0].eventType,
+        type: created.eventType,
         source: "manual",
         recurring: false,
-        eventId: newEvent[0].id,
-        title: newEvent[0].title,
+        eventId: created.id,
+        title: created.title,
+        durationMinutes,
       },
     });
+
+    if (eventType === "study" || eventType === "study_session") {
+      posthog.capture({
+        distinctId: userId,
+        event: "study_session_created",
+        properties: {
+          eventId: created.id,
+          title: created.title,
+          type: created.eventType,
+          source: "manual",
+          recurring: false,
+          durationMinutes,
+          classId: additionalInfo?.linkedClass || null,
+          className: additionalInfo?.linkedClassName || null,
+        },
+      });
+    }
     await posthog.flush();
 
     return c.json({ event: newEvent }, 201);

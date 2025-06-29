@@ -62,8 +62,31 @@ export default function TimetableModal({
   );
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const isEditMode = !!initialData.id;
+
+    let uploadedCurriculumPath = null;
+    let uploadedResourceId = null;
+
+    if (curriculum && typeof curriculum !== "string") {
+      const formData = new FormData();
+
+      formData.append("files", curriculum);
+      formData.append("source", "class_curriculum");
+
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadRes.ok) {
+        console.error("Curriculum upload failed");
+        return;
+      }
+
+      const uploadData = await uploadRes.json();
+      uploadedCurriculumPath = uploadData.filePath;
+      uploadedResourceId = uploadData.resourceId;
+    }
 
     const payload = {
       class_type: classType,
@@ -78,17 +101,13 @@ export default function TimetableModal({
       endTime,
       recurrence,
       examDate: examDate || null,
-      ...(typeof curriculum === "string" ? { curriculum } : {}),
-
+      curriculum: uploadedCurriculumPath,
       startDate:
         recurrence === "once-a-week"
           ? new Date(semesterStartDate)
           : new Date(startDate),
-
       color: initialData.color || "#a585ff",
     };
-
-    console.log("Payload:", { ...payload, semesterId });
 
     try {
       const res = await fetch(
@@ -96,10 +115,7 @@ export default function TimetableModal({
         {
           method: isEditMode ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...payload,
-            semesterId,
-          }),
+          body: JSON.stringify({ ...payload, semesterId }),
         }
       );
 
@@ -109,7 +125,26 @@ export default function TimetableModal({
         throw new Error("Server error");
       }
 
-      console.log(`Class ${isEditMode ? "updated" : "saved"} successfully`);
+      // ✅ Creeaza tag automat cu abrevierea si asociaza resursa
+      try {
+        if (!isEditMode && uploadedResourceId && abbreviation) {
+          await fetch("/api/tags/create-and-assign", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              tagName: abbreviation,
+              resourceId: uploadedResourceId,
+            }),
+          });
+          console.log("✅ Creating tag with:", {
+            abbreviation,
+            uploadedResourceId,
+          });
+        }
+      } catch (e) {
+        console.log("Failed to create and assign tag:", e);
+      }
+
       const resultClass = await res.json();
       if (onSave) await onSave(resultClass);
       onOpenChange(false);

@@ -162,6 +162,10 @@ export default function AdminDashboard() {
               allowfullscreen
               src="https://eu.posthog.com/embedded/mlXwzowa1rzkOIji6IFPZsvESEI-NA"
             ></iframe>
+          </div>
+        </TabsContent>
+        <TabsContent value="resources">
+          <div className="mt-4">
             <iframe
               width="100%"
               height="400"
@@ -176,6 +180,26 @@ export default function AdminDashboard() {
               allowfullscreen
               src="https://eu.posthog.com/embedded/5sm5SsVvtiFsMAxoeOmNXpsqIQXGoA"
             ></iframe>
+          </div>
+          <div className="mt-4">
+            <iframe
+              width="100%"
+              height="400"
+              frameborder="0"
+              allowfullscreen
+              src="https://eu.posthog.com/embedded/JCdCndtMsLnJIO7mpjEnW1KkqE8rrw"
+            ></iframe>
+            <iframe
+              width="100%"
+              height="400"
+              frameborder="0"
+              allowfullscreen
+              src="https://eu.posthog.com/embedded/Vcoq8Gj_vcPnw2TYQ3y41gKd_hCJvg"
+            ></iframe>
+          </div>
+        </TabsContent>
+        <TabsContent value="notebooks">
+          <div className="mt-4">
             <iframe
               width="100%"
               height="400"
@@ -185,14 +209,16 @@ export default function AdminDashboard() {
             ></iframe>
           </div>
         </TabsContent>
-        <TabsContent value="resources">
-          <div className="mt-4">🔧 Aici va fi lista de fișiere</div>
-        </TabsContent>
-        <TabsContent value="notebooks">
-          <div className="mt-4">🔧 Aici va fi lista de notebook-uri</div>
-        </TabsContent>
         <TabsContent value="events">
-          <div className="mt-4">🔧 Aici va fi lista de evenimente</div>
+          <div className="mt-4">
+            <iframe
+              width="100%"
+              height="400"
+              frameborder="0"
+              allowfullscreen
+              src="https://eu.posthog.com/embedded/RGpRJXMQ3uXieD45tVa0dJ9rbEkuxQ?legend"
+            ></iframe>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

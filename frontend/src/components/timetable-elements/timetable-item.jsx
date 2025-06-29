@@ -13,7 +13,6 @@ import {
 
 import {
   AlertDialog,
-  AlertDialogTrigger,
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -44,23 +43,7 @@ const TimetableItem = ({
 }) => {
   const color = event.color || "#a585ff";
   const iconColor = darkenHexColor(color, 80);
-  const [showMenu, setShowMenu] = useState(false);
-  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
-
-  const handleColorChange = async (color) => {
-    setShowMenu(false);
-    try {
-      await fetch(`/api/classes/${event.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ color }),
-      });
-
-      await refreshEvents();
-    } catch (err) {
-      console.error("Failed to update color:", err);
-    }
-  };
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const startTime = new Date(event.start).toLocaleTimeString([], {
     hour: "2-digit",
@@ -100,7 +83,6 @@ const TimetableItem = ({
             size={14}
             strokeWidth={5}
             style={{ color: iconColor }}
-            className="text-foreground style={{ color: iconColor }}"
           />
         );
       case "colloquy":
@@ -116,76 +98,90 @@ const TimetableItem = ({
   })();
 
   return (
-    <ContextMenu>
-      <ContextMenuTrigger asChild>
-        <div className="h-full w-full">
-          <div
-            onClick={() => onPreview()}
-            className="h-full w-full px-3 text-sm text-black cursor-pointer !rounded-none flex flex-col justify-center gap-1 hover:brightness-105 transition"
-            style={{ backgroundColor: color }}
-          >
-            <div className="flex items-center gap-2 font-semibold">
-              {icon}
-              <span>{event.abbreviation}</span>
-            </div>
-
-            <div className="text-xs leading-tight">
-              <div className="opacity-90">
-                {startTime} – {endTime}
+    <>
+      <ContextMenu>
+        <ContextMenuTrigger asChild>
+          <div className="h-full w-full">
+            <div
+              onClick={() => onPreview()}
+              className="h-full w-full px-3 text-sm text-black cursor-pointer !rounded-none flex flex-col justify-center gap-1 hover:brightness-105 transition"
+              style={{ backgroundColor: color }}
+            >
+              <div className="flex items-center gap-2 font-semibold">
+                {icon}
+                <span>{event.abbreviation}</span>
               </div>
-              {event.location && (
-                <div className="opacity-90">Room: {event.location}</div>
-              )}
+
+              <div className="text-xs leading-tight">
+                <div className="opacity-90">
+                  {startTime} – {endTime}
+                </div>
+                {event.location && (
+                  <div className="opacity-90">Room: {event.location}</div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      </ContextMenuTrigger>
+        </ContextMenuTrigger>
 
-      <ContextMenuContent className="w-48">
-        <ContextMenuItem onClick={() => onEdit()}>Edit</ContextMenuItem>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <ContextMenuItem>Delete</ContextMenuItem>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete this class?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the
-                class and all its events.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                className="bg-red-600 text-white hover:bg-red-700"
-                onClick={() => onDelete(event.classId)}
-              >
-                Confirm
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <ContextMenuContent className="w-48">
+          <ContextMenuItem onClick={() => onEdit()}>Edit</ContextMenuItem>
 
-        <ContextMenuSub>
-          <ContextMenuSubTrigger>Change Color</ContextMenuSubTrigger>
-          <ContextMenuSubContent>
-            {COLORS.map((c) => (
-              <ContextMenuItem
-                key={c.value}
-                onClick={() => onColorChange(event.classId, c.value)}
-              >
-                <div
-                  className="w-4 h-4 rounded-full mr-2 border"
-                  style={{ backgroundColor: c.value }}
-                />
-                {c.label}
-              </ContextMenuItem>
-            ))}
-          </ContextMenuSubContent>
-        </ContextMenuSub>
-      </ContextMenuContent>
-    </ContextMenu>
+          <ContextMenuItem
+            onSelect={(e) => {
+              e.preventDefault();
+              setTimeout(() => setShowDeleteDialog(true), 0);
+            }}
+          >
+            Delete
+          </ContextMenuItem>
+
+          <ContextMenuSub>
+            <ContextMenuSubTrigger>Change Color</ContextMenuSubTrigger>
+            <ContextMenuSubContent>
+              {COLORS.map((c) => (
+                <ContextMenuItem
+                  key={c.value}
+                  onClick={() => onColorChange(event.classId, c.value)}
+                >
+                  <div
+                    className="w-4 h-4 rounded-full mr-2 border"
+                    style={{ backgroundColor: c.value }}
+                  />
+                  {c.label}
+                </ContextMenuItem>
+              ))}
+            </ContextMenuSubContent>
+          </ContextMenuSub>
+        </ContextMenuContent>
+      </ContextMenu>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this class?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              class and all its events.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowDeleteDialog(false)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 text-white hover:bg-red-700"
+              onClick={() => {
+                onDelete(event.classId);
+                setShowDeleteDialog(false);
+              }}
+            >
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 

@@ -228,7 +228,7 @@ classesRoute.put("/:id", async (ctx) => {
       recurrence: recurrenceMap[parsed.data.recurrence],
       semesterStart: semester.startDate,
       semesterEnd: semester.endDate,
-      startDate: classItem.startDate,
+      startDate: parsed.data.startDate,
     });
 
     const seriesId = randomUUID();

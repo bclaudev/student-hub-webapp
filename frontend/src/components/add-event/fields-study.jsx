@@ -90,7 +90,14 @@ export default function StudyFields() {
         <div onPointerDown={(e) => e.stopPropagation()}>
           <Select
             value={form.watch("linkedClass")}
-            onValueChange={(val) => form.setValue("linkedClass", val)}
+            onValueChange={(val) => {
+              form.setValue("linkedClass", val); // id
+              const selected = classes.find((cls) => cls.id.toString() === val);
+              form.setValue(
+                "linkedClassName",
+                selected?.abbreviation || selected?.name || "Unnamed"
+              );
+            }}
           >
             <SelectTrigger className="flex-1 w-full">
               <SelectValue placeholder="Select class" />

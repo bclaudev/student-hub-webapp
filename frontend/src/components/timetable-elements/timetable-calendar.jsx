@@ -8,30 +8,16 @@ import getDay from "date-fns/getDay";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import differenceInCalendarWeeks from "date-fns/differenceInCalendarWeeks";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import TimetableItem from "./timetable-item.jsx";
 import TimetableModal from "./timetable-modal.jsx";
 import TimetablePreviewModal from "./timetable-preview-modal.jsx";
-
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-
-import { generateRecurringEvents } from "@/pages/timetable";
 
 import enUS from "date-fns/locale/en-US";
 
 const locales = { "en-US": enUS };
 
-const getDynamicTimeBounds = (events) => {
+const getDynamicTimeBounds = (events = []) => {
   const minHour = Math.min(
     ...events.map((e) => new Date(e.start).getHours()),
     9
@@ -49,8 +35,7 @@ const getDynamicTimeBounds = (events) => {
 
 const TimetableCalendar = ({
   onColorChange,
-  events,
-  classes,
+  classes = [],
   onSave,
   onDeleteClass,
   semesterStartDate,
@@ -58,31 +43,51 @@ const TimetableCalendar = ({
   semesterId,
   startWeekOnMonday = false,
 }) => {
-  console.log("startWeekOnMonday received:", startWeekOnMonday);
-
-  const days = startWeekOnMonday
-    ? [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday",
-      ]
-    : [
-        "Sunday",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-      ];
-  console.log("Days generated:", days);
-
   const [editingEvent, setEditingEvent] = useState(null);
   const [previewClass, setPreviewClass] = useState(null);
+
+  const dayMap = {
+    monday: 1,
+    tuesday: 2,
+    wednesday: 3,
+    thursday: 4,
+    friday: 5,
+    saturday: 6,
+    sunday: 0,
+  };
+
+  const events = classes.map((cls) => {
+    const today = new Date();
+    const date = new Date(today);
+    const currentDay = date.getDay();
+    const targetDay = dayMap[cls.day?.toLowerCase()] ?? 1;
+    const diff = (targetDay - currentDay + 7) % 7;
+    date.setDate(today.getDate() + diff);
+
+    const [sh, sm] = cls.startTime?.slice(0, 5).split(":").map(Number) || [];
+    const [eh, em] = cls.endTime?.slice(0, 5).split(":").map(Number) || [];
+
+    const start = new Date(date);
+    const end = new Date(date);
+    start.setHours(sh, sm || 0, 0, 0);
+    end.setHours(eh, em || 0, 0, 0);
+
+    return {
+      id: cls.id,
+      classId: cls.id,
+      title: cls.name,
+      start,
+      end,
+      color: cls.color,
+      abbreviation: cls.abbreviation,
+      location:
+        cls.deliveryMode === "Campus" ? cls.roomNumber : cls.meetingLink,
+      class_type: cls.class_type,
+    };
+  });
+
+  const { min, max } = getDynamicTimeBounds(events);
+
   const localizer = dateFnsLocalizer({
     format,
     parse,
@@ -91,7 +96,6 @@ const TimetableCalendar = ({
     getDay,
     locales,
   });
-  const { min, max } = getDynamicTimeBounds(events);
 
   const CustomEvent = ({ event }) => (
     <TimetableItem
@@ -115,11 +119,7 @@ const TimetableCalendar = ({
     <div className="h-full">
       <Calendar
         localizer={localizer}
-        events={events.map((event) => ({
-          ...event,
-          start: new Date(event.start),
-          end: new Date(event.end),
-        }))}
+        events={events}
         defaultView={Views.WEEK}
         views={{ week: true }}
         components={{

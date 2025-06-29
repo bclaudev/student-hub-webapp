@@ -97,11 +97,18 @@ export default function AddEventModal({
   const handleSubmit = (data) => {
     console.log("✅ FORM SUBMIT:", data);
 
+    const additionalInfo = {};
+    if (eventType === "study") {
+      additionalInfo.linkedClass = data.linkedClass;
+      additionalInfo.linkedClassName = data.linkedClassName;
+    }
+
     onSave({
       ...data,
       notifyMe: data.notify === "never" ? null : parseInt(data.notify),
       eventType,
       title: eventType === "class" ? data.name : data.title,
+      additionalInfo,
     });
 
     onClose();

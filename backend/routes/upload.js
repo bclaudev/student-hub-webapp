@@ -130,6 +130,7 @@ uploadRoute.post("/upload", async (c) => {
       .returning();
 
     const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+    const types = files.map((file) => file.type);
 
     await db
       .update(usersTable)
@@ -145,6 +146,10 @@ uploadRoute.post("/upload", async (c) => {
         totalFiles: saved.length,
         totalSizeBytes: totalSize,
         totalSizeMB: +(totalSize / 1024 / 1024).toFixed(2),
+        fileTypes: types,
+        fileName: file.name,
+        fileType: finalFileType || ext || "unknown",
+        fileSize: buffer.length,
       },
     });
 

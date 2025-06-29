@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { db } from "./db.js"; // modifică dacă e în alt path
+import { db } from "./db.js";
 import {
   usersTable,
   semestersTable,
@@ -8,10 +8,8 @@ import {
   notebooks,
   notebookPages,
 } from "./drizzle/schema.js";
-import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
-
-const today = new Date();
+import { posthog } from "./lib/posthog.js";
 
 const EVENT_TYPES = [
   "event",
@@ -33,14 +31,13 @@ function getRandomDateBetween(start, end) {
   );
 }
 
-async function seedUsers(count = 50) {
+async function seedUsers(count = 10) {
   const now = new Date();
   const sixWeeksAgo = new Date();
   sixWeeksAgo.setDate(now.getDate() - 7 * 6);
 
   const users = Array.from({ length: count }, () => {
     const createdAt = getRandomDateBetween(sixWeeksAgo, now);
-
     return {
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
@@ -57,22 +54,28 @@ async function seedUsers(count = 50) {
     .insert(usersTable)
     .values(users)
     .returning({ id: usersTable.id });
-
-  return inserted.map((u) => u.id);
+  inserted.forEach((u, i) => {
+    posthog.capture({
+      distinctId: u.id.toString(),
+      event: "user_created",
+      properties: { email: users[i].email, source: "seed" },
+    });
+  });
+  return inserted.map((u) => ({
+    id: u.id,
+    email: users.find((usr, i) => inserted[i].id === u.id).email,
+  }));
 }
 
-async function seedSemesters(userIds) {
+async function seedSemesters(users) {
   const allSemesterIds = [];
-
-  for (const userId of userIds) {
+  for (const { id: userId } of users) {
     const count = faker.number.int({ min: 3, max: 4 });
     const semesters = [];
-
     for (let i = 0; i < count; i++) {
       const start = faker.date.past({ years: 2 });
       const end = new Date(start);
       end.setMonth(start.getMonth() + 5);
-
       semesters.push({
         createdBy: userId,
         name: `Semestrul ${i + 1}`,
@@ -80,26 +83,30 @@ async function seedSemesters(userIds) {
         endDate: end.toISOString().split("T")[0],
       });
     }
-
     const inserted = await db
       .insert(semestersTable)
       .values(semesters)
       .returning({ id: semestersTable.id });
-    inserted.forEach((sem) =>
-      allSemesterIds.push({ userId, semesterId: sem.id })
-    );
+    inserted.forEach((sem, i) => {
+      allSemesterIds.push({ userId, semesterId: sem.id });
+      posthog.capture({
+        distinctId: userId.toString(),
+        event: "semester_created",
+        properties: {
+          semesterId: sem.id,
+          name: semesters[i].name,
+          source: "seed",
+        },
+      });
+    });
   }
-
   return allSemesterIds;
 }
 
 async function seedClasses(semesterData) {
   const allClasses = [];
-
   for (const { userId, semesterId } of semesterData) {
     const count = faker.number.int({ min: 5, max: 6 });
-    const classes = [];
-
     for (let i = 0; i < count; i++) {
       const day = getRandom(DAYS);
       const startHour = faker.number.int({ min: 8, max: 16 });
@@ -108,8 +115,7 @@ async function seedClasses(semesterData) {
       const startDate = faker.date.recent({ days: 30 });
       const recurrence = faker.helpers.arrayElement(["weekly", "biweekly"]);
       const color = faker.color.rgb({ prefix: "#" });
-
-      classes.push({
+      const newClass = {
         class_type: "course",
         name: faker.word.words(2),
         abbreviation: faker.string.alpha({ length: 4 }),
@@ -127,51 +133,50 @@ async function seedClasses(semesterData) {
         color,
         semesterId,
         createdBy: userId,
+      };
+      const [{ id }] = await db
+        .insert(classesTable)
+        .values(newClass)
+        .returning({ id: classesTable.id });
+      posthog.capture({
+        distinctId: userId.toString(),
+        event: "class_created",
+        properties: {
+          classId: id,
+          title: newClass.name,
+          abbreviation: newClass.abbreviation,
+          recurrence: newClass.recurrence,
+          source: "seed",
+        },
       });
-    }
-
-    const inserted = await db
-      .insert(classesTable)
-      .values(classes)
-      .returning({ id: classesTable.id });
-
-    inserted.forEach((cls, index) => {
-      const c = classes[index];
-      const start = new Date(
-        `${faker.date.recent().toISOString().split("T")[0]}T${c.startTime}`
-      );
-      const end = new Date(
-        `${faker.date.recent().toISOString().split("T")[0]}T${c.endTime}`
-      );
-
+      const baseDate = faker.date.recent().toISOString().split("T")[0];
+      const start = new Date(`${baseDate}T${newClass.startTime}`);
+      const end = new Date(`${baseDate}T${newClass.endTime}`);
       allClasses.push({
-        classId: cls.id,
+        classId: id,
         userId,
-        color: c.color ?? "#a585ff",
+        color: newClass.color ?? "#a585ff",
         start,
         end,
-        day: c.day,
-        recurrence: c.recurrence,
+        day: newClass.day,
+        recurrence: newClass.recurrence,
+        title: newClass.name, // store title for later linking
       });
-    });
+    }
   }
-
   return allClasses;
 }
 
 async function seedCalendarEvents(users, classes) {
   const events = [];
-
   for (const cls of classes) {
     const seriesId = randomUUID();
     const weeks = cls.recurrence === "biweekly" ? 8 : 15;
-
     for (let i = 0; i < weeks; i++) {
       const start = new Date(cls.start);
       const end = new Date(cls.end);
       start.setDate(start.getDate() + 7 * i);
       end.setDate(end.getDate() + 7 * i);
-
       events.push({
         title: `Class: ${faker.word.words(2)}`,
         description: faker.lorem.sentence(),
@@ -186,15 +191,34 @@ async function seedCalendarEvents(users, classes) {
         additionalInfo: {},
       });
     }
+
+    // create study session linked to class
+    const start = new Date(cls.start);
+    start.setDate(start.getDate() + 1);
+    start.setHours(18);
+    const end = new Date(start);
+    end.setHours(end.getHours() + 2);
+    events.push({
+      title: `Study for ${cls.title}`,
+      description: "Linked study session",
+      startDateTime: start,
+      endDateTime: end,
+      eventType: "study session",
+      color: cls.color,
+      notifyMe: getRandom(NOTIFY_OPTIONS),
+      recurrence: null,
+      seriesId: null,
+      createdBy: cls.userId,
+      additionalInfo: { linkedClassId: cls.classId },
+    });
   }
 
-  for (const userId of users) {
+  for (const { id: userId } of users) {
     const count = faker.number.int({ min: 5, max: 10 });
     for (let i = 0; i < count; i++) {
       const start = faker.date.future();
       const end = new Date(start);
       end.setHours(start.getHours() + 2);
-
       events.push({
         title: faker.word.words(3),
         description: faker.lorem.sentence(),
@@ -211,49 +235,22 @@ async function seedCalendarEvents(users, classes) {
     }
   }
 
+  const normalized = events.map((ev) => ({
+    ...ev,
+    additionalInfo: JSON.stringify(ev.additionalInfo ?? {}),
+  }));
+
   const BATCH_SIZE = 100;
-  for (let i = 0; i < events.length; i += BATCH_SIZE) {
-    const batch = events.slice(i, i + BATCH_SIZE);
+  for (let i = 0; i < normalized.length; i += BATCH_SIZE) {
+    const batch = normalized.slice(i, i + BATCH_SIZE);
     await db.insert(calendarEventsTable).values(batch);
   }
 }
 
-async function seedNotebooks(userIds) {
-  for (const userId of userIds) {
-    const count = faker.number.int({ min: 7, max: 8 });
-
-    for (let i = 0; i < count; i++) {
-      const notebookId = randomUUID();
-
-      await db.insert(notebooks).values({
-        id: notebookId,
-        userId,
-        title: faker.word.words(2),
-        isPinned: faker.datatype.boolean(),
-      });
-
-      const pages = Array.from(
-        { length: faker.number.int({ min: 2, max: 5 }) },
-        () => ({
-          id: randomUUID(),
-          notebookId,
-          title: faker.word.words(3),
-          content: faker.lorem.paragraphs(2),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        })
-      );
-
-      await db.insert(notebookPages).values(pages);
-    }
-  }
-}
-
 (async () => {
-  const userIds = await seedUsers();
-  const semesters = await seedSemesters(userIds);
+  const users = await seedUsers();
+  const semesters = await seedSemesters(users);
   const classes = await seedClasses(semesters);
-  await seedCalendarEvents(userIds, classes);
-  await seedNotebooks(userIds);
+  await seedCalendarEvents(users, classes);
   console.log("Seed completed.");
 })();
