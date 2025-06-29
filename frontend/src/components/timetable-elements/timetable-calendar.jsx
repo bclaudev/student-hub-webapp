@@ -54,6 +54,7 @@ const TimetableCalendar = ({
   onSave,
   onDeleteClass,
   semesterStartDate,
+  semesterEndDate,
   semesterId,
   startWeekOnMonday = false,
 }) => {
@@ -128,14 +129,20 @@ const TimetableCalendar = ({
             const start = semesterStartDate
               ? new Date(semesterStartDate)
               : null;
+            const end = semesterEndDate ? new Date(semesterEndDate) : null;
 
-            let weekNumber = 1;
-            if (start && !isNaN(start)) {
-              weekNumber = Math.max(
-                1,
-                differenceInCalendarWeeks(now, start, { weekStartsOn: 1 }) + 1
-              );
-            }
+            if (!start || !end || isNaN(start) || isNaN(end)) return null;
+
+            const isInSemester =
+              now.getTime() >= start.getTime() &&
+              now.getTime() <= end.getTime();
+
+            if (!isInSemester) return null;
+
+            const weekNumber = Math.max(
+              1,
+              differenceInCalendarWeeks(now, start, { weekStartsOn: 1 }) + 1
+            );
 
             return (
               <div className="flex items-center justify-center h-full">
@@ -176,6 +183,7 @@ const TimetableCalendar = ({
           initialData={editingEvent}
           onSave={onSave}
           semesterId={semesterId}
+          semesterStartDate={semesterStartDate}
         />
       )}
       {previewClass && (

@@ -47,6 +47,7 @@ function App() {
         <ThemeProvider defaultTheme="dark" enableSystem={false}>
           <NotificationManager />
           <Toaster
+            visibleToasts={10}
             position="top-right"
             unstyled
             toastOptions={{

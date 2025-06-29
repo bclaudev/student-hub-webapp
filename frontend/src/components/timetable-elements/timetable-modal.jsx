@@ -79,10 +79,16 @@ export default function TimetableModal({
       recurrence,
       examDate: examDate || null,
       ...(typeof curriculum === "string" ? { curriculum } : {}),
-      startDate: new Date(semesterStartDate),
+
+      startDate:
+        recurrence === "once-a-week"
+          ? new Date(semesterStartDate)
+          : new Date(startDate),
+
+      color: initialData.color || "#a585ff",
     };
 
-    console.log("Payload:", payload);
+    console.log("Payload:", { ...payload, semesterId });
 
     try {
       const res = await fetch(
@@ -104,7 +110,8 @@ export default function TimetableModal({
       }
 
       console.log(`Class ${isEditMode ? "updated" : "saved"} successfully`);
-      if (onSave) await onSave();
+      const resultClass = await res.json();
+      if (onSave) await onSave(resultClass);
       onOpenChange(false);
     } catch (err) {
       console.error("Error saving class:", err);
@@ -291,6 +298,20 @@ export default function TimetableModal({
                 </Select>
               </div>
 
+              {recurrence !== "once-a-week" && (
+                <div className="space-y-2">
+                  <Label htmlFor="start-date">Start Date</Label>
+                  <Input
+                    id="start-date"
+                    name="startDate"
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    required
+                  />
+                </div>
+              )}
+
               {/* Exam Date */}
               <div className="space-y-2">
                 <Label htmlFor="exam-date">Exam Date</Label>
@@ -300,7 +321,6 @@ export default function TimetableModal({
                   type="date"
                   value={examDate}
                   onChange={(e) => setExamDate(e.target.value)}
-                  required
                 />
               </div>
             </div>
@@ -314,7 +334,6 @@ export default function TimetableModal({
                 type="file"
                 accept=".pdf,.doc,.docx"
                 onChange={(e) => setCurriculum(e.target.files[0])}
-                required
               />
               <p className="text-sm text-muted-foreground">
                 Upload curriculum file (PDF, DOC, DOCX)

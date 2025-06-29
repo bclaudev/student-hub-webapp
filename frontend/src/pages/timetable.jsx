@@ -27,7 +27,7 @@ export default function TimetablePage() {
 
     setClasses(data.classes);
     const allEvents = data.classes.flatMap((cls) =>
-      generateRecurringEvents(cls)
+      generateRecurringEvents(cls, activeSemester.startDate)
     );
     console.log("All generated events:", allEvents);
     setEvents(allEvents);
@@ -128,12 +128,25 @@ export default function TimetablePage() {
   );
 }
 
-export function generateRecurringEvents(cls) {
+export function generateRecurringEvents(cls, semesterStart) {
   if (!cls.startDate || !cls.startTime || !cls.endTime || !cls.day) {
     console.warn("Invalid class skipped:", cls);
     return [];
   }
 
+  const recurringTypesWithStartDate = [
+    "once-every-two-weeks",
+    "once-every-three-weeks",
+    "once-a-month",
+  ];
+
+  const shouldUseCustomStartDate = recurringTypesWithStartDate.includes(
+    cls.recurrence
+  );
+  const baseStartDate =
+    shouldUseCustomStartDate && cls.startDate
+      ? new Date(cls.startDate)
+      : new Date(semesterStart);
   const dayMap = {
     monday: RRule.MO,
     tuesday: RRule.TU,
@@ -157,20 +170,43 @@ export function generateRecurringEvents(cls) {
     return [];
   }
 
-  const startDate = new Date(cls.startDate);
-  startDate.setHours(sh, sm);
+  baseStartDate.setHours(sh, sm);
 
-  if (isNaN(startDate.getTime())) {
+  if (isNaN(baseStartDate.getTime())) {
     console.warn("Invalid startDate in class:", cls);
     return [];
   }
+  const intervalMap = {
+    "once-a-week": 1,
+    "once-every-two-weeks": 2,
+    "once-every-three-weeks": 3,
+    "once-a-month": 4,
+  };
+  const interval = intervalMap[cls.recurrence] || 1;
+
+  console.log(
+    "📆 Using start date:",
+    baseStartDate,
+    "interval:",
+    interval,
+    "recurrence:",
+    cls.recurrence
+  );
 
   const rule = new RRule({
     freq: RRule.WEEKLY,
+    interval,
     byweekday: weekday,
-    dtstart: startDate,
+    dtstart: baseStartDate,
     count: 10,
   });
+
+  console.log(
+    "📆 Using start date:",
+    baseStartDate,
+    "for recurrence:",
+    cls.recurrence
+  );
 
   const events = rule.all().map((date, index) => {
     const endDate = new Date(date);

@@ -5,6 +5,7 @@ export function generateRecurringClassEvents({
   recurrence,
   semesterStart,
   semesterEnd,
+  startDate,
 }) {
   const results = [];
   const [startHour, startMin] = startTime.split(":").map(Number);
@@ -23,12 +24,34 @@ export function generateRecurringClassEvents({
   const targetDay = dayMap[weekday];
   if (targetDay === undefined) return [];
 
-  let current = new Date(semesterStart);
+  let current;
 
-  while (current.getDay() !== targetDay) {
-    current.setDate(current.getDate() + 1);
+  if (startDate) {
+    current = new Date(startDate);
+  } else {
+    current = new Date(semesterStart);
+    while (current.getDay() !== targetDay) {
+      current.setDate(current.getDate() + 1);
+    }
   }
 
+  const intervalMap = {
+    "once-a-week": 7,
+    "once-every-two-weeks": 14,
+    "once-every-three-weeks": 21,
+    "once-a-month": 28,
+  };
+
+  const interval = intervalMap[recurrence] ?? 7;
+
+  console.log(
+    "🔁 Generating class events from:",
+    current,
+    "interval:",
+    interval,
+    "weekday:",
+    weekday
+  );
   while (current <= new Date(semesterEnd)) {
     const start = new Date(current);
     start.setHours(startHour, startMin, 0, 0);
@@ -38,15 +61,6 @@ export function generateRecurringClassEvents({
 
     results.push({ start, end });
 
-    const recurrenceMap = {
-      daily: 1,
-      weekly: 7,
-      biweekly: 14,
-      "every-three-weeks": 21,
-      monthly: 30,
-    };
-
-    const interval = recurrenceMap[recurrence] ?? 7;
     current.setDate(current.getDate() + interval);
   }
 

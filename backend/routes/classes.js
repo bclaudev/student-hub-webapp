@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { db } from "../db.js";
 import { classesTable, calendarEventsTable } from "../drizzle/schema.js";
 import { z } from "zod";
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import { generateRecurringClassEvents } from "../lib/recurrence/generate-recurring-class-events.js";
 import { semestersTable } from "../drizzle/schema.js";
@@ -30,6 +30,7 @@ const classSchema = z.object({
   curriculum: z.string().optional(),
   startDate: z.preprocess((val) => new Date(val), z.date()),
   semesterId: z.number(),
+  color: z.string().optional(),
 });
 
 classesRoute.use("*", verifyToken);
@@ -82,7 +83,7 @@ classesRoute.post("/", async (ctx) => {
 
   //Generate recurring class events
   const semester = await db.query.semestersTable.findFirst({
-    where: eq(semestersTable.createdBy, userId),
+    where: eq(semestersTable.id, parsed.data.semesterId),
   });
 
   if (!semester) {
@@ -105,6 +106,7 @@ classesRoute.post("/", async (ctx) => {
     semesterEnd: semester.endDate,
   });
   if (semester) {
+    const needsCustomStart = parsed.data.recurrence !== "once-a-week";
     const recurringEvents = generateRecurringClassEvents({
       weekday:
         parsed.data.day.charAt(0).toUpperCase() + parsed.data.day.slice(1),
@@ -113,6 +115,7 @@ classesRoute.post("/", async (ctx) => {
       recurrence: parsed.data.recurrence,
       semesterStart: semester.startDate,
       semesterEnd: semester.endDate,
+      startDate: needsCustomStart ? parsed.data.startDate : undefined,
     });
 
     const calendarEvents = recurringEvents.map(({ start, end }) => ({
@@ -140,28 +143,93 @@ classesRoute.post("/", async (ctx) => {
 });
 
 // UPDATE class
+// UPDATE class + regenerate calendar events
 classesRoute.put("/:id", async (ctx) => {
-  const userId = ctx.get("user").id;
-  const classId = Number(ctx.req.param("id"));
-  const body = await ctx.req.json();
-  const parsed = classSchema.safeParse(body);
+  try {
+    const userId = ctx.get("user").id;
+    const classId = Number(ctx.req.param("id"));
+    const body = await ctx.req.json();
+    const parsed = classSchema.safeParse(body);
 
-  if (!parsed.success) {
-    return ctx.json({ error: parsed.error.flatten() }, 400);
-  }
+    if (!parsed.success) {
+      return ctx.json({ error: parsed.error.flatten() }, 400);
+    }
 
-  const updatedPayload = {
-    ...parsed.data,
-  };
+    // Update class
+    await db
+      .update(classesTable)
+      .set(parsed.data)
+      .where(
+        and(eq(classesTable.id, classId), eq(classesTable.createdBy, userId))
+      );
 
-  await db
-    .update(classesTable)
-    .set(updatedPayload)
-    .where(
-      and(eq(classesTable.id, classId), eq(classesTable.createdBy, userId))
+    // 🔥 Delete old recurring events for this class
+    await db
+      .delete(calendarEventsTable)
+      .where(
+        and(
+          eq(calendarEventsTable.createdBy, userId),
+          eq(calendarEventsTable.eventType, "class"),
+          sql`(calendar_events.additional_info->>'classId')::int = ${classId}`
+        )
+      );
+
+    // 🔁 Regenerate recurring events
+    const semester = await db.query.semestersTable.findFirst({
+      where: eq(semestersTable.createdBy, userId),
+    });
+
+    if (!semester) {
+      return ctx.json({ error: "Semester not found for user" }, 400);
+    }
+
+    const recurrenceMap = {
+      "once-a-week": 7,
+      "once-every-two-weeks": 14,
+      "once-every-three-weeks": 21,
+      "once-a-month": 28,
+    };
+
+    const recurringEvents = generateRecurringClassEvents({
+      weekday:
+        parsed.data.day.charAt(0).toUpperCase() + parsed.data.day.slice(1),
+      startTime: parsed.data.startTime,
+      endTime: parsed.data.endTime,
+      recurrence: recurrenceMap[parsed.data.recurrence],
+      semesterStart: semester.startDate,
+      semesterEnd: semester.endDate,
+      startDate: classItem.startDate,
+    });
+
+    const seriesId = randomUUID();
+
+    const calendarEvents = recurringEvents.map(({ start, end }) => ({
+      title: parsed.data.name,
+      description: `Class: ${parsed.data.name}`,
+      startDateTime: start,
+      endDateTime: end,
+      eventType: "class",
+      color: parsed.data.color || "#a585ff",
+      createdBy: userId,
+      seriesId,
+      additionalInfo: {
+        classId,
+      },
+    }));
+
+    if (calendarEvents.length > 0) {
+      await db.insert(calendarEventsTable).values(calendarEvents);
+      console.log(`🔁 ${calendarEvents.length} recurring events updated`);
+    }
+
+    return ctx.json({ success: true });
+  } catch (error) {
+    console.error("/PUT /classes/:id failed:", error);
+    return ctx.json(
+      { error: "Internal Server Error", details: String(error) },
+      500
     );
-
-  return ctx.json({ success: true });
+  }
 });
 
 // DELETE class
@@ -205,14 +273,15 @@ classesRoute.get("/", async (ctx) => {
 
 // PATCH color only
 classesRoute.patch("/:id", async (c) => {
-  const id = c.req.param("id");
+  const id = Number(c.req.param("id"));
   const { color } = await c.req.json();
 
   try {
     await db.update(classesTable).set({ color }).where(eq(classesTable.id, id));
     return c.json({ success: true });
   } catch (error) {
-    return ctx.json(
+    console.error("❌ Failed to patch color:", error);
+    return c.json(
       { error: "Internal Server Error", details: String(error) },
       500
     );

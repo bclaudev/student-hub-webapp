@@ -202,12 +202,25 @@ eventsRoute.delete("/:id", async (c) => {
       return c.json({ error: "Event not found" }, 404);
     }
 
-    if (deleteAll && existingEvent.seriesId) {
+    if (deleteAll === true && existingEvent.seriesId) {
       await db
         .delete(calendarEventsTable)
         .where(eq(calendarEventsTable.seriesId, existingEvent.seriesId))
         .execute();
       return c.json({ message: "All recurring events deleted successfully" });
+    } else if (deleteAll === "following" && existingEvent.seriesId) {
+      await db
+        .delete(calendarEventsTable)
+        .where(
+          and(
+            eq(calendarEventsTable.seriesId, existingEvent.seriesId),
+            sql`${calendarEventsTable.startDateTime} >= ${existingEvent.startDateTime}`
+          )
+        )
+        .execute();
+      return c.json({
+        message: "This and following events deleted successfully",
+      });
     } else {
       await db
         .delete(calendarEventsTable)

@@ -14,17 +14,25 @@ import { toast } from "sonner";
 export function LoginForm({ fetchUser }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [notification, setNotification] = useState(null);
   const [rememberMe, setRememberMe] = useState(false);
+  const [invalidFields, setInvalidFields] = useState([]);
 
   const navigate = useNavigate();
+
+  const missing = [];
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!email || !password) {
-      console.error("Missing email or password");
+    if (!email.trim()) missing.push("email");
+    if (!password.trim()) missing.push("password");
+
+    if (missing.length) {
+      setInvalidFields(missing);
+      toast.error("Please fill in all required fields.");
       return;
+    } else {
+      setInvalidFields([]); // resetăm dacă totul e ok
     }
 
     try {
@@ -68,7 +76,7 @@ export function LoginForm({ fetchUser }) {
         className="absolute top-6 right-6 h-10 w-auto z-50"
       />
       {/* Left Panel */}
-      <div className="flex-1 bg-gradient-to-br from-[#a585ff] to-purple-600 relative overflow-hidden flex items-center justify-center p-12">
+      <div className="flex-1 bg-[#a585ff] relative overflow-hidden flex items-center justify-center p-12">
         <div className="relative z-10 text-white text-center max-w-md">
           <h1 className="text-5xl font-bold mb-6">
             Welcome back to Student Hub!
@@ -90,11 +98,14 @@ export function LoginForm({ fetchUser }) {
               <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <Input
                 type="email"
-                placeholder="Username or email"
+                placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-12 py-4 border-2 border-gray-200 rounded-2xl focus:border-[#a585ff] focus:ring-[#a585ff] text-gray-700 placeholder-gray-400"
-                required
+                className={`pl-12 py-4 border-2 rounded-2xl focus:ring-[#a585ff] focus:border-[#a585ff] placeholder-gray-400 text-gray-700 ${
+                  invalidFields.includes("email")
+                    ? "border-red-500"
+                    : "border-gray-200"
+                }`}
               />
             </div>
             <div className="relative">
@@ -104,8 +115,11 @@ export function LoginForm({ fetchUser }) {
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-12 py-4 border-2 border-gray-200 rounded-2xl focus:border-[#a585ff] focus:ring-[#a585ff] text-gray-700 placeholder-gray-400"
-                required
+                className={`pl-12 py-4 border-2 rounded-2xl focus:ring-[#a585ff] focus:border-[#a585ff] placeholder-gray-400 text-gray-700 ${
+                  invalidFields.includes("password")
+                    ? "border-red-500"
+                    : "border-gray-200"
+                }`}
               />
             </div>
             <div className="flex items-center justify-between">
@@ -139,7 +153,7 @@ export function LoginForm({ fetchUser }) {
             <div className="text-center pt-4">
               <span className="text-gray-600">New here? </span>
               <a
-                href="#"
+                href="/register"
                 className="text-[#a585ff] hover:text-[#9575ef] font-medium transition-colors"
               >
                 Create an Account
