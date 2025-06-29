@@ -69,11 +69,18 @@ export default function TimetableHeader({
         credentials: "include",
       });
 
-      if (!res.ok) throw new Error("Failed to delete semester");
+      if (!res.ok) {
+        throw new Error(`Failed to delete semester: ${res.status}`);
+      }
 
-      setSemesters((prev) => prev.filter((s) => s.id !== id));
-      onSemesterChange?.(null);
-      toast("Semester deleted successfully.");
+      try {
+        setSemesters((prev) => prev.filter((s) => s.id !== id));
+        onSemesterChange?.(null);
+        toast("Semester deleted successfully.");
+      } catch (err) {
+        console.error("⚠️ Error after deletion:", err);
+        toast("Semester deleted");
+      }
     } catch (err) {
       toast("Could not delete semester.");
     }
@@ -150,8 +157,8 @@ export default function TimetableHeader({
                         This action is <strong>permanent</strong> and cannot be
                         undone.
                         <br />
-                        All classes and calendar events associated with this
-                        semester will be <strong>permanently deleted</strong>.
+                        All classes associated with this semester will be{" "}
+                        <strong>permanently deleted</strong>.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

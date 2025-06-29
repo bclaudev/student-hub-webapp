@@ -58,7 +58,7 @@ const TimetableCalendar = ({
   semesterId,
   startWeekOnMonday = false,
 }) => {
-  console.log("📆 startWeekOnMonday received:", startWeekOnMonday);
+  console.log("startWeekOnMonday received:", startWeekOnMonday);
 
   const days = startWeekOnMonday
     ? [
@@ -79,7 +79,7 @@ const TimetableCalendar = ({
         "Friday",
         "Saturday",
       ];
-  console.log("🗓️ Days generated:", days);
+  console.log("Days generated:", days);
 
   const [editingEvent, setEditingEvent] = useState(null);
   const [previewClass, setPreviewClass] = useState(null);

@@ -11,6 +11,18 @@ import {
   ContextMenuSubTrigger,
 } from "@/components/ui/context-menu";
 
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+
 function darkenHexColor(hex, amount = 20) {
   return `#${hex
     .replace("#", "")
@@ -131,15 +143,30 @@ const TimetableItem = ({
 
       <ContextMenuContent className="w-48">
         <ContextMenuItem onClick={() => onEdit()}>Edit</ContextMenuItem>
-        <ContextMenuItem
-          onClick={() => {
-            if (confirm("Are you sure you want to delete this class?")) {
-              onDelete(event.classId);
-            }
-          }}
-        >
-          Delete
-        </ContextMenuItem>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <ContextMenuItem>Delete</ContextMenuItem>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete this class?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the
+                class and all its events.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-red-600 text-white hover:bg-red-700"
+                onClick={() => onDelete(event.classId)}
+              >
+                Confirm
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
         <ContextMenuSub>
           <ContextMenuSubTrigger>Change Color</ContextMenuSubTrigger>
           <ContextMenuSubContent>

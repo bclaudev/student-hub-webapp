@@ -55,11 +55,6 @@ export default function Calendar() {
     });
   }, [startWeekOnMonday]);
 
-  console.log(
-    "🧠 calendarWeekStartOnMonday from user context:",
-    user?.calendarWeekStartOnMonday
-  );
-
   const handleAddEvent = async (eventObj) => {
     try {
       const { dateRange, startTime, endTime, eventType, ...rest } = eventObj;

@@ -24,6 +24,7 @@ export default function TimetablePage() {
 
     const res = await fetch(`/api/classes?semesterId=${activeSemesterId}`);
     const data = await res.json();
+    console.log("📦 Classes received from backend:", data.classes);
 
     setClasses(data.classes);
     const allEvents = data.classes.flatMap((cls) =>
@@ -31,6 +32,7 @@ export default function TimetablePage() {
     );
     console.log("All generated events:", allEvents);
     setEvents(allEvents);
+    console.log("🗓️ Final timetable events:", allEvents);
   };
 
   // 2) Funcția de ștergere a unei clase: face DELETE + refetch
@@ -110,6 +112,7 @@ export default function TimetablePage() {
         onSemesterChange={(semester) => {
           setActiveSemester(semester);
           setActiveSemesterId(semester.id);
+          console.log("🎓 Selected semester:", semester);
         }}
       />
       <div className="flex-1 overflow-auto">
@@ -129,8 +132,8 @@ export default function TimetablePage() {
 }
 
 export function generateRecurringEvents(cls, semesterStart) {
-  if (!cls.startDate || !cls.startTime || !cls.endTime || !cls.day) {
-    console.warn("Invalid class skipped:", cls);
+  if (!cls.startTime || !cls.endTime || !cls.day) {
+    console.warn("Missing time or day in class:", cls);
     return [];
   }
 
@@ -143,10 +146,11 @@ export function generateRecurringEvents(cls, semesterStart) {
   const shouldUseCustomStartDate = recurringTypesWithStartDate.includes(
     cls.recurrence
   );
-  const baseStartDate =
-    shouldUseCustomStartDate && cls.startDate
-      ? new Date(cls.startDate)
-      : new Date(semesterStart);
+  const startDateRaw = (
+    shouldUseCustomStartDate ? cls.startDate : semesterStart
+  )?.replace(" ", "T");
+  const baseStartDate = new Date(startDateRaw);
+
   const dayMap = {
     monday: RRule.MO,
     tuesday: RRule.TU,
@@ -157,15 +161,14 @@ export function generateRecurringEvents(cls, semesterStart) {
 
   const weekday = dayMap[cls.day.toLowerCase()];
   if (!weekday) {
-    console.warn(" Invalid weekday in class:", cls.day);
+    console.warn("Invalid weekday in class:", cls.day);
     return [];
   }
 
-  // Protect split format
   const [sh, sm] = cls.startTime?.slice(0, 5).split(":").map(Number);
   const [eh, em] = cls.endTime?.slice(0, 5).split(":").map(Number);
 
-  if ([sh, sm, eh, em].some((n) => isNaN(n))) {
+  if ([sh, sm, eh, em].some(isNaN)) {
     console.warn("Invalid time values in class:", cls);
     return [];
   }
@@ -173,9 +176,10 @@ export function generateRecurringEvents(cls, semesterStart) {
   baseStartDate.setHours(sh, sm);
 
   if (isNaN(baseStartDate.getTime())) {
-    console.warn("Invalid startDate in class:", cls);
+    console.warn("Invalid startDate after parsing:", baseStartDate);
     return [];
   }
+
   const intervalMap = {
     "once-a-week": 1,
     "once-every-two-weeks": 2,
@@ -200,13 +204,6 @@ export function generateRecurringEvents(cls, semesterStart) {
     dtstart: baseStartDate,
     count: 10,
   });
-
-  console.log(
-    "📆 Using start date:",
-    baseStartDate,
-    "for recurrence:",
-    cls.recurrence
-  );
 
   const events = rule.all().map((date, index) => {
     const endDate = new Date(date);
