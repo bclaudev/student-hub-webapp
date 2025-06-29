@@ -55,7 +55,7 @@ export default function NotesPage() {
   return (
     <div className="p-6 space-y-6 bg-background min-h-screen">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-foreground">Your notes</h1>
+        <h1 className="text-lg font-semibold">Your notebooks</h1>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button>Create</Button>

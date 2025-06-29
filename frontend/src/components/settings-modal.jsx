@@ -52,9 +52,9 @@ const settingsTabs = [
 
 function SettingsContent({ activeTab }) {
   const tab = settingsTabs.find((t) => t.id === activeTab);
-  const [firstName, setFirstName] = useState("John");
-  const [lastName, setLastName] = useState("Doe");
-  const [emailCurrent, setEmailCurrent] = useState("john.doe@example.com");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [emailCurrent, setEmailCurrent] = useState("");
   const [emailNew, setEmailNew] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -145,6 +145,7 @@ function SettingsContent({ activeTab }) {
                 <Label htmlFor="firstName">First name</Label>
                 <Input
                   id="firstName"
+                  placeholder="First name"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                 />
@@ -154,6 +155,7 @@ function SettingsContent({ activeTab }) {
                 <Input
                   id="lastName"
                   value={lastName}
+                  placeholder="Last name"
                   onChange={(e) => setLastName(e.target.value)}
                 />
               </div>
@@ -169,6 +171,7 @@ function SettingsContent({ activeTab }) {
               <Input
                 id="email"
                 value={emailCurrent}
+                placeholder="Email"
                 onChange={(e) => setEmailCurrent(e.target.value)}
               />
             </div>
@@ -177,6 +180,7 @@ function SettingsContent({ activeTab }) {
               <Input
                 id="emailNew"
                 value={emailNew}
+                placeholder="New email"
                 onChange={(e) => setEmailNew(e.target.value)}
               />
             </div>
@@ -186,6 +190,7 @@ function SettingsContent({ activeTab }) {
                 <Input
                   id="password"
                   type="password"
+                  placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -196,6 +201,7 @@ function SettingsContent({ activeTab }) {
                   id="confirmPassword"
                   type="password"
                   value={confirmPassword}
+                  placeholder="Password"
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
               </div>
