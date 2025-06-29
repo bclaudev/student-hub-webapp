@@ -140,15 +140,16 @@ uploadRoute.post("/upload", async (c) => {
 
     posthog.capture({
       distinctId: userId,
-      event: "resource_uploaded",
+      event: "resources_uploaded",
       properties: {
-        totalFiles: files.length,
+        totalFiles: saved.length,
         totalSizeBytes: totalSize,
         totalSizeMB: +(totalSize / 1024 / 1024).toFixed(2),
       },
     });
 
-    console.log(" Event trimis spre PostHog!");
+    await posthog.flush();
+    console.log("Event trimis spre PostHog!");
 
     saved.push({
       ...inserted[0],

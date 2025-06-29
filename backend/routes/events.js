@@ -5,6 +5,7 @@ import { verifyToken } from "../middleware/authMiddleware.js";
 import { eq } from "drizzle-orm";
 import { generateRecurringClassEvents } from "../lib/recurrence/generate-recurring-class-events.js";
 import { randomUUID } from "crypto";
+import { posthog } from "../lib/posthog.js";
 
 const eventsRoute = new Hono();
 
@@ -80,6 +81,21 @@ eventsRoute.post("/", async (c) => {
         .values(eventsToInsert)
         .returning();
 
+      inserted.forEach((ev) => {
+        posthog.capture({
+          distinctId: userId,
+          event: "calendar_event_created",
+          properties: {
+            type: ev.eventType,
+            source: "manual",
+            recurring: true,
+            eventId: ev.id,
+            title: ev.title,
+          },
+        });
+      });
+      await posthog.flush();
+
       return c.json({ events: inserted }, 201);
     }
 
@@ -98,6 +114,19 @@ eventsRoute.post("/", async (c) => {
         additionalInfo,
       })
       .returning();
+
+    posthog.capture({
+      distinctId: userId,
+      event: "calendar_event_created",
+      properties: {
+        type: newEvent[0].eventType,
+        source: "manual",
+        recurring: false,
+        eventId: newEvent[0].id,
+        title: newEvent[0].title,
+      },
+    });
+    await posthog.flush();
 
     return c.json({ event: newEvent }, 201);
   } catch (error) {

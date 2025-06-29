@@ -3,6 +3,7 @@ import { notebooks } from "../drizzle/schema.js";
 import { db } from "../db.js";
 import { eq } from "drizzle-orm";
 import { verifyToken } from "../middleware/authMiddleware.js";
+import { posthog } from "../lib/posthog.js";
 
 const notebooksRoute = new Hono();
 notebooksRoute.use("*", verifyToken);
@@ -16,6 +17,18 @@ notebooksRoute.post("/notebooks", async (c) => {
     .insert(notebooks)
     .values({ userId, title })
     .returning({ id: notebooks.id });
+
+  posthog.capture({
+    distinctId: userId,
+    event: "notebook_created",
+    properties: {
+      notebookId: notebook.id,
+      title: notebook.title,
+      createdAt: new Date().toISOString(),
+    },
+  });
+
+  await posthog.flush();
 
   return c.json({ id: notebook.id });
 });

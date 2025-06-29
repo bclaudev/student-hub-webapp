@@ -7,6 +7,7 @@ import { verifyToken } from "../middleware/authMiddleware.js";
 import { generateRecurringClassEvents } from "../lib/recurrence/generate-recurring-class-events.js";
 import { semestersTable } from "../drizzle/schema.js";
 import { randomUUID } from "crypto";
+import { posthog } from "../lib/posthog.js";
 
 const classesRoute = new Hono();
 
@@ -79,6 +80,17 @@ classesRoute.post("/", async (ctx) => {
       },
     });
     console.log("Exam calendar event created (POST)");
+
+    posthog.capture({
+      distinctId: userId,
+      event: "calendar_event_created",
+      properties: {
+        type: "exam",
+        source: "timetable_auto",
+        recurring: false,
+        title: `Exam for ${parsed.data.name}`,
+      },
+    });
   }
 
   //Generate recurring class events
@@ -133,8 +145,26 @@ classesRoute.post("/", async (ctx) => {
     }));
 
     if (calendarEvents.length > 0) {
-      await db.insert(calendarEventsTable).values(calendarEvents);
+      const insertedEvents = await db
+        .insert(calendarEventsTable)
+        .values(calendarEvents)
+        .returning();
       console.log(`✅ ${calendarEvents.length} class events created`);
+      insertedEvents.forEach((ev) => {
+        posthog.capture({
+          distinctId: userId,
+          event: "calendar_event_created",
+          properties: {
+            type: "class",
+            source: "timetable_auto",
+            recurring: true,
+            eventId: ev.id,
+            title: ev.title,
+          },
+        });
+      });
+
+      await posthog.flush();
     } else {
       console.warn("⚠️ No recurring events generated, skipping insert.");
     }
