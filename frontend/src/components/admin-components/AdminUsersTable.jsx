@@ -101,19 +101,19 @@ export default function AdminUsersTable() {
           <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger asChild>
               <Button variant="destructive" size="sm">
-                Șterge
+                Delete
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent className="text-foreground">
               <AlertDialogHeader>
-                <AlertDialogTitle>Confirmare ștergere</AlertDialogTitle>
+                <AlertDialogTitle>Confirm delete</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Sigur vrei să ștergi utilizatorul{" "}
+                  Are you sure you want to delete user{" "}
                   <strong>{user.email}</strong>?
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Anulează</AlertDialogCancel>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={async () => {
                     try {
@@ -134,7 +134,7 @@ export default function AdminUsersTable() {
                     }
                   }}
                 >
-                  Confirmă
+                  Confirm
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -174,7 +174,7 @@ export default function AdminUsersTable() {
     <Card className="mt-6">
       <CardContent className="overflow-x-auto p-4">
         {isLoading ? (
-          <div>Se încarcă utilizatorii...</div>
+          <div>Loading users...</div>
         ) : (
           <>
             <Table>
@@ -241,10 +241,10 @@ export default function AdminUsersTable() {
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
               >
-                Înapoi
+                Back
               </Button>
               <div>
-                Pagina {table.getState().pagination.pageIndex + 1} /{" "}
+                Page {table.getState().pagination.pageIndex + 1} /{" "}
                 {table.getPageCount()}
               </div>
               <Button
@@ -253,7 +253,7 @@ export default function AdminUsersTable() {
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
               >
-                Înainte
+                Next
               </Button>
             </div>
           </>

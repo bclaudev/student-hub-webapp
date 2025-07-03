@@ -109,7 +109,7 @@ export function registerAdminRoutes(app) {
       GROUP BY week
       ORDER BY week ASC
     `);
-    console.log("👀 Users per week:", result);
+    console.log("Users per week:", result);
 
     return c.json(result);
   });

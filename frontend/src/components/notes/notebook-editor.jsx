@@ -10,7 +10,7 @@ export function NotebookEditor({ notebookId }) {
     extensions: [
       StarterKit,
       Placeholder.configure({
-        placeholder: "Scrie notițele tale aici...",
+        placeholder: "Write your notes here...",
       }),
     ],
     content: "",
@@ -50,7 +50,7 @@ export function NotebookEditor({ notebookId }) {
       />
 
       <Button className="mt-4" onClick={handleSave}>
-        Salvează
+        Save
       </Button>
     </div>
   );

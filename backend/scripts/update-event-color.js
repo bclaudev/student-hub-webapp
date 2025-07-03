@@ -24,12 +24,12 @@ async function syncColorFromAdditionalInfo() {
     }
   }
 
-  console.log(`🎨 Updated ${updated} events with color from additionalInfo`);
+  console.log(`Updated ${updated} events with color from additionalInfo`);
 }
 
 syncColorFromAdditionalInfo()
   .then(() => process.exit(0))
   .catch((err) => {
-    console.error("❌ Failed to sync colors:", err);
+    console.error("Failed to sync colors:", err);
     process.exit(1);
   });

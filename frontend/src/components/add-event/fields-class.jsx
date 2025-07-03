@@ -215,9 +215,7 @@ export default function ClassFields() {
             Choose File
           </Button>
         </Label>
-        <p className="text-sm text-muted-foreground mt-2">
-          PDF, DOC, DOCX up to 10MB
-        </p>
+        <p className="text-sm text-muted-foreground mt-2">PDF, DOC, DOCX</p>
       </div>
     </div>
   );

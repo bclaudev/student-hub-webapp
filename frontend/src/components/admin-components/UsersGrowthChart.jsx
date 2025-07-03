@@ -21,12 +21,12 @@ export function UserGrowthChart() {
     },
   });
 
-  if (isLoading) return <div>Se încarcă graficul...</div>;
+  if (isLoading) return <div>Loading graph...</div>;
 
   return (
     <Card>
       <CardHeader>
-        <h2 className="text-lg font-semibold">Utilizatori noi / săptămână</h2>
+        <h2 className="text-lg font-semibold">New users / week</h2>
       </CardHeader>
       <CardContent className="h-72">
         <ResponsiveContainer width="100%" height="100%">

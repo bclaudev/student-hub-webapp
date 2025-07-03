@@ -115,7 +115,7 @@ classesRoute.post("/", async (ctx) => {
       400
     );
   }
-  console.log("📦 Generating recurring events with:", {
+  console.log("Generating recurring events with:", {
     weekday: parsed.data.day,
     startTime: parsed.data.startTime,
     endTime: parsed.data.endTime,
@@ -282,7 +282,7 @@ classesRoute.put("/:id", async (ctx) => {
 
     if (calendarEvents.length > 0) {
       await db.insert(calendarEventsTable).values(calendarEvents);
-      console.log(`🔁 ${calendarEvents.length} recurring events updated`);
+      console.log(`${calendarEvents.length} recurring events updated`);
     }
 
     return ctx.json({ success: true });

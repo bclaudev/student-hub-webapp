@@ -19,11 +19,11 @@ try {
     },
   });
 
-  console.log("✅ Event înregistrat local, așteptăm flush...");
+  console.log("Event înregistrat local, așteptăm flush...");
   await posthog.flush();
-  console.log("🚀 Flush complet. Ar trebui să apară în PostHog.");
+  console.log("Flush complet. Ar trebui să apară în PostHog.");
 } catch (error) {
-  console.error("❌ Eroare la capture:", error);
+  console.error("Eroare la capture:", error);
 }
 
 await posthog.shutdown();

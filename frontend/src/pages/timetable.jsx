@@ -45,7 +45,7 @@ export default function TimetablePage() {
 
         setActiveSemester(active);
         setActiveSemesterId(active.id);
-        console.log("📚 Semestrul selectat automat:", active);
+        console.log("Semestrul selectat automat:", active);
       }
     };
 
@@ -57,7 +57,7 @@ export default function TimetablePage() {
 
     const res = await fetch(`/api/classes?semesterId=${activeSemesterId}`);
     const data = await res.json();
-    console.log("📦 Classes received from backend:", data.classes);
+    console.log("Classes received from backend:", data.classes);
 
     setClasses(data.classes);
   };

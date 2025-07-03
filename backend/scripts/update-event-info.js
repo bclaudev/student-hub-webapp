@@ -9,7 +9,7 @@ const run = async () => {
     .from(calendarEventsTable)
     .where(eq(calendarEventsTable.eventType, "class"));
 
-  console.log(`🔎 Found ${events.length} class events`);
+  console.log(`Found ${events.length} class events`);
 
   let updated = 0;
 
@@ -52,11 +52,11 @@ const run = async () => {
     updated++;
   }
 
-  console.log(`✅ Updated ${updated} calendar class events.`);
+  console.log(`Updated ${updated} calendar class events.`);
   process.exit(0);
 };
 
 run().catch((err) => {
-  console.error("❌ Failed to run script:", err);
+  console.error("Failed to run script:", err);
   process.exit(1);
 });

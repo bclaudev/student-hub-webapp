@@ -36,7 +36,10 @@ export default function Onboarding() {
       if (res.ok) {
         window.location.href = "/timetable";
       } else {
-        alert("Eroare la salvarea semestrului");
+        toast.error("Error while saving the semester", {
+          description: "Please try again later.",
+          duration: 4000,
+        });
       }
     }
   };

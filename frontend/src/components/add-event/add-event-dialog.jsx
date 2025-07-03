@@ -107,7 +107,7 @@ export default function AddEventModal({
 
   // Handle form submission
   const handleSubmit = (data) => {
-    console.log("✅ FORM SUBMIT:", data);
+    console.log("FORM SUBMIT:", data);
 
     const additionalInfo = {};
     if (eventType === "study") {

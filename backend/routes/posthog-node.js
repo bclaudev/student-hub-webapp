@@ -16,4 +16,3 @@ posthog.capture({
 });
 
 await posthog.flush();
-console.log("Event trimis manual");

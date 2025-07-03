@@ -42,8 +42,10 @@ export default function NotesPage() {
 
     if (!res.ok) {
       const error = await res.json();
-      console.error("❌ Eroare la creare notebook:", error);
-      alert("Eroare la creare notebook: " + (error?.error || res.statusText));
+      console.error("Eroare la creare notebook:", error);
+      toast.error("Error while creating notebook", {
+        description: error?.error || res.statusText || "Error unknown",
+      });
       return;
     }
 

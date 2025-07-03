@@ -96,7 +96,7 @@ export default function NotebookEditorPage() {
     let currentPageId = pageId;
 
     if (!currentPageId) {
-      console.log("🆕 POSTING NEW...");
+      console.log("POSTING NEW...");
       const res = await fetch(`http://localhost:8787/api/notebook-pages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

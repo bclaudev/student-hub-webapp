@@ -33,7 +33,7 @@ resourcesRoute.get("/", async (c) => {
 
     return c.json(resources);
   } catch (err) {
-    console.error("❌ Eroare în GET /resources:", err);
+    console.error(" Eroare în GET /resources:", err);
     return c.json({ error: "Internal server error" }, 500);
   }
 });

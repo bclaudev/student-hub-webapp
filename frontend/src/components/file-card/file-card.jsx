@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 /**
- * 🔄 FileCard component without ContextMenu.
+ *  FileCard component without ContextMenu.
  * All tag‑related actions are handled through the dropdown in <FileHeader/>.
  */
 export default function FileCard({
@@ -90,7 +90,7 @@ export default function FileCard({
         { state: { fileUrl: thumbnailUrl, fileId } }
       );
     } else {
-      alert("Tip de fișier momentan nesuportat de viewer.");
+      alert("This file type is not supported for viewing.");
     }
   };
 

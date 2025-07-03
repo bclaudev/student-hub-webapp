@@ -87,7 +87,7 @@ function SettingsContent({ activeTab }) {
 
     if (res.ok) {
       const data = await res.json();
-      console.log("Updated user from backend:", data.user); // 🔍 vezi dacă are firstName
+      console.log("Updated user from backend:", data.user);
 
       setUser(data.user);
       toast.success("Name updated!");

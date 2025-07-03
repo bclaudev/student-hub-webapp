@@ -110,8 +110,7 @@ export default function DocumentViewer() {
   if (!fileUrl) {
     return (
       <div className="p-6 text-center text-red-500">
-        Fișierul nu a fost specificat. Te rugăm să te întorci și să alegi un
-        document.
+        The document URL is missing. Please provide a valid file URL.
       </div>
     );
   }

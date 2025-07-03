@@ -39,8 +39,8 @@ notebookPagesRoute.patch("/notebook-pages/:id", async (c) => {
     const body = await c.req.json();
     const userId = c.get("user").id;
 
-    console.log("🔍 PATCH request for page:", id);
-    console.log("👤 User ID:", userId);
+    console.log(" PATCH request for page:", id);
+    console.log(" User ID:", userId);
 
     const page = await db.query.notebookPages.findFirst({
       where: (notebookPages, { eq }) => eq(notebookPages.id, id),
