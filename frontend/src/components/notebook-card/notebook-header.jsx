@@ -16,6 +16,7 @@ export default function NotebookHeader({
   onTogglePin,
   onRename,
   onDelete,
+  onDownload,
 }) {
   return (
     <header className="flex justify-between items-start w-full">
@@ -63,6 +64,14 @@ export default function NotebookHeader({
             className="text-red-500"
           >
             Delete
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={(e) => {
+              e.stopPropagation();
+              onDownload?.();
+            }}
+          >
+            Download
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

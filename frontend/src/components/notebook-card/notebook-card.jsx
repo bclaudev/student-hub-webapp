@@ -79,6 +79,19 @@ export default function NotebookCard({ notebook }) {
     }, 0);
   };
 
+  const handleDownload = () => {
+    const content = JSON.stringify(notebook, null, 2);
+    const blob = new Blob([content], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${notebook.title || "notebook"}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <article
       ref={cardRef}
@@ -101,6 +114,7 @@ export default function NotebookCard({ notebook }) {
         onTogglePin={handleTogglePin}
         onRename={() => setIsRenameOpen(true)}
         onDelete={handleDelete}
+        onDownload={handleDownload}
       />
       <NotebookCover content={thumbnail} />
       <NotebookInfo title={title} updatedAt={notebook.updatedAt} />
