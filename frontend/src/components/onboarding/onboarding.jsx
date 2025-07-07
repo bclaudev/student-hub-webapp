@@ -12,6 +12,12 @@ import {
 import { CalendarIcon, GraduationCap, Clock, Target } from "lucide-react";
 import { format } from "date-fns";
 
+function formatDateToLocalYYYYMMDD(date) {
+  const offset = date.getTimezoneOffset();
+  const localDate = new Date(date.getTime() - offset * 60 * 1000);
+  return localDate.toISOString().split("T")[0];
+}
+
 export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState(1);
   const [semesterStart, setSemesterStart] = useState();
@@ -28,8 +34,8 @@ export default function Onboarding() {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          startDate: semesterStart?.toISOString().split("T")[0],
-          endDate: semesterEnd?.toISOString().split("T")[0],
+          startDate: formatDateToLocalYYYYMMDD(semesterStart),
+          endDate: formatDateToLocalYYYYMMDD(semesterEnd),
         }),
       });
 

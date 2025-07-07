@@ -59,7 +59,8 @@ export const registerUser = async (c) => {
         dateOfBirth: parsedDate, // Save properly formatted date
       })
       .returning();
-    console.log("📬 Sending PostHog event for user:", newUser.email);
+
+    console.log("Sending PostHog event for user:", newUser.email);
 
     // Posthog event tracking
     await posthog.capture({

@@ -8,8 +8,11 @@ import { User, Lock, Mail, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import { registerSchema } from "@/schemas/register-schema";
 import { z } from "zod";
+import { useNavigate } from "react-router-dom";
+import { sendWelcomeEmail } from "@/lib/sendWelcomeEmail";
 
 export function RegisterForm() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -56,6 +59,16 @@ export function RegisterForm() {
 
       if (res.ok) {
         toast.success("Account created successfully!");
+
+        await sendWelcomeEmail({
+          firstName: formData.firstName,
+          email: formData.email,
+          password: formData.password,
+        });
+
+        setTimeout(() => {
+          navigate("/login");
+        }, 1500);
         // Optional: redirect or clear form
       } else {
         toast.error(data?.message || "Registration failed");
