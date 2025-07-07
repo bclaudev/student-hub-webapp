@@ -4,8 +4,25 @@ import NotebookCover from "./notebook-cover";
 import NotebookInfo from "./notebook-info";
 import RenameNotebookModal from "./rename-notebook-modal";
 import { useRef } from "react";
+import { jsPDF } from "jspdf";
 
 import { useState, useEffect } from "react";
+
+function extractTextFromTipTapJSON(json) {
+  let text = "";
+
+  if (json.type === "text" && json.text) {
+    text += json.text;
+  }
+
+  if (Array.isArray(json.content)) {
+    for (const child of json.content) {
+      text += extractTextFromTipTapJSON(child) + "\n";
+    }
+  }
+
+  return text;
+}
 
 export default function NotebookCard({ notebook }) {
   const cardRef = useRef(null);
@@ -80,16 +97,46 @@ export default function NotebookCard({ notebook }) {
   };
 
   const handleDownload = () => {
-    const content = JSON.stringify(notebook, null, 2);
-    const blob = new Blob([content], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
+    const doc = new jsPDF();
+    const title = notebook.title || "Notebook";
+    const updatedAt = new Date(notebook.updatedAt).toLocaleDateString("ro-RO");
+    let y = 20;
 
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${notebook.title || "notebook"}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    doc.setFontSize(16);
+    doc.text(title, 10, y);
+    y += 10;
+
+    doc.setFontSize(10);
+    doc.text(`Last updated: ${updatedAt}`, 10, y);
+    y += 10;
+
+    doc.setFontSize(12);
+    y += 10;
+
+    notebook.pages.forEach((page, index) => {
+      try {
+        const parsed = JSON.parse(page.content || "{}");
+        const pageText = extractTextFromTipTapJSON(parsed).trim();
+
+        doc.setFontSize(11);
+
+        y += 6;
+
+        const wrapped = doc.splitTextToSize(pageText, 180);
+        doc.text(wrapped, 10, y);
+        y += wrapped.length * 6;
+
+        if (y > 270) {
+          doc.addPage();
+          y = 20;
+        }
+      } catch (e) {
+        doc.text(`Page ${index + 1}: (could not read content)`, 10, y);
+        y += 10;
+      }
+    });
+
+    doc.save(`${title}.pdf`);
   };
 
   return (
