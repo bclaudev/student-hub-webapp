@@ -3,6 +3,7 @@ import { verifyToken } from "../middleware/authMiddleware.js";
 import { db } from "../db.js";
 import { annotationsTable } from "../drizzle/schema.js";
 import { eq, and } from "drizzle-orm";
+import { posthog } from "../lib/posthog.js";
 
 const annotationsRoute = new Hono();
 annotationsRoute.use("*", verifyToken);
@@ -32,6 +33,18 @@ annotationsRoute.post("/", async (c) => {
         updatedAt: new Date(),
       },
     });
+
+  await posthog.capture({
+    distinctId: user.id,
+    event: "annotations_saved",
+    properties: {
+      fileId,
+      annotationsCount: annotations?.annotations?.length || 0,
+      commentsCount: annotations?.comments?.length || 0,
+    },
+  });
+
+  await posthog.flush();
 
   return c.json({ success: true });
 });

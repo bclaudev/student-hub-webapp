@@ -56,6 +56,21 @@ classesRoute.post("/", async (ctx) => {
   const result = await db.insert(classesTable).values(payload).returning();
   const insertedClass = result[0];
 
+  posthog.capture({
+    distinctId: userId,
+    event: "class_created",
+    properties: {
+      classId: insertedClass.id,
+      name: parsed.data.name,
+      type: parsed.data.class_type,
+      deliveryMode: parsed.data.deliveryMode,
+      withExam: !!parsed.data.examDate,
+      source: "timetable_manual",
+    },
+  });
+
+  await posthog.flush();
+
   const cleanExamDate =
     parsed.data.examDate instanceof Date &&
     !isNaN(parsed.data.examDate.getTime())
@@ -305,6 +320,15 @@ classesRoute.delete("/:id", async (ctx) => {
     .where(
       and(eq(classesTable.id, classId), eq(classesTable.createdBy, userId))
     );
+
+  posthog.capture({
+    distinctId: userId,
+    event: "class_deleted",
+    properties: {
+      classId,
+    },
+  });
+  await posthog.flush();
 
   return ctx.json({ success: true });
 });

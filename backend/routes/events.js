@@ -264,6 +264,21 @@ eventsRoute.delete("/:id", async (c) => {
         .delete(calendarEventsTable)
         .where(eq(calendarEventsTable.seriesId, existingEvent.seriesId))
         .execute();
+
+      posthog.capture({
+        distinctId: user.id,
+        event: "calendar_event_deleted",
+        properties: {
+          eventId: eventId,
+          type: existingEvent.eventType,
+          title: existingEvent.title,
+          deletedAll: deleteAll === true,
+          deletedFollowing: deleteAll === "following",
+          recurring: !!existingEvent.seriesId,
+        },
+      });
+      await posthog.flush();
+
       return c.json({ message: "All recurring events deleted successfully" });
     } else if (deleteAll === "following" && existingEvent.seriesId) {
       await db
@@ -275,6 +290,21 @@ eventsRoute.delete("/:id", async (c) => {
           )
         )
         .execute();
+
+      posthog.capture({
+        distinctId: user.id,
+        event: "calendar_event_deleted",
+        properties: {
+          eventId: eventId,
+          type: existingEvent.eventType,
+          title: existingEvent.title,
+          deletedAll: deleteAll === true,
+          deletedFollowing: deleteAll === "following",
+          recurring: !!existingEvent.seriesId,
+        },
+      });
+      await posthog.flush();
+
       return c.json({
         message: "This and following events deleted successfully",
       });
@@ -283,6 +313,21 @@ eventsRoute.delete("/:id", async (c) => {
         .delete(calendarEventsTable)
         .where(eq(calendarEventsTable.id, eventId))
         .execute();
+
+      posthog.capture({
+        distinctId: user.id,
+        event: "calendar_event_deleted",
+        properties: {
+          eventId: eventId,
+          type: existingEvent.eventType,
+          title: existingEvent.title,
+          deletedAll: deleteAll === true,
+          deletedFollowing: deleteAll === "following",
+          recurring: !!existingEvent.seriesId,
+        },
+      });
+      await posthog.flush();
+
       return c.json({ message: "Event deleted successfully" });
     }
   } catch (error) {

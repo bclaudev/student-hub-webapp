@@ -1,8 +1,9 @@
-import jwt from 'jsonwebtoken';
-import { db } from '../db.js';
-import { usersTable } from '../drizzle/schema.js';
-import { eq } from 'drizzle-orm';
-import { setCookie } from 'hono/cookie';
+import jwt from "jsonwebtoken";
+import { db } from "../db.js";
+import { usersTable } from "../drizzle/schema.js";
+import { eq } from "drizzle-orm";
+import { setCookie } from "hono/cookie";
+import { posthog } from "../lib/posthog.js";
 
 export const login = async (c) => {
   try {
@@ -34,16 +35,26 @@ export const login = async (c) => {
         role: user.role,
       },
       process.env.JWT_SECRET,
-      { expiresIn: '12h' } // Token expires in 12 hours
+      { expiresIn: "12h" } // Token expires in 12 hours
     );
 
     // Set the token as a cookie
-    setCookie(c, 'token', token, {
+    setCookie(c, "token", token, {
       httpOnly: true,
       secure: false, // Change to `true` in production
-      sameSite: 'Lax',
-      path: '/',
+      sameSite: "Lax",
+      path: "/",
       maxAge: 12 * 60 * 60, // 12 hours
+    });
+
+    await posthog.capture({
+      distinctId: user.id,
+      event: "user_logged_in",
+      properties: {
+        email: user.email,
+        role: user.role || "user",
+        source: "login_form",
+      },
     });
 
     // Return success message and user details
@@ -54,11 +65,14 @@ export const login = async (c) => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-      }
+      },
     });
   } catch (error) {
     // Handle any errors that occur during the login process
     console.error("Error during login:", error);
-    return c.json({ message: "An error occurred. Please try again later." }, 500);
+    return c.json(
+      { message: "An error occurred. Please try again later." },
+      500
+    );
   }
 };

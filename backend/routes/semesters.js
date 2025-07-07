@@ -40,6 +40,17 @@ semestersRoute.post("/set", async (c) => {
     endDate,
   });
 
+  await posthog.capture({
+    distinctId: user.id,
+    event: "semester_created",
+    properties: {
+      name: name ?? "Current Semester",
+      startDate,
+      endDate,
+    },
+  });
+  await posthog.flush();
+
   return c.json({ success: true });
 });
 
@@ -61,6 +72,15 @@ semestersRoute.delete("/:id", async (c) => {
           eq(semestersTable.createdBy, user.id)
         )
       );
+
+    await posthog.capture({
+      distinctId: user.id,
+      event: "semester_deleted",
+      properties: {
+        semesterId: Number(id),
+      },
+    });
+    await posthog.flush();
 
     return c.json({ success: true });
   } catch (err) {
@@ -96,6 +116,18 @@ semestersRoute.patch("/:id", async (c) => {
     if (result.length === 0) {
       return c.json({ error: "Semester not found or not yours" }, 404);
     }
+
+    await posthog.capture({
+      distinctId: user.id,
+      event: "semester_updated",
+      properties: {
+        semesterId: Number(id),
+        name,
+        startDate,
+        endDate,
+      },
+    });
+    await posthog.flush();
 
     return c.json(result[0]); // trimite înapoi semestrul actualizat
   } catch (err) {

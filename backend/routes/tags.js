@@ -85,6 +85,21 @@ tagsRoute.post("/tags", async (c) => {
       groupId: tagId,
     });
 
+    if (existing.length > 0) {
+      posthog.capture({
+        distinctId: String(user.id),
+        event: "tag_used_manually",
+        properties: {
+          tagId,
+          tagName: name,
+          fileId,
+          reused: true,
+        },
+      });
+    }
+
+    await posthog.flush();
+
     return c.json({ success: true, name, id: tagId });
   } catch (error) {
     console.error("Eroare în POST /tags:", error);
