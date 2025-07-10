@@ -122,15 +122,15 @@ export function LoginForm({ fetchUser }) {
                 }`}
               />
             </div>
-            <div className="flex items-center justify-between">
+            {/* <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="remember"
                   checked={rememberMe}
                   onCheckedChange={(checked) => setRememberMe(checked)}
                   className="border-gray-300"
-                />
-                <label
+                /> */}
+            {/* <label
                   htmlFor="remember"
                   className="text-sm text-gray-600 cursor-pointer"
                 >
@@ -142,8 +142,8 @@ export function LoginForm({ fetchUser }) {
                 className="text-sm text-gray-500 hover:text-[#a585ff] transition-colors"
               >
                 Forgot password?
-              </a>
-            </div>
+              </a> */}
+            {/* </div> */}
             <Button
               type="submit"
               className="w-full bg-[#a585ff] hover:bg-[#9575ef] text-white font-semibold py-4 rounded-2xl transition-all duration-300 text-lg"
