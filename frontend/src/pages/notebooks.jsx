@@ -50,7 +50,7 @@ export default function NotesPage() {
     }
 
     const data = await res.json();
-    console.log("✅ Notebook creat:", data);
+    console.log("Notebook creat:", data);
     navigate(`/notebooks/${data.id}`);
   };
 
@@ -71,9 +71,11 @@ export default function NotesPage() {
       </div>
 
       <div
-        className="py-4 grid max-w-screen-xl gap-4 w-full h-[calc(100vh-100px)] overflow-y-auto"
+        className="py-4 grid max-w-screen-xl gap-x-4 w-full h-[calc(100vh-100px)] overflow-y-auto"
         style={{
-          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fill, minmax(180px, max-content))",
+          alignItems: "start",
+          rowGap: "60px",
         }}
       >
         {notebooks.map((notebook) => (

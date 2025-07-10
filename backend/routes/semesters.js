@@ -5,6 +5,7 @@ import { db } from "../db.js";
 import { semestersTable } from "../drizzle/schema.js";
 import { and, eq, lte, gte } from "drizzle-orm";
 import { classesTable } from "../drizzle/schema.js";
+import { posthog } from "../lib/posthog.js";
 
 const semesterSchema = z.object({
   name: z.string().optional(),
@@ -32,6 +33,12 @@ semestersRoute.post("/set", async (c) => {
   const { name, startDate, endDate } = parsed.data;
 
   // await db.delete(semestersTable).where(eq(semestersTable.createdBy, user.id));
+
+  console.log("user from token:", user); // Adaugă asta
+  if (!user?.id) {
+    console.error(" Missing user ID!");
+    return c.json({ error: "Unauthorized (no ID)" }, 401);
+  }
 
   await db.insert(semestersTable).values({
     createdBy: user.id,

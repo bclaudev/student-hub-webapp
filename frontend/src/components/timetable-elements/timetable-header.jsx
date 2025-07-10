@@ -78,7 +78,7 @@ export default function TimetableHeader({
         onSemesterChange?.(null);
         toast("Semester deleted successfully.");
       } catch (err) {
-        console.error("⚠️ Error after deletion:", err);
+        console.error(" Error after deletion:", err);
         toast("Semester deleted");
       }
     } catch (err) {
@@ -193,7 +193,7 @@ export default function TimetableHeader({
         open={isDialogOpen}
         onOpenChange={(open) => {
           setIsDialogOpen(open);
-          if (!open) setEditingSemester(null); // reset după închidere
+          if (!open) setEditingSemester(null);
         }}
         editingSemester={editingSemester}
         onSemesterCreated={(newSemester) => {

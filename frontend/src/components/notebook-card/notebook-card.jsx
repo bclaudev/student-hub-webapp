@@ -154,7 +154,7 @@ export default function NotebookCard({ notebook }) {
         }
         navigate(`/notebooks/${notebook.id}`);
       }}
-      className="relative group w-[187px] h-[210px] overflow-hidden flex flex-col items-start px-5 py-6 rounded-3xl bg-slate-50 dark:bg-stone-900 max-w-[187px] cursor-pointer"
+      className="self-start relative group w-[187px] h-[210px] overflow-hidden flex flex-col items-start px-5 py-6 rounded-3xl bg-slate-50 dark:bg-stone-900 max-w-[187px] cursor-pointer"
     >
       <NotebookHeader
         isPinned={isPinned}
